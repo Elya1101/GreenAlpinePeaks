@@ -6,7 +6,6 @@ import java.util.List;
 
 public interface FarmRepository extends JpaRepository<Farm, Long> {
 
-    // Здесь мы можем добавлять методы для работы с базой данных
     List<Farm> findByRegion(String region);
     List<Farm> findByActive(boolean active);
 }

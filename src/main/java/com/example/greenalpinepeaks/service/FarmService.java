@@ -12,12 +12,10 @@ public class FarmService {
 
     private final FarmRepository farmRepository;
 
-    // Конструктор для внедрения зависимости
     public FarmService(FarmRepository farmRepository) {
         this.farmRepository = farmRepository;
     }
 
-    // Метод для получения всех ферм в виде DTO
     public List<FarmResponseDto> getAllFarms() {
         return farmRepository.findAll().stream()
             .map(FarmMapper::toDto)
@@ -27,7 +25,7 @@ public class FarmService {
     public List<FarmResponseDto> getFarmsByRegion(String region) {
         return farmRepository.findByRegion(region).stream()
             .map(FarmMapper::toDto)
-            .toList();  // Используем Stream.toList() вместо collect(Collectors.toList())
+            .toList();
     }
 
     public FarmResponseDto getFarmById(Long id) {

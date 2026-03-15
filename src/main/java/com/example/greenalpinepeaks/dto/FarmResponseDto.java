@@ -6,14 +6,12 @@ public class FarmResponseDto {
     private String name;
     private String region;
 
-    // Конструкторы
     public FarmResponseDto(Long id, String name, String region) {
         this.id = id;
         this.name = name;
         this.region = region;
     }
 
-    // Геттеры
     public Long getId() {
         return id;
     }

@@ -8,20 +8,18 @@ import java.util.List;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@RestController  // Это контроллер, который будет отвечать на HTTP-запросы
+@RestController
 public class FarmController {
 
-    private final FarmService farmService;  // Сервис, который обрабатывает логику
+    private final FarmService farmService;
 
-    // Внедряем зависимость через конструктор
     public FarmController(FarmService farmService) {
         this.farmService = farmService;
     }
 
-    // Получение всех ферм через API в виде DTO
     @GetMapping("/api/farms")
     public List<FarmResponseDto> getAllFarms() {
-        return farmService.getAllFarms();  // Теперь возвращаем список DTO
+        return farmService.getAllFarms();
     }
 
     @GetMapping("/api/farms/filter")

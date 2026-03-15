@@ -1,6 +1,5 @@
-package com.example.greenalpinepeaks.domain;  // Пакет проекта
+package com.example.greenalpinepeaks.domain;
 
-// Импорт аннотаций JPA
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,20 +8,20 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-@Entity  // Говорим Spring, что это сущность
-@Table(name = "farms")  // Имя таблицы в базе данных
+@Entity
+@Table(name = "farms")
 public class Farm {
 
-    @Id  // Это поле будет уникальным идентификатором
-    @GeneratedValue(strategy = GenerationType.IDENTITY)  // Автоматическая генерация ID
-    private Long id;  // Идентификатор фермы
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Column(nullable = false)  // Указываем, что это обязательное поле
-    private String name;  // Название фермы
+    @Column(nullable = false)
+    private String name;
 
-    private String region;  // Регион фермы (необязательное поле)
+    private String region;
 
-    private boolean active;  // Статус активности фермы (неактивная/активная)
+    private boolean active;
 
     public Long getId() {
         return id;

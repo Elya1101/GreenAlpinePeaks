@@ -10,6 +10,16 @@ public class FarmMapper {
     }
 
     public static FarmResponseDto toDto(Farm farm) {
-        return new FarmResponseDto(farm.getId(), farm.getName(), farm.getRegion());
+        String regionName = null;
+
+        if (farm.getRegion() != null) {
+            regionName = farm.getRegion().getName();
+        }
+
+        return new FarmResponseDto(
+            farm.getId(),
+            farm.getName(),
+            regionName
+        );
     }
 }

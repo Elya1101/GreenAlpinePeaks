@@ -10,8 +10,6 @@ import com.example.greenalpinepeaks.mapper.FarmMapper;
 import com.example.greenalpinepeaks.repository.FarmRepository;
 import com.example.greenalpinepeaks.repository.RegionRepository;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -22,19 +20,27 @@ import java.util.Set;
 @Service
 public class FarmService {
 
-    private static final Logger LOG =
-        LoggerFactory.getLogger(FarmService.class);
-
     private final FarmRepository farmRepository;
     private final RegionRepository regionRepository;
 
-    public FarmService(FarmRepository farmRepository, RegionRepository regionRepository) {
+    public FarmService(FarmRepository farmRepository,
+                       RegionRepository regionRepository) {
         this.farmRepository = farmRepository;
         this.regionRepository = regionRepository;
     }
 
+    // ---------------- READ ----------------
+
     public List<FarmResponseDto> getAllFarms() {
         return farmRepository.findAll()
+            .stream()
+            .map(FarmMapper::toDto)
+            .toList();
+    }
+
+    // ❗ N+1 DEMO
+    public List<FarmResponseDto> getAllFarmsWithNPlusOne() {
+        return farmRepository.findAllBy()
             .stream()
             .map(FarmMapper::toDto)
             .toList();
@@ -51,18 +57,13 @@ public class FarmService {
         Farm farm = farmRepository.findById(id)
             .orElseThrow(() -> new ResponseStatusException(
                 HttpStatus.NOT_FOUND,
-                "Ферма с ID " + id + " не найдена"
+                "Farm not found: " + id
             ));
 
         return FarmMapper.toDto(farm);
     }
 
-    public List<FarmResponseDto> getAllFarmsWithNPlusOne() {
-        return farmRepository.findAllBy()
-            .stream()
-            .map(FarmMapper::toDto)
-            .toList();
-    }
+    // ---------------- CREATE ----------------
 
     @Transactional
     public FarmResponseDto createFarm(FarmCreateDto dto) {
@@ -70,50 +71,46 @@ public class FarmService {
         if (farmRepository.existsByName(dto.getName())) {
             throw new ResponseStatusException(
                 HttpStatus.BAD_REQUEST,
-                "Ферма уже существует: " + dto.getName()
+                "Farm already exists: " + dto.getName()
             );
         }
-
-        Region region = getOrCreateRegion(dto.getRegion());
 
         Farm farm = new Farm();
         farm.setName(dto.getName());
         farm.setActive(dto.isActive());
-        farm.setRegion(region);
+        farm.setRegion(getOrCreateRegion(dto.getRegion()));
         farm.setDescription(dto.getDescription());
         farm.setEmail(dto.getEmail());
         farm.setPhone(dto.getPhone());
         farm.setEstablishedYear(dto.getEstablishedYear());
 
-        Farm saved = farmRepository.save(farm);
-
-        return FarmMapper.toDto(saved);
+        return FarmMapper.toDto(farmRepository.save(farm));
     }
 
     @Transactional
     public FarmResponseDto createFarmWithAccommodations(FarmCreateDto dto) {
 
-        Region region = getOrCreateRegion(dto.getRegion());
-
         Farm farm = new Farm();
         farm.setName(dto.getName());
-        farm.setRegion(region);
         farm.setActive(dto.isActive());
+        farm.setRegion(getOrCreateRegion(dto.getRegion()));
 
-        Accommodation acc1 = new Accommodation();
-        acc1.setType("House");
-        acc1.setPrice(100);
-        acc1.setFarm(farm);
+        Accommodation house = new Accommodation();
+        house.setType("House");
+        house.setPrice(100);
+        house.setFarm(farm);
 
-        Accommodation acc2 = new Accommodation();
-        acc2.setType("Tent");
-        acc2.setPrice(50);
-        acc2.setFarm(farm);
+        Accommodation tent = new Accommodation();
+        tent.setType("Tent");
+        tent.setPrice(50);
+        tent.setFarm(farm);
 
-        farm.setAccommodations(Set.of(acc1, acc2));
+        farm.setAccommodations(Set.of(house, tent));
 
         return FarmMapper.toDto(farmRepository.save(farm));
     }
+
+    // ---------------- UPDATE ----------------
 
     @Transactional
     public FarmResponseDto updateFarm(Long id, FarmUpdateDto dto) {
@@ -121,12 +118,11 @@ public class FarmService {
         Farm farm = farmRepository.findById(id)
             .orElseThrow(() -> new ResponseStatusException(
                 HttpStatus.NOT_FOUND,
-                "Ферма не найдена"
+                "Farm not found: " + id
             ));
 
         if (dto.getRegion() != null) {
-            Region region = getOrCreateRegion(dto.getRegion());
-            farm.setRegion(region);
+            farm.setRegion(getOrCreateRegion(dto.getRegion()));
         }
 
         farm.setName(dto.getName());
@@ -136,10 +132,10 @@ public class FarmService {
         farm.setPhone(dto.getPhone());
         farm.setEstablishedYear(dto.getEstablishedYear());
 
-        Farm saved = farmRepository.save(farm);
-
-        return FarmMapper.toDto(saved);
+        return FarmMapper.toDto(farmRepository.save(farm));
     }
+
+    // ---------------- DELETE ----------------
 
     @Transactional
     public void deleteFarm(Long id) {
@@ -147,12 +143,14 @@ public class FarmService {
         if (!farmRepository.existsById(id)) {
             throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND,
-                "Ферма не найдена"
+                "Farm not found: " + id
             );
         }
 
         farmRepository.deleteById(id);
     }
+
+    // ---------------- TRANSACTION DEMO ----------------
 
     public void createFarmWithoutTransaction() {
 
@@ -160,14 +158,10 @@ public class FarmService {
         region.setName("Test");
         regionRepository.save(region);
 
-        LOG.info("Region сохранён, дальше будет ошибка");
-
-        if (region.getName().equals("Test")) {
-            throw new ResponseStatusException(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                "Ошибка при создании фермы!"
-            );
-        }
+        throw new ResponseStatusException(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            "Error without transaction (region will remain)"
+        );
     }
 
     @Transactional
@@ -179,27 +173,26 @@ public class FarmService {
 
         throw new ResponseStatusException(
             HttpStatus.INTERNAL_SERVER_ERROR,
-            "Ошибка внутри транзакции"
+            "Error inside transaction (rollback will happen)"
         );
     }
+
+    // ---------------- PRIVATE ----------------
 
     private Region getOrCreateRegion(String name) {
 
         if (name == null || name.isBlank()) {
             throw new ResponseStatusException(
                 HttpStatus.BAD_REQUEST,
-                "Region не может быть пустым"
+                "Region is required"
             );
         }
 
-        Region region = regionRepository.findByName(name);
-
-        if (region == null) {
-            region = new Region();
-            region.setName(name);
-            region = regionRepository.save(region);
-        }
-
-        return region;
+        return regionRepository.findByName(name)
+            .orElseGet(() -> {
+                Region region = new Region();
+                region.setName(name);
+                return regionRepository.save(region);
+            });
     }
 }

@@ -1,26 +1,9 @@
 package com.example.greenalpinepeaks.dto;
 
-public class FarmResponseDto {
+public record FarmResponseDto(
+    Long id,
+    String name,
+    String region
+) {
 
-    private Long id;
-    private String name;
-    private String region;
-
-    public FarmResponseDto(Long id, String name, String region) {
-        this.id = id;
-        this.name = name;
-        this.region = region;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getRegion() {
-        return region;
-    }
 }

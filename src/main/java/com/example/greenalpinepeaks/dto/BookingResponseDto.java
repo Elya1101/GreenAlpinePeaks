@@ -6,6 +6,8 @@ public record BookingResponseDto(
     Long id,
     LocalDate date,
     String userName,
+    String accommodationType,
     String farmName
 ) {
+
 }

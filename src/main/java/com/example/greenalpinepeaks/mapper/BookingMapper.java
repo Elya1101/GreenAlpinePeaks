@@ -8,7 +8,7 @@ import java.util.List;
 public final class BookingMapper {
 
     private BookingMapper() {
-        // utility class
+
     }
 
     public static BookingResponseDto toDto(Booking booking) {
@@ -20,14 +20,13 @@ public final class BookingMapper {
             booking.getId(),
             booking.getDate(),
             booking.getUser().getName(),
-            booking.getFarm().getName()
+            booking.getAccommodation().getType().name(),
+            booking.getAccommodation().getFarm().getName()
         );
     }
 
     public static List<BookingResponseDto> toDtoList(List<Booking> bookings) {
-        if (bookings == null) {
-            return List.of();
-        }
+        if (bookings == null) return List.of();
 
         return bookings.stream()
             .map(BookingMapper::toDto)

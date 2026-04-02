@@ -35,9 +35,14 @@ public class Farm {
     private String name;
 
     private boolean active;
+
     private String description;
+
     private String email;
+
+    @Column(length = 30)
     private String phone;
+
     private Integer establishedYear;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -59,7 +64,4 @@ public class Farm {
         inverseJoinColumns = @JoinColumn(name = "activity_id")
     )
     private Set<Activity> activities;
-
-    @OneToMany(mappedBy = "farm", fetch = FetchType.LAZY)
-    private Set<Booking> bookings;
 }

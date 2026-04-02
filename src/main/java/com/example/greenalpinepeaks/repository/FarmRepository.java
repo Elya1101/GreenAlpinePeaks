@@ -11,13 +11,11 @@ public interface FarmRepository extends JpaRepository<Farm, Long> {
 
     List<Farm> findByRegionName(String name);
 
-    // ❗ GOOD (решение N+1)
     @Override
-    @EntityGraph(attributePaths = {"region", "activities", "accommodations", "bookings"})
+    @EntityGraph(attributePaths = {"region", "activities", "accommodations"})
     @NonNull
     List<Farm> findAll();
 
-    // ❗ BAD (для демонстрации N+1)
     List<Farm> findAllBy();
 
     boolean existsByName(String name);

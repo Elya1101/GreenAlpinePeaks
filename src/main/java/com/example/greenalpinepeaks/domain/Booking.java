@@ -8,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Column;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -26,6 +27,7 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private LocalDate date;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -33,6 +35,6 @@ public class Booking {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "farm_id", nullable = false)
-    private Farm farm;
+    @JoinColumn(name = "accommodation_id", nullable = false)
+    private Accommodation accommodation;
 }

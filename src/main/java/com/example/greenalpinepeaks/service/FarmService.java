@@ -1,6 +1,7 @@
 package com.example.greenalpinepeaks.service;
 
 import com.example.greenalpinepeaks.domain.Accommodation;
+import com.example.greenalpinepeaks.domain.AccommodationType;
 import com.example.greenalpinepeaks.domain.Farm;
 import com.example.greenalpinepeaks.domain.Region;
 import com.example.greenalpinepeaks.dto.FarmCreateDto;
@@ -29,8 +30,6 @@ public class FarmService {
         this.regionRepository = regionRepository;
     }
 
-    // ---------------- READ ----------------
-
     public List<FarmResponseDto> getAllFarms() {
         return farmRepository.findAll()
             .stream()
@@ -38,7 +37,6 @@ public class FarmService {
             .toList();
     }
 
-    // ❗ N+1 DEMO
     public List<FarmResponseDto> getAllFarmsWithNPlusOne() {
         return farmRepository.findAllBy()
             .stream()
@@ -62,8 +60,6 @@ public class FarmService {
 
         return FarmMapper.toDto(farm);
     }
-
-    // ---------------- CREATE ----------------
 
     @Transactional
     public FarmResponseDto createFarm(FarmCreateDto dto) {
@@ -96,12 +92,12 @@ public class FarmService {
         farm.setRegion(getOrCreateRegion(dto.getRegion()));
 
         Accommodation house = new Accommodation();
-        house.setType("House");
+        house.setType(AccommodationType.HOUSE);
         house.setPrice(100);
         house.setFarm(farm);
 
         Accommodation tent = new Accommodation();
-        tent.setType("Tent");
+        tent.setType(AccommodationType.TENT);
         tent.setPrice(50);
         tent.setFarm(farm);
 
@@ -109,8 +105,6 @@ public class FarmService {
 
         return FarmMapper.toDto(farmRepository.save(farm));
     }
-
-    // ---------------- UPDATE ----------------
 
     @Transactional
     public FarmResponseDto updateFarm(Long id, FarmUpdateDto dto) {
@@ -135,8 +129,6 @@ public class FarmService {
         return FarmMapper.toDto(farmRepository.save(farm));
     }
 
-    // ---------------- DELETE ----------------
-
     @Transactional
     public void deleteFarm(Long id) {
 
@@ -149,8 +141,6 @@ public class FarmService {
 
         farmRepository.deleteById(id);
     }
-
-    // ---------------- TRANSACTION DEMO ----------------
 
     public void createFarmWithoutTransaction() {
 
@@ -176,8 +166,6 @@ public class FarmService {
             "Error inside transaction (rollback will happen)"
         );
     }
-
-    // ---------------- PRIVATE ----------------
 
     private Region getOrCreateRegion(String name) {
 

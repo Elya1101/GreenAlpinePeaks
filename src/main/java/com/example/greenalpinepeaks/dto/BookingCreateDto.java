@@ -15,7 +15,7 @@ public class BookingCreateDto {
     private Long userId;
 
     @NotNull
-    private Long farmId;
+    private Long accommodationId;
 
     @NotNull
     @FutureOrPresent

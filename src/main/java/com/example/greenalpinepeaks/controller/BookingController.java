@@ -29,17 +29,18 @@ public class BookingController {
     public ResponseEntity<BookingResponseDto> create(
         @Valid @RequestBody BookingCreateDto dto
     ) {
-        return ResponseEntity.status(201).body(bookingService.create(dto));
+        BookingResponseDto response = bookingService.create(dto);
+        return ResponseEntity.status(201).body(response);
     }
 
     @GetMapping
-    public List<BookingResponseDto> getAll() {
-        return bookingService.getAll();
+    public ResponseEntity<List<BookingResponseDto>> getAll() {
+        return ResponseEntity.ok(bookingService.getAll());
     }
 
     @GetMapping("/{id}")
-    public BookingResponseDto getById(@PathVariable Long id) {
-        return bookingService.getById(id);
+    public ResponseEntity<BookingResponseDto> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(bookingService.getById(id));
     }
 
     @DeleteMapping("/{id}")

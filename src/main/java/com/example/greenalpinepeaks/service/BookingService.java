@@ -1,17 +1,17 @@
 package com.example.greenalpinepeaks.service;
 
+import com.example.greenalpinepeaks.domain.Accommodation;
 import com.example.greenalpinepeaks.domain.Booking;
-import com.example.greenalpinepeaks.domain.Farm;
 import com.example.greenalpinepeaks.domain.User;
 import com.example.greenalpinepeaks.dto.BookingCreateDto;
 import com.example.greenalpinepeaks.dto.BookingResponseDto;
 import com.example.greenalpinepeaks.mapper.BookingMapper;
+import com.example.greenalpinepeaks.repository.AccommodationRepository;
 import com.example.greenalpinepeaks.repository.BookingRepository;
-import com.example.greenalpinepeaks.repository.FarmRepository;
 import com.example.greenalpinepeaks.repository.UserRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.stereotype.Service;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -21,16 +21,16 @@ public class BookingService {
 
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
-    private final FarmRepository farmRepository;
+    private final AccommodationRepository accommodationRepository;
 
     public BookingService(
         BookingRepository bookingRepository,
         UserRepository userRepository,
-        FarmRepository farmRepository
+        AccommodationRepository accommodationRepository
     ) {
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
-        this.farmRepository = farmRepository;
+        this.accommodationRepository = accommodationRepository;
     }
 
     public BookingResponseDto getById(Long id) {
@@ -52,40 +52,29 @@ public class BookingService {
                 "User not found"
             ));
 
-        Farm farm = farmRepository.findById(dto.getFarmId())
+        Accommodation acc = accommodationRepository.findById(dto.getAccommodationId())
             .orElseThrow(() -> new ResponseStatusException(
                 HttpStatus.NOT_FOUND,
-                "Farm not found"
+                "Accommodation not found"
             ));
 
         Booking booking = new Booking();
         booking.setDate(dto.getDate());
         booking.setUser(user);
-        booking.setFarm(farm);
+        booking.setAccommodation(acc);
 
-        Booking saved = bookingRepository.save(booking);
-
-        return BookingMapper.toDto(saved);
+        return BookingMapper.toDto(bookingRepository.save(booking));
     }
 
     public List<BookingResponseDto> getAll() {
-        return bookingRepository.findAll()
-            .stream()
-            .map(BookingMapper::toDto)
-            .toList();
+        return BookingMapper.toDtoList(bookingRepository.findAll());
     }
 
     @Transactional
     public void delete(Long id) {
         if (!bookingRepository.existsById(id)) {
-            throw new ResponseStatusException(
-                HttpStatus.NOT_FOUND,
-                "Booking not found"
-            );
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-
         bookingRepository.deleteById(id);
     }
-
 }
-

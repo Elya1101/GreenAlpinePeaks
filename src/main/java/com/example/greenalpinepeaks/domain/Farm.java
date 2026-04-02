@@ -40,7 +40,7 @@ public class Farm {
 
     private String email;
 
-    @Column(length = 30)
+    @Column(length = 20)
     private String phone;
 
     private Integer establishedYear;

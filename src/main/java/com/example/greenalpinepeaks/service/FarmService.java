@@ -67,44 +67,13 @@ public class FarmService {
 
     @Transactional
     public FarmResponseDto createFarm(FarmCreateDto dto) {
-
-        if (farmRepository.existsByName(dto.getName())) {
-            throw new ResponseStatusException(
-                HttpStatus.BAD_REQUEST,
-                "Farm already exists: " + dto.getName()
-            );
-        }
-
-        Farm farm = new Farm();
-        farm.setName(dto.getName());
-        farm.setActive(dto.isActive());
-        farm.setRegion(getOrCreateRegion(dto.getRegion()));
-        farm.setDescription(dto.getDescription());
-        farm.setEmail(dto.getEmail());
-        farm.setPhone(dto.getPhone());
-        farm.setEstablishedYear(dto.getEstablishedYear());
-
+        Farm farm = buildFarm(dto);
         return FarmMapper.toDto(farmRepository.save(farm));
     }
 
     @Transactional
     public FarmResponseDto createFarmWithAccommodations(FarmCreateDto dto) {
-
-        if (farmRepository.existsByName(dto.getName())) {
-            throw new ResponseStatusException(
-                HttpStatus.BAD_REQUEST,
-                "Farm already exists: " + dto.getName()
-            );
-        }
-
-        Farm farm = new Farm();
-        farm.setName(dto.getName());
-        farm.setActive(dto.isActive());
-        farm.setRegion(getOrCreateRegion(dto.getRegion()));
-        farm.setDescription(dto.getDescription());
-        farm.setEmail(dto.getEmail());
-        farm.setPhone(dto.getPhone());
-        farm.setEstablishedYear(dto.getEstablishedYear());
+        Farm farm = buildFarm(dto);
 
         Accommodation house = new Accommodation();
         house.setType(AccommodationType.HOUSE);
@@ -194,6 +163,27 @@ public class FarmService {
         activity.getFarms().add(farm);
 
         farmRepository.save(farm);
+    }
+
+    private Farm buildFarm(FarmCreateDto dto) {
+
+        if (farmRepository.existsByName(dto.getName())) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Farm already exists: " + dto.getName()
+            );
+        }
+
+        Farm farm = new Farm();
+        farm.setName(dto.getName());
+        farm.setActive(dto.isActive());
+        farm.setRegion(getOrCreateRegion(dto.getRegion()));
+        farm.setDescription(dto.getDescription());
+        farm.setEmail(dto.getEmail());
+        farm.setPhone(dto.getPhone());
+        farm.setEstablishedYear(dto.getEstablishedYear());
+
+        return farm;
     }
 
     private Region getOrCreateRegion(String name) {

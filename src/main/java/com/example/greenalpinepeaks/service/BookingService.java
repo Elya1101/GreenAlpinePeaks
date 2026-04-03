@@ -1,5 +1,6 @@
 package com.example.greenalpinepeaks.service;
 
+import com.example.greenalpinepeaks.dto.BookingUpdateDto;
 import com.example.greenalpinepeaks.domain.Accommodation;
 import com.example.greenalpinepeaks.domain.Booking;
 import com.example.greenalpinepeaks.domain.User;
@@ -9,7 +10,7 @@ import com.example.greenalpinepeaks.mapper.BookingMapper;
 import com.example.greenalpinepeaks.repository.AccommodationRepository;
 import com.example.greenalpinepeaks.repository.BookingRepository;
 import com.example.greenalpinepeaks.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -41,6 +42,17 @@ public class BookingService {
             ));
 
         return BookingMapper.toDto(booking);
+    }
+
+    @Transactional
+    public BookingResponseDto update(Long id, BookingUpdateDto dto) {
+
+        Booking booking = bookingRepository.findById(id)
+            .orElseThrow();
+
+        booking.setDate(dto.getDate());
+
+        return BookingMapper.toDto(bookingRepository.save(booking));
     }
 
     @Transactional

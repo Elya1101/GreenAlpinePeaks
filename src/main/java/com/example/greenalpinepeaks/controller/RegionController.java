@@ -1,7 +1,7 @@
 package com.example.greenalpinepeaks.controller;
 
 import com.example.greenalpinepeaks.domain.Region;
-import com.example.greenalpinepeaks.repository.RegionRepository;
+import com.example.greenalpinepeaks.service.RegionService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,25 +10,34 @@ import java.util.List;
 @RequestMapping("/api/regions")
 public class RegionController {
 
-    private final RegionRepository regionRepository;
+    private final RegionService regionService;
 
-    public RegionController(RegionRepository regionRepository) {
-        this.regionRepository = regionRepository;
+    public RegionController(RegionService regionService) {
+        this.regionService = regionService;
     }
 
     @GetMapping
     public List<Region> getAll() {
-        return regionRepository.findAll();
+        return regionService.getAll();
     }
 
     @PostMapping
     public Region create(@RequestBody Region region) {
-        return regionRepository.save(region);
+        return regionService.create(region);
     }
 
     @GetMapping("/{id}")
     public Region getById(@PathVariable Long id) {
-        return regionRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Region not found"));
+        return regionService.getById(id);
+    }
+
+    @PutMapping("/{id}")
+    public Region update(@PathVariable Long id, @RequestBody Region region) {
+        return regionService.update(id, region);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        regionService.delete(id);
     }
 }

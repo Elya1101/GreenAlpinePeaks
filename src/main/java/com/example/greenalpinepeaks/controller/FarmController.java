@@ -57,6 +57,14 @@ public class FarmController {
         return farmService.updateFarm(id, dto);
     }
 
+    @PostMapping("/{farmId}/activities/{activityId}")
+    public void addActivity(
+        @PathVariable Long farmId,
+        @PathVariable Long activityId
+    ) {
+        farmService.addActivityToFarm(farmId, activityId);
+    }
+
     @DeleteMapping("/{id}")
     public void deleteFarm(@PathVariable Long id) {
         farmService.deleteFarm(id);
@@ -70,5 +78,10 @@ public class FarmController {
     @PostMapping("/test/with-transaction")
     public void testWithTransaction() {
         farmService.createFarmWithTransaction();
+    }
+
+    @PostMapping("/with-accommodations")
+    public FarmResponseDto createWithAccommodations(@RequestBody FarmCreateDto dto) {
+        return farmService.createFarmWithAccommodations(dto);
     }
 }

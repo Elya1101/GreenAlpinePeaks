@@ -1,5 +1,6 @@
 package com.example.greenalpinepeaks.controller;
 
+import com.example.greenalpinepeaks.dto.BookingUpdateDto;
 import com.example.greenalpinepeaks.dto.BookingCreateDto;
 import com.example.greenalpinepeaks.dto.BookingResponseDto;
 import com.example.greenalpinepeaks.service.BookingService;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PutMapping;
 
 import java.util.List;
 
@@ -41,6 +43,14 @@ public class BookingController {
     @GetMapping("/{id}")
     public ResponseEntity<BookingResponseDto> getById(@PathVariable Long id) {
         return ResponseEntity.ok(bookingService.getById(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<BookingResponseDto> update(
+        @PathVariable Long id,
+        @RequestBody BookingUpdateDto dto
+    ) {
+        return ResponseEntity.ok(bookingService.update(id, dto));
     }
 
     @DeleteMapping("/{id}")

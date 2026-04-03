@@ -13,6 +13,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.JoinTable;
+import java.util.HashSet;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -55,7 +56,12 @@ public class Farm {
         fetch = FetchType.LAZY,
         orphanRemoval = true
     )
-    private Set<Accommodation> accommodations;
+    private Set<Accommodation> accommodations = new HashSet<>();
+
+    public void addAccommodation(Accommodation acc) {
+        accommodations.add(acc);
+        acc.setFarm(this);
+    }
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(

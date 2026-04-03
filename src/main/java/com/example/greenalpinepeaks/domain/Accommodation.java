@@ -1,17 +1,6 @@
 package com.example.greenalpinepeaks.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Column;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.EnumType;
+import jakarta.persistence.*;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -40,6 +29,8 @@ public class Accommodation {
     @JoinColumn(name = "farm_id", nullable = false)
     private Farm farm;
 
-    @OneToMany(mappedBy = "accommodation", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "accommodation",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true)
     private List<Booking> bookings;
 }

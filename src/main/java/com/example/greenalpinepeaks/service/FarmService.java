@@ -10,24 +10,28 @@ import com.example.greenalpinepeaks.dto.FarmUpdateDto;
 import com.example.greenalpinepeaks.mapper.FarmMapper;
 import com.example.greenalpinepeaks.repository.FarmRepository;
 import com.example.greenalpinepeaks.repository.RegionRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import com.example.greenalpinepeaks.domain.Activity;
+import com.example.greenalpinepeaks.repository.ActivityRepository;
 
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class FarmService {
 
+    private final ActivityRepository activityRepository;
     private final FarmRepository farmRepository;
     private final RegionRepository regionRepository;
 
     public FarmService(FarmRepository farmRepository,
-                       RegionRepository regionRepository) {
+                       RegionRepository regionRepository,
+                       ActivityRepository activityRepository) {
         this.farmRepository = farmRepository;
         this.regionRepository = regionRepository;
+        this.activityRepository = activityRepository;
     }
 
     public List<FarmResponseDto> getAllFarms() {
@@ -86,22 +90,32 @@ public class FarmService {
     @Transactional
     public FarmResponseDto createFarmWithAccommodations(FarmCreateDto dto) {
 
+        if (farmRepository.existsByName(dto.getName())) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Farm already exists: " + dto.getName()
+            );
+        }
+
         Farm farm = new Farm();
         farm.setName(dto.getName());
         farm.setActive(dto.isActive());
         farm.setRegion(getOrCreateRegion(dto.getRegion()));
+        farm.setDescription(dto.getDescription());
+        farm.setEmail(dto.getEmail());
+        farm.setPhone(dto.getPhone());
+        farm.setEstablishedYear(dto.getEstablishedYear());
 
         Accommodation house = new Accommodation();
         house.setType(AccommodationType.HOUSE);
         house.setPrice(100);
-        house.setFarm(farm);
 
         Accommodation tent = new Accommodation();
         tent.setType(AccommodationType.TENT);
         tent.setPrice(50);
-        tent.setFarm(farm);
 
-        farm.setAccommodations(Set.of(house, tent));
+        farm.addAccommodation(house);
+        farm.addAccommodation(tent);
 
         return FarmMapper.toDto(farmRepository.save(farm));
     }
@@ -165,6 +179,21 @@ public class FarmService {
             HttpStatus.INTERNAL_SERVER_ERROR,
             "Error inside transaction (rollback will happen)"
         );
+    }
+
+    @Transactional
+    public void addActivityToFarm(Long farmId, Long activityId) {
+
+        Farm farm = farmRepository.findById(farmId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        Activity activity = activityRepository.findById(activityId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        farm.getActivities().add(activity);
+        activity.getFarms().add(farm);
+
+        farmRepository.save(farm);
     }
 
     private Region getOrCreateRegion(String name) {

@@ -1,9 +1,11 @@
 package com.example.greenalpinepeaks.service;
 
 import com.example.greenalpinepeaks.domain.Region;
+import com.example.greenalpinepeaks.dto.RegionCreateDto;
 import com.example.greenalpinepeaks.dto.RegionResponseDto;
 import com.example.greenalpinepeaks.mapper.RegionMapper;
 import com.example.greenalpinepeaks.repository.RegionRepository;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -26,7 +28,10 @@ public class RegionService {
             .toList();
     }
 
-    public RegionResponseDto create(Region region) {
+    public RegionResponseDto create(RegionCreateDto dto) {
+        Region region = new Region();
+        region.setName(dto.getName());
+
         return RegionMapper.toDto(regionRepository.save(region));
     }
 
@@ -37,11 +42,11 @@ public class RegionService {
         return RegionMapper.toDto(region);
     }
 
-    public RegionResponseDto update(Long id, Region updated) {
+    public RegionResponseDto update(Long id, RegionCreateDto dto) {
         Region region = regionRepository.findById(id)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        region.setName(updated.getName());
+        region.setName(dto.getName());
 
         return RegionMapper.toDto(regionRepository.save(region));
     }

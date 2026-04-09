@@ -95,8 +95,4 @@ public class AccommodationService {
 
         accommodationRepository.delete(acc);
     }
-
-    public List<Accommodation> findAllByFarmId(Long farmId) {
-        return accommodationRepository.findByFarmId(farmId);
-    }
 }

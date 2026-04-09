@@ -16,12 +16,28 @@ public final class BookingMapper {
             return null;
         }
 
+        String userName = booking.getUser() != null
+            ? booking.getUser().getName()
+            : null;
+
+        String accommodationType = booking.getAccommodationType();
+        String farmName = booking.getFarmName();
+
+        if (accommodationType == null && booking.getAccommodation() != null) {
+            accommodationType = booking.getAccommodation().getType().name();
+        }
+
+        if (farmName == null && booking.getAccommodation() != null
+            && booking.getAccommodation().getFarm() != null) {
+            farmName = booking.getAccommodation().getFarm().getName();
+        }
+
         return new BookingResponseDto(
             booking.getId(),
             booking.getDate(),
-            booking.getUser().getName(),
-            booking.getAccommodation().getType().name(),
-            booking.getAccommodation().getFarm().getName()
+            userName,
+            accommodationType,
+            farmName
         );
     }
 

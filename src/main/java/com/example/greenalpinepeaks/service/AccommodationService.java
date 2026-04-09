@@ -1,11 +1,13 @@
 package com.example.greenalpinepeaks.service;
 
 import com.example.greenalpinepeaks.domain.Accommodation;
+import com.example.greenalpinepeaks.domain.Booking;
 import com.example.greenalpinepeaks.domain.Farm;
 import com.example.greenalpinepeaks.dto.AccommodationCreateDto;
 import com.example.greenalpinepeaks.dto.AccommodationResponseDto;
 import com.example.greenalpinepeaks.mapper.AccommodationMapper;
 import com.example.greenalpinepeaks.repository.AccommodationRepository;
+import com.example.greenalpinepeaks.repository.BookingRepository;
 import com.example.greenalpinepeaks.repository.FarmRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.http.HttpStatus;
@@ -19,13 +21,16 @@ public class AccommodationService {
 
     private final AccommodationRepository accommodationRepository;
     private final FarmRepository farmRepository;
+    private final BookingRepository bookingRepository;
 
     public AccommodationService(
         AccommodationRepository accommodationRepository,
-        FarmRepository farmRepository
+        FarmRepository farmRepository,
+        BookingRepository bookingRepository
     ) {
         this.accommodationRepository = accommodationRepository;
         this.farmRepository = farmRepository;
+        this.bookingRepository = bookingRepository;
     }
 
     @Transactional
@@ -79,9 +84,19 @@ public class AccommodationService {
 
     @Transactional
     public void delete(Long id) {
-        if (!accommodationRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-        accommodationRepository.deleteById(id);
+
+        Accommodation acc = accommodationRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        List<Booking> bookings = bookingRepository.findByAccommodationId(id);
+
+        bookings.forEach(b -> b.setAccommodation(null));
+        bookingRepository.saveAll(bookings);
+
+        accommodationRepository.delete(acc);
+    }
+
+    public List<Accommodation> findAllByFarmId(Long farmId) {
+        return accommodationRepository.findByFarmId(farmId);
     }
 }

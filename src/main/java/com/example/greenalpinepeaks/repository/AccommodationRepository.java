@@ -19,4 +19,6 @@ public interface AccommodationRepository extends JpaRepository<Accommodation, Lo
     @EntityGraph(attributePaths = {"farm"})
     @NonNull
     Optional<Accommodation> findById(@NonNull Long id);
+
+    List<Accommodation> findByFarmId(Long farmId);
 }

@@ -11,13 +11,13 @@ import java.time.LocalDate;
 @Setter
 public class BookingCreateDto {
 
-    @NotNull
+    @NotNull(message = "UserId is required")
     private Long userId;
 
-    @NotNull
+    @NotNull(message = "AccommodationId is required")
     private Long accommodationId;
 
-    @NotNull
-    @FutureOrPresent
+    @NotNull(message = "Date is required")
+    @FutureOrPresent(message = "Date must be present or future")
     private LocalDate date;
 }

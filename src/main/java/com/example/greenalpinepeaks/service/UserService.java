@@ -52,6 +52,13 @@ public class UserService {
         return UserMapper.toDto(user);
     }
 
+    public List<UserResponseDto> findByEmail(String email) {
+        return userRepository.findByEmailContainingIgnoreCase(email)
+            .stream()
+            .map(UserMapper::toDto)
+            .toList();
+    }
+
     @Transactional
     public UserResponseDto update(Long id, UserCreateDto dto) {
 

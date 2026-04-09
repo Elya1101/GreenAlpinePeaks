@@ -48,7 +48,10 @@ public class BookingService {
     public BookingResponseDto update(Long id, BookingUpdateDto dto) {
 
         Booking booking = bookingRepository.findById(id)
-            .orElseThrow();
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Booking not found"
+            ));
 
         booking.setDate(dto.getDate());
 
@@ -75,11 +78,16 @@ public class BookingService {
         booking.setUser(user);
         booking.setAccommodation(acc);
 
-        return BookingMapper.toDto(bookingRepository.save(booking));
+        booking.snapshotAccommodationData();
+
+        Booking savedBooking = bookingRepository.save(booking);
+
+        return BookingMapper.toDto(savedBooking);
     }
 
     public List<BookingResponseDto> getAll() {
-        return BookingMapper.toDtoList(bookingRepository.findAll());
+        List<Booking> bookings = bookingRepository.findAll();
+        return BookingMapper.toDtoList(bookings);
     }
 
     @Transactional

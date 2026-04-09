@@ -1,5 +1,6 @@
 package com.example.greenalpinepeaks.controller;
 
+import com.example.greenalpinepeaks.dto.ActivityResponseDto;
 import com.example.greenalpinepeaks.dto.FarmResponseDto;
 import com.example.greenalpinepeaks.dto.FarmCreateDto;
 import com.example.greenalpinepeaks.dto.FarmUpdateDto;
@@ -40,6 +41,12 @@ public class FarmController {
     @GetMapping("/{id}")
     public FarmResponseDto getFarmById(@PathVariable Long id) {
         return farmService.getFarmById(id);
+    }
+
+    // НОВЫЙ МЕТОД: получить активности конкретной фермы
+    @GetMapping("/{id}/activities")
+    public List<ActivityResponseDto> getFarmActivities(@PathVariable Long id) {
+        return farmService.getFarmActivities(id);
     }
 
     @GetMapping("/nplusone")

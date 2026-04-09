@@ -10,7 +10,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Column;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.EnumType;
 
@@ -41,8 +40,6 @@ public class Accommodation {
     @JoinColumn(name = "farm_id", nullable = false)
     private Farm farm;
 
-    @OneToMany(mappedBy = "accommodation",
-        cascade = CascadeType.ALL,
-        orphanRemoval = true)
+    @OneToMany(mappedBy = "accommodation", fetch = FetchType.LAZY)
     private List<Booking> bookings;
 }

@@ -34,7 +34,22 @@ public class Booking {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "accommodation_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "accommodation_id", nullable = true)
     private Accommodation accommodation;
+
+    @Column(name = "accommodation_type")
+    private String accommodationType;
+
+    @Column(name = "farm_name")
+    private String farmName;
+
+    public void snapshotAccommodationData() {
+        if (this.accommodation != null) {
+            this.accommodationType = this.accommodation.getType().name();
+            if (this.accommodation.getFarm() != null) {
+                this.farmName = this.accommodation.getFarm().getName();
+            }
+        }
+    }
 }

@@ -11,20 +11,14 @@ import java.util.Optional;
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Override
-    @EntityGraph(attributePaths = {
-        "user",
-        "accommodation",
-        "accommodation.farm"
-    })
+    @EntityGraph(attributePaths = {"user", "accommodation", "accommodation.farm"})
     @NonNull
     List<Booking> findAll();
 
     @Override
-    @EntityGraph(attributePaths = {
-        "user",
-        "accommodation",
-        "accommodation.farm"
-    })
+    @EntityGraph(attributePaths = {"user", "accommodation", "accommodation.farm"})
     @NonNull
     Optional<Booking> findById(@NonNull Long id);
+
+    List<Booking> findByAccommodationId(Long accommodationId);
 }

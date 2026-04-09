@@ -35,6 +35,13 @@ public class ActivityService {
             .toList();
     }
 
+    public List<ActivityResponseDto> findByName(String name) {
+        return activityRepository.findByNameContainingIgnoreCase(name)
+            .stream()
+            .map(ActivityMapper::toDto)
+            .toList();
+    }
+
     public ActivityResponseDto getById(Long id) {
         Activity activity = activityRepository.findById(id)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));

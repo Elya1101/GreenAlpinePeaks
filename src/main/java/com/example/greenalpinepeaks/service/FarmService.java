@@ -3,6 +3,7 @@ package com.example.greenalpinepeaks.service;
 import com.example.greenalpinepeaks.domain.Activity;
 import com.example.greenalpinepeaks.domain.Accommodation;
 import com.example.greenalpinepeaks.domain.AccommodationType;
+import com.example.greenalpinepeaks.domain.Booking;
 import com.example.greenalpinepeaks.domain.Farm;
 import com.example.greenalpinepeaks.domain.Region;
 
@@ -99,6 +100,20 @@ public class FarmService {
     }
 
     @Transactional
+    public void removeActivityFromFarm(Long farmId, Long activityId) {
+        Farm farm = farmRepository.findById(farmId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, FARM_NOT_FOUND + farmId));
+
+        Activity activity = activityRepository.findById(activityId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Activity not found: " + activityId));
+
+        farm.getActivities().remove(activity);
+        activity.getFarms().remove(farm);
+
+        farmRepository.save(farm);
+    }
+
+    @Transactional
     public FarmResponseDto createFarm(FarmCreateDto dto) {
         Farm farm = buildFarm(dto);
         return FarmMapper.toDto(farmRepository.save(farm));
@@ -172,17 +187,23 @@ public class FarmService {
         List<Accommodation> accommodations = accommodationRepository.findByFarmId(id);
 
         for (Accommodation accommodation : accommodations) {
-            List<com.example.greenalpinepeaks.domain.Booking> bookings =
-                bookingRepository.findByAccommodationId(accommodation.getId());
+            List<Booking> bookings = bookingRepository.findByAccommodationId(accommodation.getId());
 
-            for (com.example.greenalpinepeaks.domain.Booking booking : bookings) {
-                booking.setAccommodation(null);
-                bookingRepository.save(booking);
+            if (!bookings.isEmpty()) {
+                throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    String.format("Cannot delete farm '%s' because it has %d active booking(s) for accommodation '%s'",
+                        farm.getName(),
+                        bookings.size(),
+                        accommodation.getType().name())
+                );
             }
         }
 
         farm.getActivities().clear();
+
         farm.getAccommodations().clear();
+
         farmRepository.delete(farm);
     }
 

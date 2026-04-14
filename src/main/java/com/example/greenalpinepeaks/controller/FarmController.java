@@ -43,7 +43,6 @@ public class FarmController {
         return farmService.getFarmById(id);
     }
 
-    // НОВЫЙ МЕТОД: получить активности конкретной фермы
     @GetMapping("/{id}/activities")
     public List<ActivityResponseDto> getFarmActivities(@PathVariable Long id) {
         return farmService.getFarmActivities(id);
@@ -52,6 +51,14 @@ public class FarmController {
     @GetMapping("/nplusone")
     public List<FarmResponseDto> getFarmsWithNPlusOne() {
         return farmService.getAllFarmsWithNPlusOne();
+    }
+
+    @DeleteMapping("/{farmId}/activities/{activityId}")
+    public void removeActivityFromFarm(
+        @PathVariable Long farmId,
+        @PathVariable Long activityId
+    ) {
+        farmService.removeActivityFromFarm(farmId, activityId);
     }
 
     @PostMapping

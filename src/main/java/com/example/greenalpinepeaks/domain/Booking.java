@@ -38,18 +38,4 @@ public class Booking {
     @JoinColumn(name = "accommodation_id")
     private Accommodation accommodation;
 
-    @Column(name = "accommodation_type")
-    private String accommodationType;
-
-    @Column(name = "farm_name")
-    private String farmName;
-
-    public void snapshotAccommodationData() {
-        if (this.accommodation != null) {
-            this.accommodationType = this.accommodation.getType().name();
-            if (this.accommodation.getFarm() != null) {
-                this.farmName = this.accommodation.getFarm().getName();
-            }
-        }
-    }
 }

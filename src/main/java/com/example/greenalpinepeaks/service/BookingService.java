@@ -78,8 +78,6 @@ public class BookingService {
         booking.setUser(user);
         booking.setAccommodation(acc);
 
-        booking.snapshotAccommodationData();
-
         Booking savedBooking = bookingRepository.save(booking);
 
         return BookingMapper.toDto(savedBooking);

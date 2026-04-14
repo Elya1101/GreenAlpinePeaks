@@ -53,14 +53,6 @@ public class FarmController {
         return farmService.getAllFarmsWithNPlusOne();
     }
 
-    @DeleteMapping("/{farmId}/activities/{activityId}")
-    public void removeActivityFromFarm(
-        @PathVariable Long farmId,
-        @PathVariable Long activityId
-    ) {
-        farmService.removeActivityFromFarm(farmId, activityId);
-    }
-
     @PostMapping
     public FarmResponseDto createFarm(@RequestBody FarmCreateDto dto) {
         return farmService.createFarm(dto);
@@ -77,6 +69,14 @@ public class FarmController {
         @PathVariable Long activityId
     ) {
         farmService.addActivityToFarm(farmId, activityId);
+    }
+
+    @DeleteMapping("/{farmId}/activities/{activityId}")
+    public void removeActivityFromFarm(
+        @PathVariable Long farmId,
+        @PathVariable Long activityId
+    ) {
+        farmService.removeActivityFromFarm(farmId, activityId);
     }
 
     @DeleteMapping("/{id}")

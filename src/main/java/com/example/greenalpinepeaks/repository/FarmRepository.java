@@ -13,12 +13,14 @@ public interface FarmRepository extends JpaRepository<Farm, Long> {
     List<Farm> findByRegionName(String name);
 
     @Override
-    @EntityGraph(attributePaths = {"region", "activities", "accommodations"})
+    @EntityGraph(attributePaths = {"region", "activities", "accommodations",
+        "accommodations.bookings", "accommodations.bookings.user"})
     @NonNull
     List<Farm> findAll();
 
     @Override
-    @EntityGraph(attributePaths = {"region", "activities", "accommodations"})
+    @EntityGraph(attributePaths = {"region", "activities", "accommodations",
+        "accommodations.bookings", "accommodations.bookings.user"})
     @NonNull
     Optional<Farm> findById(@NonNull Long id);
 

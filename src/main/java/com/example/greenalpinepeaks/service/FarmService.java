@@ -100,20 +100,6 @@ public class FarmService {
     }
 
     @Transactional
-    public void removeActivityFromFarm(Long farmId, Long activityId) {
-        Farm farm = farmRepository.findById(farmId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, FARM_NOT_FOUND + farmId));
-
-        Activity activity = activityRepository.findById(activityId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Activity not found: " + activityId));
-
-        farm.getActivities().remove(activity);
-        activity.getFarms().remove(farm);
-
-        farmRepository.save(farm);
-    }
-
-    @Transactional
     public FarmResponseDto createFarm(FarmCreateDto dto) {
         Farm farm = buildFarm(dto);
         return FarmMapper.toDto(farmRepository.save(farm));
@@ -201,9 +187,7 @@ public class FarmService {
         }
 
         farm.getActivities().clear();
-
         farm.getAccommodations().clear();
-
         farmRepository.delete(farm);
     }
 
@@ -241,6 +225,20 @@ public class FarmService {
 
         farm.getActivities().add(activity);
         activity.getFarms().add(farm);
+
+        farmRepository.save(farm);
+    }
+
+    @Transactional
+    public void removeActivityFromFarm(Long farmId, Long activityId) {
+        Farm farm = farmRepository.findById(farmId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, FARM_NOT_FOUND + farmId));
+
+        Activity activity = activityRepository.findById(activityId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Activity not found: " + activityId));
+
+        farm.getActivities().remove(activity);
+        activity.getFarms().remove(farm);
 
         farmRepository.save(farm);
     }

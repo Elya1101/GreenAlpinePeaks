@@ -10,6 +10,7 @@ import com.example.greenalpinepeaks.domain.Region;
 import com.example.greenalpinepeaks.dto.ActivityResponseDto;
 import com.example.greenalpinepeaks.dto.FarmCreateDto;
 import com.example.greenalpinepeaks.dto.FarmResponseDto;
+import com.example.greenalpinepeaks.dto.FarmSearchCriteria;
 import com.example.greenalpinepeaks.dto.FarmUpdateDto;
 
 import com.example.greenalpinepeaks.mapper.ActivityMapper;
@@ -21,12 +22,22 @@ import com.example.greenalpinepeaks.repository.RegionRepository;
 import com.example.greenalpinepeaks.repository.BookingRepository;
 import com.example.greenalpinepeaks.repository.AccommodationRepository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class FarmService {
@@ -38,19 +49,22 @@ public class FarmService {
     private final RegionRepository regionRepository;
     private final BookingRepository bookingRepository;
     private final AccommodationRepository accommodationRepository;
+    private final CacheService cacheService;
 
     public FarmService(
         FarmRepository farmRepository,
         RegionRepository regionRepository,
         ActivityRepository activityRepository,
         BookingRepository bookingRepository,
-        AccommodationRepository accommodationRepository
+        AccommodationRepository accommodationRepository,
+        CacheService cacheService
     ) {
         this.farmRepository = farmRepository;
         this.regionRepository = regionRepository;
         this.activityRepository = activityRepository;
         this.bookingRepository = bookingRepository;
         this.accommodationRepository = accommodationRepository;
+        this.cacheService = cacheService;
     }
 
     public List<FarmResponseDto> getAllFarms() {
@@ -80,7 +94,6 @@ public class FarmService {
                 HttpStatus.NOT_FOUND,
                 FARM_NOT_FOUND + id
             ));
-
         return FarmMapper.toDto(farm);
     }
 
@@ -91,9 +104,7 @@ public class FarmService {
                 HttpStatus.NOT_FOUND,
                 FARM_NOT_FOUND + farmId
             ));
-
         org.hibernate.Hibernate.initialize(farm.getActivities());
-
         return farm.getActivities().stream()
             .map(ActivityMapper::toDto)
             .toList();
@@ -102,79 +113,68 @@ public class FarmService {
     @Transactional
     public FarmResponseDto createFarm(FarmCreateDto dto) {
         Farm farm = buildFarm(dto);
-        return FarmMapper.toDto(farmRepository.save(farm));
+        FarmResponseDto result = FarmMapper.toDto(farmRepository.save(farm));
+        cacheService.invalidateFarmSearchCache();
+        return result;
     }
 
     @Transactional
     public FarmResponseDto createFarmWithAccommodations(FarmCreateDto dto) {
         Farm farm = buildFarm(dto);
-
         Accommodation house = new Accommodation();
         house.setType(AccommodationType.HOUSE);
         house.setPrice(100);
-
         Accommodation tent = new Accommodation();
         tent.setType(AccommodationType.TENT);
         tent.setPrice(50);
-
         farm.addAccommodation(house);
         farm.addAccommodation(tent);
-
-        return FarmMapper.toDto(farmRepository.save(farm));
+        FarmResponseDto result = FarmMapper.toDto(farmRepository.save(farm));
+        cacheService.invalidateFarmSearchCache();
+        return result;
     }
 
     @Transactional
     public FarmResponseDto updateFarm(Long id, FarmUpdateDto dto) {
-
         Farm farm = farmRepository.findById(id)
             .orElseThrow(() -> new ResponseStatusException(
                 HttpStatus.NOT_FOUND,
                 FARM_NOT_FOUND + id
             ));
-
         if (dto.getName() != null && !dto.getName().isBlank()) {
             farm.setName(dto.getName());
         }
-
         farm.setActive(dto.isActive());
-
         if (dto.getRegion() != null && !dto.getRegion().isBlank()) {
             farm.setRegion(getOrCreateRegion(dto.getRegion()));
         }
-
         if (dto.getDescription() != null) {
             farm.setDescription(dto.getDescription());
         }
-
         if (dto.getEmail() != null) {
             farm.setEmail(dto.getEmail());
         }
-
         if (dto.getPhone() != null) {
             farm.setPhone(dto.getPhone());
         }
-
         if (dto.getEstablishedYear() != null) {
             farm.setEstablishedYear(dto.getEstablishedYear());
         }
-
-        return FarmMapper.toDto(farmRepository.save(farm));
+        FarmResponseDto result = FarmMapper.toDto(farmRepository.save(farm));
+        cacheService.invalidateFarmSearchCache();
+        return result;
     }
 
     @Transactional
     public void deleteFarm(Long id) {
-
         Farm farm = farmRepository.findById(id)
             .orElseThrow(() -> new ResponseStatusException(
                 HttpStatus.NOT_FOUND,
                 FARM_NOT_FOUND + id
             ));
-
         List<Accommodation> accommodations = accommodationRepository.findByFarmId(id);
-
         for (Accommodation accommodation : accommodations) {
             List<Booking> bookings = bookingRepository.findByAccommodationId(accommodation.getId());
-
             if (!bookings.isEmpty()) {
                 throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
@@ -185,17 +185,16 @@ public class FarmService {
                 );
             }
         }
-
         farm.getActivities().clear();
         farm.getAccommodations().clear();
         farmRepository.delete(farm);
+        cacheService.invalidateFarmSearchCache();
     }
 
     public void createFarmWithoutTransaction() {
         Region region = new Region();
         region.setName("Test");
         regionRepository.save(region);
-
         throw new ResponseStatusException(
             HttpStatus.INTERNAL_SERVER_ERROR,
             "Error without transaction (region will remain)"
@@ -207,7 +206,6 @@ public class FarmService {
         Region region = new Region();
         region.setName("Test");
         regionRepository.save(region);
-
         throw new ResponseStatusException(
             HttpStatus.INTERNAL_SERVER_ERROR,
             "Error inside transaction (rollback will happen)"
@@ -216,42 +214,106 @@ public class FarmService {
 
     @Transactional
     public void addActivityToFarm(Long farmId, Long activityId) {
-
         Farm farm = farmRepository.findById(farmId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-
         Activity activity = activityRepository.findById(activityId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-
         farm.getActivities().add(activity);
         activity.getFarms().add(farm);
-
         farmRepository.save(farm);
+        cacheService.invalidateFarmSearchCache();
     }
 
     @Transactional
     public void removeActivityFromFarm(Long farmId, Long activityId) {
         Farm farm = farmRepository.findById(farmId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, FARM_NOT_FOUND + farmId));
-
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                FARM_NOT_FOUND + farmId));
         Activity activity = activityRepository.findById(activityId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Activity not found: " + activityId));
-
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "Activity not found: " + activityId));
         farm.getActivities().remove(activity);
         activity.getFarms().remove(farm);
-
         farmRepository.save(farm);
+        cacheService.invalidateFarmSearchCache();
+    }
+
+    public List<FarmResponseDto> findActiveFarmsByAccommodationTypes(Set<String>
+                                                                         accommodationTypes) {
+        FarmSearchCriteria criteria = FarmSearchCriteria.builder()
+            .active(true)
+            .accommodationTypes(accommodationTypes)
+            .build();
+        List<FarmResponseDto> cached = cacheService.getCachedFarmSearch(criteria);
+        if (cached != null) {
+            return cached;
+        }
+        List<String> typesList = accommodationTypes != null ? List.copyOf(accommodationTypes) :
+            List.of();
+        List<Farm> farms = farmRepository.findActiveFarmsWithAccommodationTypes(typesList);
+        List<FarmResponseDto> result = farms.stream()
+            .map(FarmMapper::toDto)
+            .toList();
+        cacheService.putFarmSearch(criteria, result);
+        return result;
+    }
+
+    public List<FarmResponseDto> findActiveFarmsByNameNative(String namePart) {
+        List<Farm> farms = farmRepository.findActiveFarmsByNameNative(namePart);
+        return farms.stream()
+            .map(FarmMapper::toDto)
+            .toList();
+    }
+
+    public Page<FarmResponseDto> getAllFarmsPaginated(Pageable pageable) {
+        Pageable defaultPageable = pageable.getSort().isSorted() ? pageable :
+            PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+                Sort.by("name"));
+        Page<Long> idsPage = farmRepository.findAllIds(defaultPageable);
+        if (idsPage.isEmpty()) {
+            return Page.empty(pageable);
+        }
+        List<Farm> farms = farmRepository.findAllByIdIn(idsPage.getContent());
+        Map<Long, FarmResponseDto> farmMap = farms.stream()
+            .map(FarmMapper::toDto)
+            .collect(Collectors.toMap(FarmResponseDto::id, Function.identity()));
+        List<FarmResponseDto> sortedDtos = idsPage.getContent().stream()
+            .map(farmMap::get)
+            .filter(Objects::nonNull)
+            .toList();
+        return new PageImpl<>(sortedDtos, defaultPageable, idsPage.getTotalElements());
+    }
+
+    public Page<FarmResponseDto> findActiveFarmsByAccommodationTypesPaginated(
+        Set<String> accommodationTypes, Pageable pageable) {
+        List<String> typesList = accommodationTypes != null ? List.copyOf(accommodationTypes) :
+            List.of();
+        Page<Farm> farmPage = farmRepository.findActiveFarmsWithAccommodationTypesPaginated(
+            typesList, pageable);
+        return farmPage.map(FarmMapper::toDto);
+    }
+
+    public Page<FarmResponseDto> findActiveFarmsByAccommodationTypesNativePaginated(
+        Set<String> accommodationTypes, Pageable pageable) {
+        Pageable withoutSort = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+        List<String> typesList = accommodationTypes != null ? List.copyOf(accommodationTypes) :
+            List.of();
+        Page<Farm> farmPage = farmRepository.findActiveFarmsWithAccommodationTypesNativePaginated(
+            typesList, withoutSort);
+        return farmPage.map(FarmMapper::toDto);
+    }
+
+    public int getCacheSize() {
+        return cacheService.getCacheSize();
     }
 
     private Farm buildFarm(FarmCreateDto dto) {
-
         if (farmRepository.existsByName(dto.getName())) {
             throw new ResponseStatusException(
                 HttpStatus.BAD_REQUEST,
                 "Farm already exists: " + dto.getName()
             );
         }
-
         Farm farm = new Farm();
         farm.setName(dto.getName());
         farm.setActive(dto.isActive());
@@ -260,19 +322,16 @@ public class FarmService {
         farm.setEmail(dto.getEmail());
         farm.setPhone(dto.getPhone());
         farm.setEstablishedYear(dto.getEstablishedYear());
-
         return farm;
     }
 
     private Region getOrCreateRegion(String name) {
-
         if (name == null || name.isBlank()) {
             throw new ResponseStatusException(
                 HttpStatus.BAD_REQUEST,
                 "Region is required"
             );
         }
-
         return regionRepository.findByName(name)
             .orElseGet(() -> {
                 Region region = new Region();

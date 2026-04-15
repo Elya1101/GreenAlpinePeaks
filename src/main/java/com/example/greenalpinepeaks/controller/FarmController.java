@@ -6,6 +6,10 @@ import com.example.greenalpinepeaks.dto.FarmCreateDto;
 import com.example.greenalpinepeaks.dto.FarmUpdateDto;
 import com.example.greenalpinepeaks.service.FarmService;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/farms")
@@ -97,5 +102,49 @@ public class FarmController {
     @PostMapping("/with-accommodations")
     public FarmResponseDto createWithAccommodations(@RequestBody FarmCreateDto dto) {
         return farmService.createFarmWithAccommodations(dto);
+    }
+
+    @GetMapping("/search/by-accommodation-types")
+    public List<FarmResponseDto> getFarmsByAccommodationTypes(
+        @RequestParam Set<String> types
+    ) {
+        return farmService.findActiveFarmsByAccommodationTypes(types);
+    }
+
+    @GetMapping("/search/by-name-native")
+    public List<FarmResponseDto> getFarmsByNameNative(
+        @RequestParam String name
+    ) {
+        return farmService.findActiveFarmsByNameNative(name);
+    }
+
+    @GetMapping("/paginated")
+    public Page<FarmResponseDto> getFarmsPaginated(
+        @PageableDefault(size = 10, sort = "name") Pageable pageable
+    ) {
+        return farmService.getAllFarmsPaginated(pageable);
+    }
+
+    @GetMapping("/search/by-accommodation-types/paginated")
+    public Page<FarmResponseDto> getFarmsByAccommodationTypesPaginated(
+        @RequestParam Set<String> types,
+        @PageableDefault(size = 10, sort = "name") Pageable pageable
+    ) {
+        return farmService.findActiveFarmsByAccommodationTypesPaginated(types, pageable);
+    }
+
+    @GetMapping("/search/by-accommodation-types/native-paginated")
+    public Page<FarmResponseDto> getFarmsByAccommodationTypesNativePaginated(
+        @RequestParam Set<String> types,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        return farmService.findActiveFarmsByAccommodationTypesNativePaginated(types, pageable);
+    }
+
+    @GetMapping("/cache-size")
+    public int getCacheSize() {
+        return farmService.getCacheSize();
     }
 }

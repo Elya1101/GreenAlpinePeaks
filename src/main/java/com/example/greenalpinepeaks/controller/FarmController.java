@@ -120,7 +120,7 @@ public class FarmController {
 
     @GetMapping("/paginated")
     public Page<FarmResponseDto> getFarmsPaginated(
-        @PageableDefault(size = 10, sort = "name") Pageable pageable
+        @PageableDefault(sort = "name") Pageable pageable
     ) {
         return farmService.getAllFarmsPaginated(pageable);
     }
@@ -128,7 +128,7 @@ public class FarmController {
     @GetMapping("/search/by-accommodation-types/paginated")
     public Page<FarmResponseDto> getFarmsByAccommodationTypesPaginated(
         @RequestParam Set<String> types,
-        @PageableDefault(size = 10, sort = "name") Pageable pageable
+        @PageableDefault(sort = "name") Pageable pageable
     ) {
         return farmService.findActiveFarmsByAccommodationTypesPaginated(types, pageable);
     }

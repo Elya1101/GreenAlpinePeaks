@@ -2,8 +2,9 @@ package com.example.greenalpinepeaks.controller;
 
 import com.example.greenalpinepeaks.dto.RegionCreateDto;
 import com.example.greenalpinepeaks.dto.RegionResponseDto;
+import com.example.greenalpinepeaks.dto.RegionWithFarmDto;
 import com.example.greenalpinepeaks.service.RegionService;
-
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,15 +42,22 @@ public class RegionController {
     }
 
     @PutMapping("/{id}")
-    public RegionResponseDto update(
-        @PathVariable Long id,
-        @RequestBody RegionCreateDto dto
-    ) {
+    public RegionResponseDto update(@PathVariable Long id, @RequestBody RegionCreateDto dto) {
         return regionService.update(id, dto);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         regionService.delete(id);
+    }
+
+    @PostMapping("/create-without-transaction")
+    public void createRegionWithoutTransaction(@Valid @RequestBody RegionWithFarmDto dto) {
+        regionService.createRegionWithoutTransaction(dto);
+    }
+
+    @PostMapping("/create-with-transaction")
+    public void createRegionWithTransaction(@Valid @RequestBody RegionWithFarmDto dto) {
+        regionService.createRegionWithTransaction(dto);
     }
 }

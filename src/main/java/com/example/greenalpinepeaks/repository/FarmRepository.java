@@ -22,6 +22,15 @@ public interface FarmRepository extends JpaRepository<Farm, Long> {
         "AND a.type IN :accommodationTypes")
     List<Farm> findActiveFarmsWithAccommodationTypes(@Param("accommodationTypes") List<String> accommodationTypes);
 
+    @EntityGraph(attributePaths = {"region", "activities", "accommodations",
+        "accommodations.bookings", "accommodations.bookings.user"})
+    @Query("SELECT DISTINCT f FROM Farm f " +
+        "JOIN f.accommodations a " +
+        "WHERE f.active = true " +
+        "AND a.type IN :accommodationTypes")
+    List<Farm> findActiveFarmsWithAccommodationTypesEager(@Param("accommodationTypes") List<String> accommodationTypes);
+
+    @SuppressWarnings("SqlSourceToSinkFrame")
     @Query(value = "SELECT f.* FROM farms f " +
         "WHERE f.active = true " +
         "AND LOWER(f.name) LIKE LOWER(CONCAT('%', :namePart, '%'))",
@@ -38,6 +47,7 @@ public interface FarmRepository extends JpaRepository<Farm, Long> {
         @Param("accommodationTypes") List<String> accommodationTypes,
         Pageable pageable);
 
+    @SuppressWarnings("SqlSourceToSinkFrame")
     @Query(value = "SELECT f.* FROM farms f WHERE f.active = true AND f.id IN (" +
         "SELECT DISTINCT f2.id FROM farms f2 " +
         "INNER JOIN accommodations a ON f2.id = a.farm_id " +
@@ -59,17 +69,18 @@ public interface FarmRepository extends JpaRepository<Farm, Long> {
     List<Farm> findAllByIdIn(List<Long> ids);
 
     @Override
-    @EntityGraph(attributePaths = {"region", "activities", "accommodations"})
+    @EntityGraph(attributePaths = {"region", "activities", "accommodations",
+        "accommodations.bookings", "accommodations.bookings.user"})
     @NonNull
     List<Farm> findAll();
+
+    List<Farm> findAllBy();
 
     @Override
     @EntityGraph(attributePaths = {"region", "activities", "accommodations",
         "accommodations.bookings", "accommodations.bookings.user"})
     @NonNull
     Optional<Farm> findById(@NonNull Long id);
-
-    List<Farm> findAllBy();
 
     boolean existsByName(String name);
 }

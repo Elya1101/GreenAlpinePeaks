@@ -152,7 +152,8 @@ public class RegionController {
 
     @Operation(
         summary = "Create region without transaction",
-        description = "Demonstrates partial save without @Transactional - region is saved even if farm creation fails. " +
+        description = "Demonstrates partial save without @Transactional - region is saved even " +
+            "if farm creation fails. " +
             "Use farm name 'fail' to trigger an error after region is saved."
     )
     @ApiResponses(value = {

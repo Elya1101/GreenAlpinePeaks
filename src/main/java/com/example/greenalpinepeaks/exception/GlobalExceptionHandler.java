@@ -12,7 +12,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -51,7 +50,7 @@ public class GlobalExceptionHandler {
                 .field(fieldError.getField())
                 .message(fieldError.getDefaultMessage())
                 .build())
-            .collect(Collectors.toList());
+            .toList();
 
         ErrorResponse errorResponse = ErrorResponse.builder()
             .timestamp(LocalDateTime.now())
@@ -78,8 +77,24 @@ public class GlobalExceptionHandler {
             .path(request.getRequestURI())
             .build();
 
-        LOG.error("IllegalArgumentException: ", ex);
+        LOG.error("IllegalArgumentException: {}", ex.getMessage(), ex);
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ServiceExecutionException.class)
+    public ResponseEntity<ErrorResponse> handleServiceExecutionException(
+        ServiceExecutionException ex, HttpServletRequest request) {
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+            .timestamp(LocalDateTime.now())
+            .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+            .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+            .message("Internal server error")
+            .path(request.getRequestURI())
+            .build();
+
+        LOG.error("Service execution error: {}", ex.getMessage(), ex);
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(Exception.class)
@@ -94,7 +109,7 @@ public class GlobalExceptionHandler {
             .path(request.getRequestURI())
             .build();
 
-        LOG.error("Unhandled exception: ", ex);
+        LOG.error("Unhandled exception: {}", ex.getMessage(), ex);
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

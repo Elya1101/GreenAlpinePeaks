@@ -1,5 +1,6 @@
 package com.example.greenalpinepeaks.aspect;
 
+import com.example.greenalpinepeaks.exception.ServiceExecutionException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -7,6 +8,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Arrays;
 
@@ -26,7 +28,6 @@ public class LoggingAspect {
         String methodName = joinPoint.getSignature().getName();
         Object[] args = joinPoint.getArgs();
 
-        // Логируем входные параметры на уровне DEBUG
         if (LOG.isDebugEnabled()) {
             LOG.debug("Executing {}.{}() with arguments: {}",
                 className,
@@ -40,13 +41,16 @@ public class LoggingAspect {
         try {
             result = joinPoint.proceed();
         } catch (Throwable throwable) {
-            LOG.error("Exception in {}.{}() with arguments: {}. Cause: {}",
-                className,
-                methodName,
-                args != null && args.length > 0 ? Arrays.toString(args) : "[]",
-                throwable.getMessage(),
+            if (throwable instanceof ResponseStatusException) {
+                throw throwable;
+            }
+
+            throw new ServiceExecutionException(
+                String.format("Exception in %s.%s(): %s",
+                    className,
+                    methodName,
+                    throwable.getMessage()),
                 throwable);
-            throw throwable;
         }
 
         long executionTime = System.currentTimeMillis() - start;

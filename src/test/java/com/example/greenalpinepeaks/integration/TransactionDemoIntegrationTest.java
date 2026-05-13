@@ -158,7 +158,7 @@ class TransactionDemoIntegrationTest {
         try {
             bookingService.createBulkNonTransactional(nonTransactionalDtos);
         } catch (Exception e) {
-        }
+            }
 
         long afterNonTransactionalAttempt = bookingRepository.count();
         assertThat(afterNonTransactionalAttempt).isEqualTo(countBefore + 1);

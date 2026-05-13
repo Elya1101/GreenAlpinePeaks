@@ -23,80 +23,50 @@ public class LoggingAspect {
     }
 
     @Around("serviceLayer()")
-    public Object logExecutionTime(ProceedingJoinPoint joinPoint) {
-
+    public Object logExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
         String className = joinPoint.getSignature().getDeclaringTypeName();
         String methodName = joinPoint.getSignature().getName();
         Object[] args = joinPoint.getArgs();
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug(
-                "Executing {}.{}() with arguments: {}",
+            LOG.debug("Executing {}.{}() with arguments: {}",
                 className,
                 methodName,
-                args != null && args.length > 0
-                    ? Arrays.toString(args)
-                    : "[]"
-            );
+                args != null && args.length > 0 ? Arrays.toString(args) : "[]");
         }
 
         long start = System.currentTimeMillis();
 
+        Object result;
         try {
-            Object result = joinPoint.proceed();
-
-            long executionTime = System.currentTimeMillis() - start;
-
-            if (executionTime > 1000) {
-                LOG.warn(
-                    "SLOW QUERY: {}.{}() executed in {} ms",
-                    className,
-                    methodName,
-                    executionTime
-                );
-            } else {
-                LOG.info(
-                    "{}.{}() executed in {} ms",
-                    className,
-                    methodName,
-                    executionTime
-                );
+            result = joinPoint.proceed();
+        } catch (Throwable throwable) {
+            if (throwable instanceof ResponseStatusException) {
+                throw throwable;
             }
 
-            return result;
-
-        } catch (ResponseStatusException exception) {
-
-            LOG.warn(
-                "ResponseStatusException in {}.{}(): {}",
-                className,
-                methodName,
-                exception.getMessage()
-            );
-
-            throw exception;
-
-        } catch (Throwable exception) {
-
-            LOG.error(
-                "Exception in {}.{}() with arguments: {}",
-                className,
-                methodName,
-                args != null && args.length > 0
-                    ? Arrays.toString(args)
-                    : "[]",
-                exception
-            );
-
             throw new ServiceExecutionException(
-                String.format(
-                    "Exception in %s.%s(): %s",
+                String.format("Exception in %s.%s(): %s",
                     className,
                     methodName,
-                    exception.getMessage()
-                ),
-                exception
-            );
+                    throwable.getMessage()),
+                throwable);
         }
+
+        long executionTime = System.currentTimeMillis() - start;
+
+        if (executionTime > 1000) {
+            LOG.warn("SLOW QUERY: {}.{}() executed in {} ms",
+                className,
+                methodName,
+                executionTime);
+        } else {
+            LOG.info("{}.{}() executed in {} ms",
+                className,
+                methodName,
+                executionTime);
+        }
+
+        return result;
     }
 }

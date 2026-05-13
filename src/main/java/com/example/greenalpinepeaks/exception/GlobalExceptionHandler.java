@@ -35,7 +35,22 @@ public class GlobalExceptionHandler {
             .path(request.getRequestURI())
             .build();
 
-        LOG.warn("ResponseStatusException: {}", ex.getMessage());
+        LOG.warn("{} {} - {}", status.value(), request.getMethod(), request.getRequestURI());
+
+        if (status == HttpStatus.NOT_FOUND) {
+            LOG.info("ОШИБКА 404: Запрашиваемый ресурс не найден. Метод: {}, Путь: {}, Причина: {}",
+                request.getMethod(), request.getRequestURI(), ex.getReason());
+        } else if (status == HttpStatus.BAD_REQUEST) {
+            LOG.info("ОШИБКА 400: Некорректный запрос. Метод: {}, Путь: {}, Причина: {}",
+                request.getMethod(), request.getRequestURI(), ex.getReason());
+        } else if (status == HttpStatus.CONFLICT) {
+            LOG.info("ОШИБКА 409: Конфликт данных. Метод: {}, Путь: {}, Причина: {}",
+                request.getMethod(), request.getRequestURI(), ex.getReason());
+        } else {
+            LOG.info("ОШИБКА {}: Проблема при обработке запроса. Метод: {}, Путь: {}, Причина: {}",
+                status.value(), request.getMethod(), request.getRequestURI(), ex.getReason());
+        }
+
         return new ResponseEntity<>(errorResponse, status);
     }
 
@@ -61,7 +76,15 @@ public class GlobalExceptionHandler {
             .errors(errors)
             .build();
 
-        LOG.warn("Validation error: {} errors found", errors.size());
+        LOG.warn("400 Validation failed - {} errors on {}", errors.size(), request.getRequestURI());
+
+        LOG.info("ОШИБКА 400: Валидация входных данных не пройдена. Метод: {}, Путь: {}",
+            request.getMethod(), request.getRequestURI());
+
+        for (ErrorResponse.ValidationError error : errors) {
+            LOG.info("   → Поле '{}': {}", error.getField(), error.getMessage());
+        }
+
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
@@ -77,7 +100,11 @@ public class GlobalExceptionHandler {
             .path(request.getRequestURI())
             .build();
 
-        LOG.error("IllegalArgumentException: {}", ex.getMessage(), ex);
+        LOG.error("400 Bad Request - {} - {}", request.getMethod(), request.getRequestURI());
+
+        LOG.info("ОШИБКА 400: Недопустимый аргумент. Метод: {}, Путь: {}, Причина: {}",
+            request.getMethod(), request.getRequestURI(), ex.getMessage());
+
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
@@ -93,7 +120,12 @@ public class GlobalExceptionHandler {
             .path(request.getRequestURI())
             .build();
 
-        LOG.error("Service execution error: {}", ex.getMessage(), ex);
+        LOG.error("500 Internal Server Error - {} - {}", request.getMethod(), request.getRequestURI());
+
+        LOG.error("ОШИБКА 500: Внутренняя ошибка сервера при выполнении сервисного метода. Метод: {}, Путь: {}",
+            request.getMethod(), request.getRequestURI());
+        LOG.error("   → Детали: {}", ex.getMessage(), ex);
+
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -109,7 +141,13 @@ public class GlobalExceptionHandler {
             .path(request.getRequestURI())
             .build();
 
-        LOG.error("Unhandled exception: {}", ex.getMessage(), ex);
+        LOG.error("500 Unexpected error - {} {} - {}", request.getMethod(), request.getRequestURI(),
+            ex.getMessage(), ex);
+
+        LOG.error("ОШИБКА 500: Непредвиденная ошибка в приложении. Метод: {}, Путь: {}",
+            request.getMethod(), request.getRequestURI());
+        LOG.error("   → Тип ошибки: {}, Причина: {}", ex.getClass().getSimpleName(), ex.getMessage());
+
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

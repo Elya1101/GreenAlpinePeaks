@@ -38,8 +38,65 @@ public class BookingController {
     }
 
     @Operation(
-        summary = "Create a new booking",
-        description = "Creates a new booking for a specific accommodation by a user"
+        summary = "Bulk create bookings (TRANSACTIONAL)",
+        description = "Creates multiple bookings in a single transaction. If any booking fails," +
+            " ALL are rolled back. Send an array of booking objects."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "201",
+            description = "All bookings created successfully",
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = BookingResponseDto.class)))
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid input data - entire operation rolled back",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "User or accommodation not found",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        )
+    })
+    @PostMapping
+    public ResponseEntity<List<BookingResponseDto>> createBulk(
+        @Parameter(description = "Array of bookings to create", required = true)
+        @Valid @RequestBody List<BookingCreateDto> dtos
+    ) {
+        List<BookingResponseDto> responses = bookingService.createBulkTransactional(dtos);
+        return ResponseEntity.status(201).body(responses);
+    }
+
+    @Operation(
+        summary = "Bulk create bookings (NON-TRANSACTIONAL)",
+        description = "Creates multiple bookings WITHOUT transaction. If a booking fails," +
+            " previous ones are kept. Send an array of booking objects."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "201",
+            description = "Partial or complete success",
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = BookingResponseDto.class)))
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Some bookings failed",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        )
+    })
+    @PostMapping("/non-transactional")
+    public ResponseEntity<List<BookingResponseDto>> createBulkNonTransactional(
+        @Parameter(description = "Array of bookings to create", required = true)
+        @Valid @RequestBody List<BookingCreateDto> dtos
+    ) {
+        List<BookingResponseDto> responses = bookingService.createBulkNonTransactional(dtos);
+        return ResponseEntity.status(201).body(responses);
+    }
+
+    @Operation(
+        summary = "Create a single booking",
+        description = "Creates exactly one booking for a specific accommodation by a user"
     )
     @ApiResponses(value = {
         @ApiResponse(
@@ -58,9 +115,9 @@ public class BookingController {
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         )
     })
-    @PostMapping
-    public ResponseEntity<BookingResponseDto> create(
-        @Parameter(description = "Booking data to create", required = true)
+    @PostMapping("/single")
+    public ResponseEntity<BookingResponseDto> createSingle(
+        @Parameter(description = "Booking data", required = true)
         @Valid @RequestBody BookingCreateDto dto
     ) {
         BookingResponseDto response = bookingService.create(dto);

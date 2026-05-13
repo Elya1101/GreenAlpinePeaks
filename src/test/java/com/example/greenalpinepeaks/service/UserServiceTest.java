@@ -169,15 +169,13 @@ class UserServiceTest {
             updateDto.setEmail("john.updated@example.com");
 
             when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
-            when(userRepository.save(any(User.class))).thenAnswer(inv -> {
-                User saved = inv.getArgument(0);
-                return saved;
-            });
+            // Исправлено: возвращаем выражение напрямую, без временной переменной
+            when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
 
             UserResponseDto result = userService.update(1L, updateDto);
 
             assertThat(result).isNotNull();
-            assertThat(result.name()).isEqualTo("John Updated");  // Исправлено: ожидаем обновленное имя
+            assertThat(result.name()).isEqualTo("John Updated");
             assertThat(result.email()).isEqualTo("john.updated@example.com");
             verify(userRepository, times(1)).save(testUser);
         }

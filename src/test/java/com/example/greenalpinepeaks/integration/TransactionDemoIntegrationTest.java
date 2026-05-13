@@ -139,6 +139,7 @@ class TransactionDemoIntegrationTest {
     void compareTransactionalVsNonTransactional() {
         long countBefore = bookingRepository.count();
 
+        // Test with @Transactional - rolls back everything on failure
         List<BookingCreateDto> transactionalDtos = Arrays.asList(
             createBookingDto(testUser.getId(), testAccommodation.getId()),
             createBookingDto(999L, testAccommodation.getId())
@@ -150,6 +151,7 @@ class TransactionDemoIntegrationTest {
         long afterTransactionalAttempt = bookingRepository.count();
         assertThat(afterTransactionalAttempt).isEqualTo(countBefore);
 
+        // Test WITHOUT @Transactional - partial save: valid bookings are kept
         List<BookingCreateDto> nonTransactionalDtos = Arrays.asList(
             createBookingDto(testUser.getId(), testAccommodation.getId()),
             createBookingDto(999L, testAccommodation.getId())
@@ -158,9 +160,16 @@ class TransactionDemoIntegrationTest {
         try {
             bookingService.createBulkNonTransactional(nonTransactionalDtos);
         } catch (Exception e) {
-            }
+            // Exception is expected because the second booking has invalid userId=999.
+            // This catch block is intentionally empty because we only care about
+            // verifying the database state after the operation, not the exception itself.
+            // The exception is thrown by createBulkNonTransactional due to partial failure,
+            // but the first booking should still be saved in the database.
+            // This demonstrates the difference from transactional mode where nothing would be saved.
+        }
 
         long afterNonTransactionalAttempt = bookingRepository.count();
+        // With non-transactional mode, the first valid booking is saved despite the exception
         assertThat(afterNonTransactionalAttempt).isEqualTo(countBefore + 1);
     }
 

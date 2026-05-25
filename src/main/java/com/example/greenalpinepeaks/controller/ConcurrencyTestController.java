@@ -95,7 +95,7 @@ public class ConcurrencyTestController {
             return "Тест не завершился в отведённое время";
         }
 
-        return String.format("⚠️ RACE CONDITION (UNSAFE): expected=%d, actual=%d, потеряно обновлений=%d",
+        return String.format("RACE CONDITION (UNSAFE): expected=%d, actual=%d, потеряно обновлений=%d",
             expected, actual, expected - actual);
     }
 
@@ -124,7 +124,7 @@ public class ConcurrencyTestController {
         int expected = threadsCount * incrementsPerThread;
         int actual = counterService.getSynchronizedCounter();
 
-        return String.format("✅ Решение с synchronized: expected=%d, actual=%d", expected, actual);
+        return String.format("Решение с synchronized: expected=%d, actual=%d", expected, actual);
     }
 
     @Operation(summary = "Решение race condition через AtomicInteger")
@@ -152,7 +152,7 @@ public class ConcurrencyTestController {
         int expected = threadsCount * incrementsPerThread;
         int actual = counterService.getAtomicCounter();
 
-        return String.format("✅ Решение с AtomicInteger: expected=%d, actual=%d", expected, actual);
+        return String.format("Решение с AtomicInteger: expected=%d, actual=%d", expected, actual);
     }
 
     @Operation(summary = "Сброс всех счётчиков")

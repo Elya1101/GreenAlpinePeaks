@@ -56,7 +56,7 @@ public class AsyncReportService {
 
         try {
 
-            Thread.sleep(10000);
+            Thread.sleep(12000);
 
             String result = String.format(
                 "Отчёт для задачи %s сгенерирован в %s",
@@ -98,5 +98,23 @@ public class AsyncReportService {
 
     public String getTaskResult(String taskId) {
         return taskResults.get(taskId);
+    }
+
+    public int getQueueSize() {
+        return (int) taskStatus.values().stream()
+            .filter(status -> status.equals("IN_PROGRESS"))
+            .count();
+    }
+
+    public int getCompletedCount() {
+        return (int) taskStatus.values().stream()
+            .filter(status -> status.equals("COMPLETED"))
+            .count();
+    }
+
+    public int getFailedCount() {
+        return (int) taskStatus.values().stream()
+            .filter(status -> status.equals("FAILED"))
+            .count();
     }
 }

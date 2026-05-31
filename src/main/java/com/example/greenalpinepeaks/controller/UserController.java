@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -122,6 +123,30 @@ public class UserController {
         @RequestParam String email
     ) {
         return userService.findByEmail(email);
+    }
+
+    @Operation(
+        summary = "Get current user",
+        description = "Retrieves the current authenticated user by X-User-Id header"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "User found and returned",
+            content = @Content(schema = @Schema(implementation = UserResponseDto.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "User not found",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        )
+    })
+    @GetMapping("/me")
+    public UserResponseDto getCurrentUser(
+        @Parameter(description = "Current user ID from header", required = true, example = "1")
+        @RequestHeader("X-User-Id") Long userId
+    ) {
+        return userService.getById(userId);
     }
 
     @Operation(

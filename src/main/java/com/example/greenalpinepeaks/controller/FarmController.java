@@ -2,6 +2,7 @@ package com.example.greenalpinepeaks.controller;
 
 import com.example.greenalpinepeaks.dto.ActivityResponseDto;
 import com.example.greenalpinepeaks.dto.FarmCreateDto;
+import com.example.greenalpinepeaks.dto.FarmEditDto;
 import com.example.greenalpinepeaks.dto.FarmResponseDto;
 import com.example.greenalpinepeaks.dto.FarmUpdateDto;
 import com.example.greenalpinepeaks.exception.ErrorResponse;
@@ -25,9 +26,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Set;
@@ -60,13 +63,38 @@ public class FarmController {
     }
 
     @Operation(
+        summary = "Get my farms (my listings)",
+        description = "Returns all farms created by the current authenticated user"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Successfully retrieved user's farms",
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = FarmResponseDto.class)))
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Missing or invalid X-User-Id header",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        )
+    })
+    @GetMapping("/my")
+    public List<FarmResponseDto> getMyFarms(
+        @Parameter(description = "Current user ID", required = true, example = "1")
+        @RequestHeader("X-User-Id") Long userId
+    ) {
+        return farmService.getFarmsByOwner(userId);
+    }
+
+    @Operation(
         summary = "Filter farms by region",
         description = "Returns farms located in the specified region name"
     )
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
-            description = "Successfully filtered farms by region"
+            description = "Successfully filtered farms by region",
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = FarmResponseDto.class)))
         ),
         @ApiResponse(
             responseCode = "400",
@@ -77,7 +105,8 @@ public class FarmController {
     @GetMapping("/filter")
     public List<FarmResponseDto> getFarmsByRegion(
         @Parameter(description = "Region name to filter by", required = true, example = "Alps")
-        @RequestParam String region) {
+        @RequestParam String region
+    ) {
         return farmService.getFarmsByRegion(region);
     }
 
@@ -100,8 +129,41 @@ public class FarmController {
     @GetMapping("/{id}")
     public FarmResponseDto getFarmById(
         @Parameter(description = "Unique identifier of the farm", required = true, example = "1")
-        @PathVariable Long id) {
+        @PathVariable Long id
+    ) {
         return farmService.getFarmById(id);
+    }
+
+    @Operation(
+        summary = "Get farm for editing (with all data)",
+        description = "Returns complete farm data for editing. User must be the owner of the farm."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Farm edit data retrieved successfully",
+            content = @Content(schema = @Schema(implementation = FarmEditDto.class))
+        ),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Access denied. User is not the owner of the farm",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Farm not found",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        )
+    })
+    @GetMapping("/{id}/edit")
+    public FarmEditDto getFarmForEdit(
+        @Parameter(description = "Farm ID", required = true, example = "1")
+        @PathVariable Long id,
+
+        @Parameter(description = "Current user ID", required = true, example = "1")
+        @RequestHeader("X-User-Id") Long userId
+    ) {
+        return farmService.getFarmForEdit(id, userId);
     }
 
     @Operation(
@@ -123,7 +185,8 @@ public class FarmController {
     @GetMapping("/{id}/activities")
     public List<ActivityResponseDto> getFarmActivities(
         @Parameter(description = "Farm ID to get activities for", required = true, example = "1")
-        @PathVariable Long id) {
+        @PathVariable Long id
+    ) {
         return farmService.getFarmActivities(id);
     }
 
@@ -134,7 +197,8 @@ public class FarmController {
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
-            description = "Farms retrieved (may cause N+1 queries)"
+            description = "Farms retrieved (may cause N+1 queries)",
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = FarmResponseDto.class)))
         )
     })
     @GetMapping("/nplusone")
@@ -143,8 +207,9 @@ public class FarmController {
     }
 
     @Operation(
-        summary = "Create a new farm",
-        description = "Creates a new farm with the provided details. Farm name must be unique."
+        summary = "Create a new farm (listing)",
+        description = "Creates a new farm with the provided details and " +
+            "assigns it to the current user. Farm name must be unique."
     )
     @ApiResponses(value = {
         @ApiResponse(
@@ -160,14 +225,16 @@ public class FarmController {
     })
     @PostMapping
     public FarmResponseDto createFarm(
-        @Parameter(description = "Farm creation data", required = true)
-        @Valid @RequestBody FarmCreateDto dto) {
-        return farmService.createFarm(dto);
+        @Valid @RequestBody FarmCreateDto dto,
+        @RequestHeader("X-User-Id") Long userId
+    ) {
+        return farmService.createFarm(dto, userId);
     }
 
     @Operation(
         summary = "Update an existing farm",
-        description = "Updates farm details. Only provided non-null fields will be updated."
+        description = "Updates farm details. Only provided non-null " +
+            "fields will be updated. User must be the owner of the farm."
     )
     @ApiResponses(value = {
         @ApiResponse(
@@ -176,13 +243,18 @@ public class FarmController {
             content = @Content(schema = @Schema(implementation = FarmResponseDto.class))
         ),
         @ApiResponse(
-            responseCode = "404",
-            description = "Farm not found",
+            responseCode = "400",
+            description = "Invalid input data",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
-            responseCode = "400",
-            description = "Invalid input data",
+            responseCode = "403",
+            description = "Access denied. User is not the owner of the farm",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Farm not found",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         )
     })
@@ -190,19 +262,29 @@ public class FarmController {
     public FarmResponseDto updateFarm(
         @Parameter(description = "Farm ID to update", required = true, example = "1")
         @PathVariable Long id,
+
         @Parameter(description = "Updated farm data")
-        @Valid @RequestBody FarmUpdateDto dto) {
-        return farmService.updateFarm(id, dto);
+        @Valid @RequestBody FarmUpdateDto dto,
+
+        @Parameter(description = "Current user ID", required = true, example = "1")
+        @RequestHeader("X-User-Id") Long userId
+    ) {
+        return farmService.updateFarm(id, dto, userId);
     }
 
     @Operation(
         summary = "Add activity to farm",
-        description = "Associates an existing activity with a farm (Many-to-Many relationship)"
+        description = "Associates an existing activity with a farm (Many-to-Many relationship). User must own the farm."
     )
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
             description = "Activity added successfully"
+        ),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Access denied. User is not the owner of the farm",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
             responseCode = "404",
@@ -214,19 +296,29 @@ public class FarmController {
     public void addActivity(
         @Parameter(description = "Farm ID", required = true, example = "1")
         @PathVariable Long farmId,
+
         @Parameter(description = "Activity ID to add", required = true, example = "1")
-        @PathVariable Long activityId) {
-        farmService.addActivityToFarm(farmId, activityId);
+        @PathVariable Long activityId,
+
+        @Parameter(description = "Current user ID", required = true, example = "1")
+        @RequestHeader("X-User-Id") Long userId
+    ) {
+        farmService.addActivityToFarm(farmId, activityId, userId);
     }
 
     @Operation(
         summary = "Remove activity from farm",
-        description = "Removes the association between a farm and an activity"
+        description = "Removes the association between a farm and an activity. User must own the farm."
     )
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
             description = "Activity removed successfully"
+        ),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Access denied. User is not the owner of the farm",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
             responseCode = "404",
@@ -238,19 +330,107 @@ public class FarmController {
     public void removeActivityFromFarm(
         @Parameter(description = "Farm ID", required = true, example = "1")
         @PathVariable Long farmId,
+
         @Parameter(description = "Activity ID to remove", required = true, example = "1")
-        @PathVariable Long activityId) {
-        farmService.removeActivityFromFarm(farmId, activityId);
+        @PathVariable Long activityId,
+
+        @Parameter(description = "Current user ID", required = true, example = "1")
+        @RequestHeader("X-User-Id") Long userId
+    ) {
+        farmService.removeActivityFromFarm(farmId, activityId, userId);
+    }
+
+    @Operation(
+        summary = "Upload image for farm",
+        description = "Uploads an image for a specific farm. User must own the farm."
+    )
+    @PostMapping(value = "/{farmId}/images", consumes = "multipart/form-data")
+    public void uploadImage(
+        @Parameter(description = "Farm ID", required = true, example = "1")
+        @PathVariable Long farmId,
+
+        @Parameter(description = "Image file", required = true)
+        @RequestParam("image") MultipartFile file,
+
+        @Parameter(description = "Whether image is main", example = "false")
+        @RequestParam(value = "isMain", defaultValue = "false") boolean isMain,
+
+        @Parameter(description = "Current user ID", required = true, example = "1")
+        @RequestHeader("X-User-Id") Long userId
+    ) {
+        farmService.uploadImage(farmId, file, isMain, userId);
+    }
+
+    @Operation(
+        summary = "Get all images for farm",
+        description = "Returns all image URLs associated with a farm"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Images retrieved successfully"
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Farm not found",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        )
+    })
+    @GetMapping("/{farmId}/images")
+    public List<String> getFarmImages(
+        @Parameter(description = "Farm ID", required = true, example = "1")
+        @PathVariable Long farmId
+    ) {
+        return farmService.getFarmImages(farmId);
+    }
+
+    @Operation(
+        summary = "Delete image",
+        description = "Deletes an image from a farm. User must own the farm."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Image deleted successfully"
+        ),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Access denied",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Farm or image not found",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        )
+    })
+    @DeleteMapping("/{farmId}/images/{imageId}")
+    public void deleteImage(
+        @Parameter(description = "Farm ID", required = true, example = "1")
+        @PathVariable Long farmId,
+
+        @Parameter(description = "Image ID", required = true, example = "1")
+        @PathVariable Long imageId,
+
+        @Parameter(description = "Current user ID", required = true, example = "1")
+        @RequestHeader("X-User-Id") Long userId
+    ) {
+        farmService.deleteImage(farmId, imageId, userId);
     }
 
     @Operation(
         summary = "Delete a farm",
-        description = "Deletes a farm by its ID. Cannot delete farm with active bookings."
+        description = "Deletes a farm by its ID. User must own the farm. Cannot delete farm with active bookings."
     )
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
             description = "Farm deleted successfully"
+        ),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Access denied. User is not the owner of the farm",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
             responseCode = "404",
@@ -266,13 +446,18 @@ public class FarmController {
     @DeleteMapping("/{id}")
     public void deleteFarm(
         @Parameter(description = "Farm ID to delete", required = true, example = "1")
-        @PathVariable Long id) {
-        farmService.deleteFarm(id);
+        @PathVariable Long id,
+
+        @Parameter(description = "Current user ID", required = true, example = "1")
+        @RequestHeader("X-User-Id") Long userId
+    ) {
+        farmService.deleteFarm(id, userId);
     }
 
     @Operation(
         summary = "Create farm with accommodations",
-        description = "Creates a new farm along with default accommodations (house and tent)"
+        description = "Creates a new farm along with default accommodations" +
+            " (house and tent) and assigns it to the current user"
     )
     @ApiResponses(value = {
         @ApiResponse(
@@ -289,8 +474,12 @@ public class FarmController {
     @PostMapping("/with-accommodations")
     public FarmResponseDto createWithAccommodations(
         @Parameter(description = "Farm creation data with accommodation defaults")
-        @Valid @RequestBody FarmCreateDto dto) {
-        return farmService.createFarmWithAccommodations(dto);
+        @Valid @RequestBody FarmCreateDto dto,
+
+        @Parameter(description = "Current user ID", required = true, example = "1")
+        @RequestHeader("X-User-Id") Long userId
+    ) {
+        return farmService.createFarmWithAccommodations(dto, userId);
     }
 
     @Operation(
@@ -311,7 +500,8 @@ public class FarmController {
             required = true,
             example = "[\"HOUSE\", \"TENT\"]"
         )
-        @RequestParam Set<String> types) {
+        @RequestParam Set<String> types
+    ) {
         return farmService.findActiveFarmsByAccommodationTypes(types);
     }
 
@@ -322,13 +512,15 @@ public class FarmController {
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
-            description = "Matching farms returned"
+            description = "Matching farms returned",
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = FarmResponseDto.class)))
         )
     })
     @GetMapping("/search/by-name-native")
     public List<FarmResponseDto> getFarmsByNameNative(
         @Parameter(description = "Name fragment to search for", required = true, example = "Green")
-        @RequestParam String name) {
+        @RequestParam String name
+    ) {
         return farmService.findActiveFarmsByNameNative(name);
     }
 
@@ -345,7 +537,8 @@ public class FarmController {
     @GetMapping("/paginated")
     public Page<FarmResponseDto> getFarmsPaginated(
         @Parameter(description = "Pagination parameters (page, size, sort)")
-        @PageableDefault(sort = "name") Pageable pageable) {
+        @PageableDefault(sort = "name") Pageable pageable
+    ) {
         return farmService.getAllFarmsPaginated(pageable);
     }
 
@@ -363,8 +556,10 @@ public class FarmController {
     public Page<FarmResponseDto> getFarmsByAccommodationTypesPaginated(
         @Parameter(description = "Set of accommodation types", required = true)
         @RequestParam Set<String> types,
+
         @Parameter(description = "Pagination parameters")
-        @PageableDefault(sort = "name") Pageable pageable) {
+        @PageableDefault(sort = "name") Pageable pageable
+    ) {
         return farmService.findActiveFarmsByAccommodationTypesPaginated(types, pageable);
     }
 
@@ -382,10 +577,13 @@ public class FarmController {
     public Page<FarmResponseDto> getFarmsByAccommodationTypesNativePaginated(
         @Parameter(description = "Set of accommodation types", required = true)
         @RequestParam Set<String> types,
+
         @Parameter(description = "Page number (0-based)", example = "0")
         @RequestParam(defaultValue = "0") int page,
+
         @Parameter(description = "Page size", example = "10")
-        @RequestParam(defaultValue = "10") int size) {
+        @RequestParam(defaultValue = "10") int size
+    ) {
         Pageable pageable = PageRequest.of(page, size);
         return farmService.findActiveFarmsByAccommodationTypesNativePaginated(types, pageable);
     }

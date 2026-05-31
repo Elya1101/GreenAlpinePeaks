@@ -44,18 +44,26 @@ public class ActivityController {
         @ApiResponse(
             responseCode = "200",
             description = "Activity created successfully",
-            content = @Content(schema = @Schema(implementation = ActivityResponseDto.class))
+            content = @Content(
+                schema = @Schema(implementation = ActivityResponseDto.class)
+            )
         ),
         @ApiResponse(
             responseCode = "400",
             description = "Invalid input data",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class)
+            )
         )
     })
     @PostMapping
     public ActivityResponseDto create(
-        @Parameter(description = "Activity data to create", required = true)
-        @Valid @RequestBody ActivityCreateDto dto) {
+        @Parameter(
+            description = "Activity data to create",
+            required = true
+        )
+        @Valid @RequestBody ActivityCreateDto dto
+    ) {
         return activityService.create(dto);
     }
 
@@ -67,7 +75,13 @@ public class ActivityController {
         @ApiResponse(
             responseCode = "200",
             description = "Successfully retrieved all activities",
-            content = @Content(array = @ArraySchema(schema = @Schema(implementation = ActivityResponseDto.class)))
+            content = @Content(
+                array = @ArraySchema(
+                    schema = @Schema(
+                        implementation = ActivityResponseDto.class
+                    )
+                )
+            )
         )
     })
     @GetMapping
@@ -83,18 +97,31 @@ public class ActivityController {
         @ApiResponse(
             responseCode = "200",
             description = "Matching activities returned",
-            content = @Content(array = @ArraySchema(schema = @Schema(implementation = ActivityResponseDto.class)))
+            content = @Content(
+                array = @ArraySchema(
+                    schema = @Schema(
+                        implementation = ActivityResponseDto.class
+                    )
+                )
+            )
         ),
         @ApiResponse(
             responseCode = "400",
             description = "Invalid search parameter",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class)
+            )
         )
     })
     @GetMapping("/search")
     public List<ActivityResponseDto> findByName(
-        @Parameter(description = "Name fragment to search for", required = true, example = "hiking")
-        @RequestParam String name) {
+        @Parameter(
+            description = "Name fragment to search for",
+            required = true,
+            example = "hiking"
+        )
+        @RequestParam String name
+    ) {
         return activityService.findByName(name);
     }
 
@@ -106,18 +133,29 @@ public class ActivityController {
         @ApiResponse(
             responseCode = "200",
             description = "Activity found and returned",
-            content = @Content(schema = @Schema(implementation = ActivityResponseDto.class))
+            content = @Content(
+                schema = @Schema(
+                    implementation = ActivityResponseDto.class
+                )
+            )
         ),
         @ApiResponse(
             responseCode = "404",
             description = "Activity not found",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class)
+            )
         )
     })
     @GetMapping("/{id}")
     public ActivityResponseDto getById(
-        @Parameter(description = "Activity ID", required = true, example = "1")
-        @PathVariable Long id) {
+        @Parameter(
+            description = "Activity ID",
+            required = true,
+            example = "1"
+        )
+        @PathVariable Long id
+    ) {
         return activityService.getById(id);
     }
 
@@ -129,25 +167,42 @@ public class ActivityController {
         @ApiResponse(
             responseCode = "200",
             description = "Activity updated successfully",
-            content = @Content(schema = @Schema(implementation = ActivityResponseDto.class))
+            content = @Content(
+                schema = @Schema(
+                    implementation = ActivityResponseDto.class
+                )
+            )
         ),
         @ApiResponse(
             responseCode = "404",
             description = "Activity not found",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class)
+            )
         ),
         @ApiResponse(
             responseCode = "400",
             description = "Invalid input data",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class)
+            )
         )
     })
     @PutMapping("/{id}")
     public ActivityResponseDto update(
-        @Parameter(description = "Activity ID to update", required = true, example = "1")
+        @Parameter(
+            description = "Activity ID to update",
+            required = true,
+            example = "1"
+        )
         @PathVariable Long id,
-        @Parameter(description = "Updated activity data", required = true)
-        @Valid @RequestBody ActivityCreateDto dto) {
+
+        @Parameter(
+            description = "Updated activity data",
+            required = true
+        )
+        @Valid @RequestBody ActivityCreateDto dto
+    ) {
         return activityService.update(id, dto);
     }
 
@@ -163,13 +218,20 @@ public class ActivityController {
         @ApiResponse(
             responseCode = "404",
             description = "Activity not found",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            content = @Content(
+                schema = @Schema(implementation = ErrorResponse.class)
+            )
         )
     })
     @DeleteMapping("/{id}")
     public void delete(
-        @Parameter(description = "Activity ID to delete", required = true, example = "1")
-        @PathVariable Long id) {
+        @Parameter(
+            description = "Activity ID to delete",
+            required = true,
+            example = "1"
+        )
+        @PathVariable Long id
+    ) {
         activityService.delete(id);
     }
 }

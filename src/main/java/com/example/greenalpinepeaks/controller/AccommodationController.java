@@ -13,26 +13,31 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/accommodations")
-@Tag(name = "Accommodation Management", description = "Endpoints for managing farm accommodations")
+@Tag(
+    name = "Accommodation Management",
+    description = "Endpoints for managing farm accommodations"
+)
 public class AccommodationController {
 
-    private final AccommodationService service;
+    private final AccommodationService accommodationService;
 
-    public AccommodationController(AccommodationService service) {
-        this.service = service;
+    public AccommodationController(
+        AccommodationService accommodationService
+    ) {
+        this.accommodationService = accommodationService;
     }
 
     @Operation(
@@ -43,25 +48,40 @@ public class AccommodationController {
         @ApiResponse(
             responseCode = "200",
             description = "Accommodation created successfully",
-            content = @Content(schema = @Schema(implementation = AccommodationResponseDto.class))
+            content = @Content(
+                schema = @Schema(
+                    implementation = AccommodationResponseDto.class
+                )
+            )
         ),
         @ApiResponse(
             responseCode = "400",
             description = "Invalid input or farm not found",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            content = @Content(
+                schema = @Schema(
+                    implementation = ErrorResponse.class
+                )
+            )
         ),
         @ApiResponse(
             responseCode = "404",
             description = "Farm not found",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            content = @Content(
+                schema = @Schema(
+                    implementation = ErrorResponse.class
+                )
+            )
         )
     })
     @PostMapping
     public AccommodationResponseDto create(
-        @Parameter(description = "Accommodation data to create", required = true)
+        @Parameter(
+            description = "Accommodation data to create",
+            required = true
+        )
         @Valid @RequestBody AccommodationCreateDto dto
     ) {
-        return service.create(dto);
+        return accommodationService.create(dto);
     }
 
     @Operation(
@@ -72,12 +92,18 @@ public class AccommodationController {
         @ApiResponse(
             responseCode = "200",
             description = "Successfully retrieved all accommodations",
-            content = @Content(array = @ArraySchema(schema = @Schema(implementation = AccommodationResponseDto.class)))
+            content = @Content(
+                array = @ArraySchema(
+                    schema = @Schema(
+                        implementation = AccommodationResponseDto.class
+                    )
+                )
+            )
         )
     })
     @GetMapping
     public List<AccommodationResponseDto> getAll() {
-        return service.getAll();
+        return accommodationService.getAll();
     }
 
     @Operation(
@@ -88,20 +114,32 @@ public class AccommodationController {
         @ApiResponse(
             responseCode = "200",
             description = "Accommodation found and returned",
-            content = @Content(schema = @Schema(implementation = AccommodationResponseDto.class))
+            content = @Content(
+                schema = @Schema(
+                    implementation = AccommodationResponseDto.class
+                )
+            )
         ),
         @ApiResponse(
             responseCode = "404",
             description = "Accommodation not found",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            content = @Content(
+                schema = @Schema(
+                    implementation = ErrorResponse.class
+                )
+            )
         )
     })
     @GetMapping("/{id}")
     public AccommodationResponseDto getById(
-        @Parameter(description = "Accommodation ID", required = true, example = "1")
+        @Parameter(
+            description = "Accommodation ID",
+            required = true,
+            example = "1"
+        )
         @PathVariable Long id
     ) {
-        return service.getById(id);
+        return accommodationService.getById(id);
     }
 
     @Operation(
@@ -112,27 +150,47 @@ public class AccommodationController {
         @ApiResponse(
             responseCode = "200",
             description = "Accommodation updated successfully",
-            content = @Content(schema = @Schema(implementation = AccommodationResponseDto.class))
+            content = @Content(
+                schema = @Schema(
+                    implementation = AccommodationResponseDto.class
+                )
+            )
         ),
         @ApiResponse(
             responseCode = "404",
             description = "Accommodation or farm not found",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            content = @Content(
+                schema = @Schema(
+                    implementation = ErrorResponse.class
+                )
+            )
         ),
         @ApiResponse(
             responseCode = "400",
             description = "Invalid input data",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            content = @Content(
+                schema = @Schema(
+                    implementation = ErrorResponse.class
+                )
+            )
         )
     })
     @PutMapping("/{id}")
     public AccommodationResponseDto update(
-        @Parameter(description = "Accommodation ID to update", required = true, example = "1")
+        @Parameter(
+            description = "Accommodation ID to update",
+            required = true,
+            example = "1"
+        )
         @PathVariable Long id,
-        @Parameter(description = "Updated accommodation data", required = true)
+
+        @Parameter(
+            description = "Updated accommodation data",
+            required = true
+        )
         @Valid @RequestBody AccommodationCreateDto dto
     ) {
-        return service.update(id, dto);
+        return accommodationService.update(id, dto);
     }
 
     @Operation(
@@ -147,14 +205,22 @@ public class AccommodationController {
         @ApiResponse(
             responseCode = "404",
             description = "Accommodation not found",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            content = @Content(
+                schema = @Schema(
+                    implementation = ErrorResponse.class
+                )
+            )
         )
     })
     @DeleteMapping("/{id}")
     public void delete(
-        @Parameter(description = "Accommodation ID to delete", required = true, example = "1")
+        @Parameter(
+            description = "Accommodation ID to delete",
+            required = true,
+            example = "1"
+        )
         @PathVariable Long id
     ) {
-        service.delete(id);
+        accommodationService.delete(id);
     }
 }

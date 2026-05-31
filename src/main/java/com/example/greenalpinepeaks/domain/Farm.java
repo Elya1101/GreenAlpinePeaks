@@ -50,6 +50,10 @@ public class Farm {
     @JoinColumn(name = "region_id", nullable = false)
     private Region region;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    private User owner;
+
     @OneToMany(
         mappedBy = "farm",
         cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},

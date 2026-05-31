@@ -2,6 +2,7 @@ package com.example.greenalpinepeaks.service;
 
 import com.example.greenalpinepeaks.domain.Accommodation;
 import com.example.greenalpinepeaks.domain.Booking;
+import com.example.greenalpinepeaks.domain.BookingStatus;
 import com.example.greenalpinepeaks.domain.User;
 import com.example.greenalpinepeaks.dto.BookingCreateDto;
 import com.example.greenalpinepeaks.dto.BookingResponseDto;
@@ -39,6 +40,30 @@ public class BookingService {
         this.accommodationRepository = accommodationRepository;
     }
 
+    public List<BookingResponseDto> getRequestsForMyFarms(Long userId) {
+        List<Booking> bookings = bookingRepository.findByAccommodationFarmOwnerId(userId);
+        return bookings.stream().map(this::convertToDto).toList();
+    }
+
+    public List<BookingResponseDto> getMyBookings(Long userId) {
+        List<Booking> bookings = bookingRepository.findByUserId(userId);
+        return bookings.stream().map(this::convertToDto).toList();
+    }
+
+    @Transactional
+    public BookingResponseDto updateBookingStatus(Long bookingId, BookingStatus status, Long userId) {
+        Booking booking = bookingRepository.findById(bookingId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Бронь не найдена"));
+
+        if (booking.getAccommodation() == null || booking.getAccommodation().getFarm() == null
+            || !booking.getAccommodation().getFarm().getOwner().getId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Нет прав для изменения статуса");
+        }
+
+        booking.setStatus(status);
+        return convertToDto(bookingRepository.save(booking));
+    }
+
     @Transactional
     public List<BookingResponseDto> createBulkTransactional(List<BookingCreateDto> dtos) {
         LOG.info("Executing transactional bulk create for {} bookings", dtos.size());
@@ -53,10 +78,7 @@ public class BookingService {
         }
 
         List<Booking> savedBookings = bookingRepository.saveAll(bookings);
-
-        return savedBookings.stream()
-            .map(this::convertToDto)
-            .toList();
+        return savedBookings.stream().map(this::convertToDto).toList();
     }
 
     public List<BookingResponseDto> createBulkNonTransactional(List<BookingCreateDto> dtos) {
@@ -118,23 +140,19 @@ public class BookingService {
 
     private Booking mapToEntity(BookingCreateDto dto) {
         Booking booking = new Booking();
-
-        booking.setDate(Optional.ofNullable(dto.getDate())
-            .orElse(java.time.LocalDate.now()));
+        booking.setDate(Optional.ofNullable(dto.getDate()).orElse(java.time.LocalDate.now()));
 
         User user = userRepository.findById(dto.getUserId())
-            .orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.BAD_REQUEST,
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
                 "User not found: " + dto.getUserId()));
 
         Accommodation accommodation = accommodationRepository.findById(dto.getAccommodationId())
-            .orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.BAD_REQUEST,
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
                 "Accommodation not found: " + dto.getAccommodationId()));
 
         booking.setUser(user);
         booking.setAccommodation(accommodation);
-
+        booking.setStatus(BookingStatus.PENDING);
         return booking;
     }
 
@@ -142,7 +160,6 @@ public class BookingService {
         if (booking == null) {
             return null;
         }
-
         String userName = booking.getUser() != null ? booking.getUser().getName() : null;
         String accommodationType = null;
         String farmName = null;
@@ -157,10 +174,11 @@ public class BookingService {
 
         return new BookingResponseDto(
             booking.getId(),
-            booking.getDate(),
+            booking.getDate().toString(),
             userName,
             accommodationType,
-            farmName
+            farmName,
+            booking.getStatus()
         );
     }
 
@@ -180,9 +198,7 @@ public class BookingService {
     public List<BookingResponseDto> getAll() {
         try {
             List<Booking> bookings = bookingRepository.findAll();
-            return bookings.stream()
-                .map(this::convertToDto)
-                .toList();
+            return bookings.stream().map(this::convertToDto).toList();
         } catch (Exception e) {
             LOG.error("Error getting all bookings: {}", e.getMessage());
             return new ArrayList<>();

@@ -30,12 +30,18 @@ public final class BookingMapper {
             }
         }
 
+        String statusDisplay = booking.getStatus() != null
+            ? booking.getStatus().getDisplayName()
+            : "⏳ В ожидании";
+
         return new BookingResponseDto(
             booking.getId(),
-            booking.getDate(),
+            booking.getDate().toString(),
             userName,
             accommodationType,
-            farmName
+            farmName,
+            booking.getStatus(),
+            statusDisplay
         );
     }
 

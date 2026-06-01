@@ -53,7 +53,7 @@ public class FarmImageController {
 
     @Operation(
         summary = "Upload image for farm",
-        description = "Uploads an image for a specific farm. User must own the farm."
+        description = "Uploads an image for a specific farm."
     )
     @ApiResponses(value = {
         @ApiResponse(
@@ -63,11 +63,6 @@ public class FarmImageController {
         @ApiResponse(
             responseCode = "400",
             description = "Invalid image file",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
-        ),
-        @ApiResponse(
-            responseCode = "403",
-            description = "Access denied",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
@@ -85,27 +80,19 @@ public class FarmImageController {
         @RequestParam("image") MultipartFile file,
 
         @Parameter(description = "Whether image is main", example = "false")
-        @RequestParam(value = "isMain", defaultValue = "false") boolean isMain,
-
-        @Parameter(description = "Current user ID", required = true, example = "1")
-        @RequestHeader("X-User-Id") Long userId
+        @RequestParam(value = "isMain", defaultValue = "false") boolean isMain
     ) {
-        farmImageService.uploadImage(farmId, file, isMain, userId);
+        farmImageService.uploadImage(farmId, file, isMain);
     }
 
     @Operation(
         summary = "Delete image",
-        description = "Deletes an image from a farm. User must own the farm."
+        description = "Deletes an image from a farm."
     )
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
             description = "Image deleted successfully"
-        ),
-        @ApiResponse(
-            responseCode = "403",
-            description = "Access denied",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
             responseCode = "404",
@@ -119,27 +106,19 @@ public class FarmImageController {
         @PathVariable Long farmId,
 
         @Parameter(description = "Image ID", required = true, example = "1")
-        @PathVariable Long imageId,
-
-        @Parameter(description = "Current user ID", required = true, example = "1")
-        @RequestHeader("X-User-Id") Long userId
+        @PathVariable Long imageId
     ) {
-        farmImageService.deleteImage(farmId, imageId, userId);
+        farmImageService.deleteImage(farmId, imageId);
     }
 
     @Operation(
         summary = "Set image as main",
-        description = "Sets the specified image as the main image for the farm. User must own the farm."
+        description = "Sets the specified image as the main image for the farm."
     )
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
             description = "Image set as main successfully"
-        ),
-        @ApiResponse(
-            responseCode = "403",
-            description = "Access denied",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
         ),
         @ApiResponse(
             responseCode = "404",
@@ -153,11 +132,8 @@ public class FarmImageController {
         @PathVariable Long farmId,
 
         @Parameter(description = "Image ID", required = true, example = "1")
-        @PathVariable Long imageId,
-
-        @Parameter(description = "Current user ID", required = true, example = "1")
-        @RequestHeader("X-User-Id") Long userId
+        @PathVariable Long imageId
     ) {
-        farmImageService.setMainImage(farmId, imageId, userId);
+        farmImageService.setMainImage(farmId, imageId);
     }
 }

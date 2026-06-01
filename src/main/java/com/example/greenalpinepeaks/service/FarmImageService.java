@@ -42,7 +42,7 @@ public class FarmImageService {
     }
 
     @Transactional
-    public void uploadImage(Long farmId, MultipartFile file, boolean isMain, Long userId) {
+    public void uploadImage(Long farmId, MultipartFile file, boolean isMain) {
         Farm farm = farmRepository.findById(farmId)
             .orElseThrow(() ->
                 new ResponseStatusException(
@@ -50,13 +50,7 @@ public class FarmImageService {
                     "Farm not found"
                 ));
 
-        // Проверяем права пользователя
-        if (farm.getOwner() == null || !farm.getOwner().getId().equals(userId)) {
-            throw new ResponseStatusException(
-                HttpStatus.FORBIDDEN,
-                "You don't have permission to modify this farm"
-            );
-        }
+        // Проверка прав УДАЛЕНА - админ может загружать фото для любой фермы
 
         if (file == null || file.isEmpty()) {
             throw new ResponseStatusException(
@@ -131,22 +125,7 @@ public class FarmImageService {
     }
 
     @Transactional
-    public void deleteImage(Long farmId, Long imageId, Long userId) {
-        Farm farm = farmRepository.findById(farmId)
-            .orElseThrow(() ->
-                new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Farm not found"
-                ));
-
-        // Проверяем права пользователя
-        if (farm.getOwner() == null || !farm.getOwner().getId().equals(userId)) {
-            throw new ResponseStatusException(
-                HttpStatus.FORBIDDEN,
-                "You don't have permission to modify this farm"
-            );
-        }
-
+    public void deleteImage(Long farmId, Long imageId) {
         FarmImage image = farmImageRepository.findById(imageId)
             .orElseThrow(() ->
                 new ResponseStatusException(
@@ -188,22 +167,7 @@ public class FarmImageService {
     }
 
     @Transactional
-    public void setMainImage(Long farmId, Long imageId, Long userId) {
-        // Проверяем существование фермы
-        Farm farm = farmRepository.findById(farmId)
-            .orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND,
-                "Farm not found"
-            ));
-
-        // Проверяем, что пользователь - владелец фермы
-        if (farm.getOwner() == null || !farm.getOwner().getId().equals(userId)) {
-            throw new ResponseStatusException(
-                HttpStatus.FORBIDDEN,
-                "You don't have permission to modify this farm"
-            );
-        }
-
+    public void setMainImage(Long farmId, Long imageId) {
         // Находим изображение
         FarmImage newMainImage = farmImageRepository.findById(imageId)
             .orElseThrow(() -> new ResponseStatusException(

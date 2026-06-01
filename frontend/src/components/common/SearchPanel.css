@@ -1,0 +1,106 @@
+.search-panel {
+    width: 100%;
+    height: 140px;
+    background-color: var(--accent-blue-light);
+    display: flex;
+    align-items: center;
+}
+
+.search-fields {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 16px;
+}
+
+.search-field {
+    width: 260px;
+}
+
+.search-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #555555;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.search-select-wrapper {
+    position: relative;
+}
+
+.search-select {
+    width: 100%;
+    height: 42px;
+    padding: 0 12px;
+    background-color: var(--bg-white);
+    border: 1px solid var(--border-gray);
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    appearance: none;
+    cursor: pointer;
+}
+
+.select-arrow {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px;
+    color: var(--text-light);
+    pointer-events: none;
+}
+
+.search-actions {
+    display: flex;
+    gap: 16px;
+}
+
+.btn-primary {
+    width: 140px;
+    height: 38px;
+    background-color: var(--primary-green);
+    color: var(--bg-white);
+    border: none;
+    border-radius: 38px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-green-dark);
+}
+
+.btn-secondary {
+    width: 140px;
+    height: 38px;
+    background-color: transparent;
+    color: var(--secondary-brown);
+    border: 1px solid var(--secondary-brown);
+    border-radius: 38px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background-color: rgba(139, 90, 43, 0.1);
+}
+
+.add-farm-button {
+    width: 220px;
+    height: 42px;
+    background-color: var(--primary-green);
+    color: var(--bg-white);
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: auto;
+}
+
+.add-farm-button:hover {
+    background-color: var(--primary-green-dark);
+}

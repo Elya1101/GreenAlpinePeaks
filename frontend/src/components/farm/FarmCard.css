@@ -1,0 +1,166 @@
+.farm-card {
+    display: flex;
+    width: 100%;
+    max-width: var(--container-width);
+    height: 180px;
+    background-color: var(--bg-white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    margin-bottom: 20px;
+    transition: opacity 0.3s, transform 0.2s;
+}
+
+.farm-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.farm-card-inactive {
+    opacity: 0.5;
+}
+
+.farm-card-image {
+    width: 240px;
+    height: 180px;
+    flex-shrink: 0;
+}
+
+.farm-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.farm-card-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #e8f4e8, #c5e0c5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+}
+
+.farm-card-content {
+    flex: 1;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.farm-card-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary-green);
+    margin-bottom: 8px;
+}
+
+.farm-card-description {
+    font-size: 14px;
+    color: #555555;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.farm-card-button {
+    position: absolute;
+    bottom: 20px;
+    right: 24px;
+    width: 130px;
+    height: 36px;
+    background-color: var(--accent-blue);
+    color: var(--bg-white);
+    border: none;
+    border-radius: 36px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.farm-card-button:hover {
+    background-color: #1e6a8a;
+}
+
+.farm-card-actions {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.farm-card-edit,
+.farm-card-delete {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.farm-card-edit:hover {
+    background-color: rgba(42, 123, 155, 0.1);
+}
+
+.farm-card-delete {
+    color: var(--error-red);
+}
+
+.farm-card-delete:hover {
+    background-color: rgba(211, 47, 47, 0.1);
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.3s;
+    border-radius: 24px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+    background-color: var(--primary-green);
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(20px);
+}

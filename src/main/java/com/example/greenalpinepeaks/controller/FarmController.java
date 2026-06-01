@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Set;
@@ -264,7 +263,7 @@ public class FarmController {
         @PathVariable Long id,
 
         @Parameter(description = "Updated farm data")
-        @Valid @RequestBody FarmUpdateDto dto,
+        @RequestBody FarmUpdateDto dto,
 
         @Parameter(description = "Current user ID", required = true, example = "1")
         @RequestHeader("X-User-Id") Long userId
@@ -338,84 +337,6 @@ public class FarmController {
         @RequestHeader("X-User-Id") Long userId
     ) {
         farmService.removeActivityFromFarm(farmId, activityId, userId);
-    }
-
-    @Operation(
-        summary = "Upload image for farm",
-        description = "Uploads an image for a specific farm. User must own the farm."
-    )
-    @PostMapping(value = "/{farmId}/images", consumes = "multipart/form-data")
-    public void uploadImage(
-        @Parameter(description = "Farm ID", required = true, example = "1")
-        @PathVariable Long farmId,
-
-        @Parameter(description = "Image file", required = true)
-        @RequestParam("image") MultipartFile file,
-
-        @Parameter(description = "Whether image is main", example = "false")
-        @RequestParam(value = "isMain", defaultValue = "false") boolean isMain,
-
-        @Parameter(description = "Current user ID", required = true, example = "1")
-        @RequestHeader("X-User-Id") Long userId
-    ) {
-        farmService.uploadImage(farmId, file, isMain, userId);
-    }
-
-    @Operation(
-        summary = "Get all images for farm",
-        description = "Returns all image URLs associated with a farm"
-    )
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "Images retrieved successfully"
-        ),
-        @ApiResponse(
-            responseCode = "404",
-            description = "Farm not found",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
-        )
-    })
-    @GetMapping("/{farmId}/images")
-    public List<String> getFarmImages(
-        @Parameter(description = "Farm ID", required = true, example = "1")
-        @PathVariable Long farmId
-    ) {
-        return farmService.getFarmImages(farmId);
-    }
-
-    @Operation(
-        summary = "Delete image",
-        description = "Deletes an image from a farm. User must own the farm."
-    )
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "Image deleted successfully"
-        ),
-        @ApiResponse(
-            responseCode = "403",
-            description = "Access denied",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
-        ),
-        @ApiResponse(
-            responseCode = "404",
-            description = "Farm or image not found",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
-        )
-    })
-    @DeleteMapping("/{farmId}/images/{imageId}")
-    public void deleteImage(
-        @Parameter(description = "Farm ID", required = true, example = "1")
-        @PathVariable Long farmId,
-
-        @Parameter(description = "Image ID", required = true, example = "1")
-        @PathVariable Long imageId,
-
-        @Parameter(description = "Current user ID", required = true, example = "1")
-        @RequestHeader("X-User-Id") Long userId
-    ) {
-        farmService.deleteImage(farmId, imageId, userId);
     }
 
     @Operation(

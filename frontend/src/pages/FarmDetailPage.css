@@ -1,0 +1,243 @@
+.farm-hero {
+    width: 100%;
+    height: 80px;
+    background-color: var(--primary-green);
+    display: flex;
+    align-items: center;
+}
+
+.farm-hero-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--bg-white);
+}
+
+.back-button {
+    background: none;
+    border: none;
+    color: var(--accent-blue);
+    font-size: 14px;
+    cursor: pointer;
+    margin: 24px 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.back-button:hover {
+    text-decoration: underline;
+}
+
+/* Галерея */
+.farm-gallery {
+    margin-bottom: 40px;
+}
+
+.gallery-container {
+    position: relative;
+    width: 100%;
+    max-width: 700px;
+    height: 450px;
+    margin: 0 auto;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.gallery-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.gallery-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    background-color: var(--bg-white);
+    border: none;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gallery-nav.prev {
+    left: 16px;
+}
+
+.gallery-nav.next {
+    right: 16px;
+}
+
+.gallery-nav:hover {
+    background-color: var(--accent-blue-light);
+}
+
+.gallery-thumbnails {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+
+.thumbnail {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.thumbnail:hover,
+.thumbnail.active {
+    opacity: 1;
+    border: 2px solid var(--primary-green);
+}
+
+/* Блок "О ферме" — новый дизайн */
+.farm-section {
+    background-color: var(--bg-white);
+    border-radius: var(--border-radius-lg);
+    padding: 32px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+}
+
+.farm-section-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+}
+
+.farm-section-left {
+    text-align: left;
+}
+
+.farm-section-right {
+    text-align: left;
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--primary-green);
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+/* Badge статуса */
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 20px;
+}
+
+.status-active-badge {
+    background-color: #e8f5e9;
+    color: var(--primary-green);
+}
+
+.status-inactive-badge {
+    background-color: #f5f5f5;
+    color: var(--text-light);
+}
+
+.farm-description {
+    font-size: 15px;
+    color: #4A4A4A;
+    line-height: 1.6;
+    text-align: left;
+}
+
+/* Факты (правая колонка) */
+.fact-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.fact-icon {
+    font-size: 18px;
+    min-width: 24px;
+    color: var(--secondary-brown);
+}
+
+.fact-label {
+    font-weight: 600;
+    color: var(--text-dark);
+    min-width: 140px;
+}
+
+.fact-value {
+    color: var(--text-gray);
+    flex: 1;
+}
+
+/* Контакты */
+.farm-contacts {
+    background-color: #FBF8F3;
+    border-radius: var(--border-radius-lg);
+    padding: 24px;
+    margin-bottom: 40px;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.contact-icon {
+    font-size: 18px;
+    width: 24px;
+}
+
+.contact-text {
+    font-size: 15px;
+    color: var(--text-dark);
+}
+
+.error-message {
+    text-align: center;
+    padding: 60px;
+    font-size: 18px;
+    color: var(--error-red);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .farm-section-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .fact-item {
+        flex-wrap: wrap;
+    }
+
+    .fact-label {
+        min-width: auto;
+    }
+}
+
+.loading-spinner {
+    text-align: center;
+    padding: 60px;
+    font-size: 18px;
+    color: var(--text-light);
+}

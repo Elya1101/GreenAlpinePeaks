@@ -8,7 +8,12 @@ import com.example.greenalpinepeaks.domain.Farm;
 import com.example.greenalpinepeaks.domain.FarmImage;
 import com.example.greenalpinepeaks.domain.Region;
 import com.example.greenalpinepeaks.domain.User;
-import com.example.greenalpinepeaks.dto.*;
+import com.example.greenalpinepeaks.dto.ActivityResponseDto;
+import com.example.greenalpinepeaks.dto.FarmCreateDto;
+import com.example.greenalpinepeaks.dto.FarmEditDto;
+import com.example.greenalpinepeaks.dto.FarmResponseDto;
+import com.example.greenalpinepeaks.dto.FarmSearchCriteria;
+import com.example.greenalpinepeaks.dto.FarmUpdateDto;
 import com.example.greenalpinepeaks.mapper.ActivityMapper;
 import com.example.greenalpinepeaks.mapper.FarmMapper;
 import com.example.greenalpinepeaks.repository.AccommodationRepository;
@@ -26,18 +31,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -45,12 +44,8 @@ import java.util.stream.Collectors;
 public class FarmService {
 
     private static final String FARM_NOT_FOUND = "Farm not found: ";
-    private static final String TRANSACTION_FAIL_MESSAGE =
-        "Ошибка: имя фермы 'fail' запрещено";
     private static final String REGION_REQUIRED_MESSAGE =
         "Region is required";
-
-    private static final String UPLOAD_DIR = "uploads/";
 
     private final ActivityRepository activityRepository;
     private final FarmRepository farmRepository;
@@ -59,7 +54,7 @@ public class FarmService {
     private final AccommodationRepository accommodationRepository;
     private final CacheService cacheService;
     private final UserRepository userRepository;
-    private final FarmImageRepository farmImageRepository;
+    private final FarmImageRepository farmImageRepository;  // ← Оставлен для чтения
 
     public FarmService(
         FarmRepository farmRepository,
@@ -69,9 +64,8 @@ public class FarmService {
         AccommodationRepository accommodationRepository,
         CacheService cacheService,
         UserRepository userRepository,
-        FarmImageRepository farmImageRepository
+        FarmImageRepository farmImageRepository  // ← Оставлен в конструкторе
     ) {
-
         this.farmRepository = farmRepository;
         this.regionRepository = regionRepository;
         this.activityRepository = activityRepository;
@@ -79,20 +73,10 @@ public class FarmService {
         this.accommodationRepository = accommodationRepository;
         this.cacheService = cacheService;
         this.userRepository = userRepository;
-        this.farmImageRepository = farmImageRepository;
-
-        try {
-            Files.createDirectories(Paths.get(UPLOAD_DIR));
-        } catch (IOException e) {
-            throw new RuntimeException(
-                "Failed to create upload directory",
-                e
-            );
-        }
+        this.farmImageRepository = farmImageRepository;  // ← Оставлен
     }
 
     public List<FarmResponseDto> getAllFarms() {
-
         return farmRepository.findAll()
             .stream()
             .map(FarmMapper::toDto)
@@ -100,7 +84,6 @@ public class FarmService {
     }
 
     public List<FarmResponseDto> getFarmsByOwner(Long ownerId) {
-
         return farmRepository.findAll()
             .stream()
             .filter(farm ->
@@ -112,7 +95,6 @@ public class FarmService {
     }
 
     public List<FarmResponseDto> getAllFarmsWithNPlusOne() {
-
         return farmRepository.findAllBy()
             .stream()
             .map(FarmMapper::toDto)
@@ -120,7 +102,6 @@ public class FarmService {
     }
 
     public List<FarmResponseDto> getFarmsByRegion(String region) {
-
         return farmRepository.findByRegionName(region)
             .stream()
             .map(FarmMapper::toDto)
@@ -128,7 +109,6 @@ public class FarmService {
     }
 
     public FarmResponseDto getFarmById(Long id) {
-
         Farm farm = farmRepository.findById(id)
             .orElseThrow(() ->
                 new ResponseStatusException(
@@ -142,7 +122,6 @@ public class FarmService {
 
     @Transactional(readOnly = true)
     public List<ActivityResponseDto> getFarmActivities(Long farmId) {
-
         Farm farm = farmRepository.findById(farmId)
             .orElseThrow(() ->
                 new ResponseStatusException(
@@ -164,7 +143,6 @@ public class FarmService {
         FarmCreateDto dto,
         Long userId
     ) {
-
         User owner = userRepository.findById(userId)
             .orElseThrow(() ->
                 new ResponseStatusException(
@@ -174,7 +152,6 @@ public class FarmService {
             );
 
         Farm farm = buildFarm(dto);
-
         farm.setOwner(owner);
 
         FarmResponseDto result =
@@ -187,7 +164,6 @@ public class FarmService {
 
     @Transactional
     public FarmResponseDto createFarm(FarmCreateDto dto) {
-
         Farm farm = buildFarm(dto);
 
         FarmResponseDto result =
@@ -203,7 +179,6 @@ public class FarmService {
         FarmCreateDto dto,
         Long userId
     ) {
-
         User owner = userRepository.findById(userId)
             .orElseThrow(() ->
                 new ResponseStatusException(
@@ -213,7 +188,6 @@ public class FarmService {
             );
 
         Farm farm = buildFarm(dto);
-
         farm.setOwner(owner);
 
         Accommodation house = new Accommodation();
@@ -236,103 +210,110 @@ public class FarmService {
     }
 
     @Transactional
-    public FarmResponseDto updateFarm(
-        Long id,
-        FarmUpdateDto dto,
-        Long userId
-    ) {
+    public FarmResponseDto updateFarm(Long id, FarmUpdateDto dto, Long userId) {
+        // Добавьте логирование
+        System.out.println("=== UPDATE FARM DEBUG ===");
+        System.out.println("Farm ID: " + id);
+        System.out.println("User ID: " + userId);
+        System.out.println("DTO name: " + dto.getName());
+        System.out.println("DTO region: " + dto.getRegion());
+        System.out.println("DTO description: " + dto.getDescription());
+        System.out.println("DTO email: " + dto.getEmail());
+        System.out.println("DTO phone: " + dto.getPhone());
+        System.out.println("DTO establishedYear: " + dto.getEstablishedYear());
+        System.out.println("DTO active: " + dto.isActive());
 
         Farm farm = farmRepository.findById(id)
-            .orElseThrow(() ->
-                new ResponseStatusException(
+            .orElseThrow(() -> {
+                System.err.println("Farm not found with ID: " + id);
+                return new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
                     FARM_NOT_FOUND + id
-                )
-            );
+                );
+            });
 
-        if (farm.getOwner() == null
-            || !farm.getOwner().getId().equals(userId)) {
+        System.out.println("Found farm: " + farm.getName());
+        System.out.println("Farm owner ID: " + (farm.getOwner() != null ? farm.getOwner().getId() : "null"));
 
+        // Проверяем права пользователя
+        if (farm.getOwner() == null || !farm.getOwner().getId().equals(userId)) {
+            System.err.println("Access denied. Farm owner: " +
+                (farm.getOwner() != null ? farm.getOwner().getId() : "null") +
+                ", Request user: " + userId);
             throw new ResponseStatusException(
                 HttpStatus.FORBIDDEN,
-                "You can only edit your own farms"
+                "You don't have permission to modify this farm"
             );
         }
 
-        if (dto.getName() != null
-            && !dto.getName().isBlank()) {
+        // Обновляем только не-null поля
+        try {
+            if (dto.getName() != null && !dto.getName().isBlank()) {
+                System.out.println("Updating name to: " + dto.getName());
+                farm.setName(dto.getName());
+            }
 
-            farm.setName(dto.getName());
-        }
+            farm.setActive(dto.isActive());
 
-        farm.setActive(dto.isActive());
+            if (dto.getRegion() != null && !dto.getRegion().isBlank()) {
+                System.out.println("Updating region to: " + dto.getRegion());
+                farm.setRegion(getOrCreateRegion(dto.getRegion()));
+            }
 
-        if (dto.getRegion() != null
-            && !dto.getRegion().isBlank()) {
+            if (dto.getDescription() != null) {
+                System.out.println("Updating description");
+                farm.setDescription(dto.getDescription());
+            }
 
-            farm.setRegion(
-                getOrCreateRegion(dto.getRegion())
+            if (dto.getEmail() != null) {
+                System.out.println("Updating email to: " + dto.getEmail());
+                farm.setEmail(dto.getEmail());
+            }
+
+            if (dto.getPhone() != null) {
+                System.out.println("Updating phone to: " + dto.getPhone());
+                farm.setPhone(dto.getPhone());
+            }
+
+            if (dto.getEstablishedYear() != null) {
+                System.out.println("Updating establishedYear to: " + dto.getEstablishedYear());
+                farm.setEstablishedYear(dto.getEstablishedYear());
+            }
+
+            Farm savedFarm = farmRepository.save(farm);
+            System.out.println("Farm saved successfully with ID: " + savedFarm.getId());
+
+            FarmResponseDto result = FarmMapper.toDto(savedFarm);
+            cacheService.invalidateFarmSearchCache();
+            return result;
+
+        } catch (Exception e) {
+            System.err.println("Error updating farm: " + e.getMessage());
+            e.printStackTrace();
+            throw new ResponseStatusException(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Error updating farm: " + e.getMessage()
             );
         }
-
-        if (dto.getDescription() != null) {
-            farm.setDescription(dto.getDescription());
-        }
-
-        if (dto.getEmail() != null) {
-            farm.setEmail(dto.getEmail());
-        }
-
-        if (dto.getPhone() != null) {
-            farm.setPhone(dto.getPhone());
-        }
-
-        if (dto.getEstablishedYear() != null) {
-            farm.setEstablishedYear(
-                dto.getEstablishedYear()
-            );
-        }
-
-        FarmResponseDto result =
-            FarmMapper.toDto(farmRepository.save(farm));
-
-        cacheService.invalidateFarmSearchCache();
-
-        return result;
     }
 
     @Transactional
     public void deleteFarm(Long id, Long userId) {
-
         Farm farm = farmRepository.findById(id)
-            .orElseThrow(() ->
-                new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    FARM_NOT_FOUND + id
-                )
-            );
-
-        if (farm.getOwner() == null
-            || !farm.getOwner().getId().equals(userId)) {
-
-            throw new ResponseStatusException(
-                HttpStatus.FORBIDDEN,
-                "You can only delete your own farms"
-            );
-        }
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                FARM_NOT_FOUND + id));
 
         List<Accommodation> accommodations =
             accommodationRepository.findByFarmId(id);
 
         for (Accommodation accommodation : accommodations) {
-
             List<Booking> bookings =
                 bookingRepository.findByAccommodationId(
                     accommodation.getId()
                 );
 
             if (!bookings.isEmpty()) {
-
                 throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
                     String.format(
@@ -359,7 +340,6 @@ public class FarmService {
         Long activityId,
         Long userId
     ) {
-
         Farm farm = farmRepository.findById(farmId)
             .orElseThrow(() ->
                 new ResponseStatusException(
@@ -368,22 +348,12 @@ public class FarmService {
                 )
             );
 
-        if (farm.getOwner() == null
-            || !farm.getOwner().getId().equals(userId)) {
-
-            throw new ResponseStatusException(
-                HttpStatus.FORBIDDEN,
-                "You can only add activities to your own farms"
-            );
-        }
-
         Activity activity =
             activityRepository.findById(activityId)
                 .orElseThrow(() ->
                     new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        "Activity not found: "
-                            + activityId
+                        "Activity not found: " + activityId
                     )
                 );
 
@@ -431,19 +401,20 @@ public class FarmService {
                 return ad;
             }).toList());
 
+        // ✅ Оставляем - только для чтения URL изображений
         dto.setImageUrls(farmImageRepository.findByFarmId(farmId).stream()
             .map(FarmImage::getImageUrl)
             .toList());
 
         return dto;
     }
+
     @Transactional
     public void removeActivityFromFarm(
         Long farmId,
         Long activityId,
         Long userId
     ) {
-
         Farm farm = farmRepository.findById(farmId)
             .orElseThrow(() ->
                 new ResponseStatusException(
@@ -452,22 +423,12 @@ public class FarmService {
                 )
             );
 
-        if (farm.getOwner() == null
-            || !farm.getOwner().getId().equals(userId)) {
-
-            throw new ResponseStatusException(
-                HttpStatus.FORBIDDEN,
-                "You can only remove activities from your own farms"
-            );
-        }
-
         Activity activity =
             activityRepository.findById(activityId)
                 .orElseThrow(() ->
                     new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        "Activity not found: "
-                            + activityId
+                        "Activity not found: " + activityId
                     )
                 );
 
@@ -479,206 +440,18 @@ public class FarmService {
         cacheService.invalidateFarmSearchCache();
     }
 
-    @Transactional
-    public void uploadImage(
-        Long farmId,
-        MultipartFile file,
-        boolean isMain,
-        Long userId
-    ) {
-
-        Farm farm = farmRepository.findById(farmId)
-            .orElseThrow(() ->
-                new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Farm not found"
-                )
-            );
-
-        if (farm.getOwner() == null
-            || !farm.getOwner().getId().equals(userId)) {
-
-            throw new ResponseStatusException(
-                HttpStatus.FORBIDDEN,
-                "You can only add images to your own farms"
-            );
-        }
-
-        if (file.isEmpty()) {
-
-            throw new ResponseStatusException(
-                HttpStatus.BAD_REQUEST,
-                "Image file is empty"
-            );
-        }
-
-        String contentType = file.getContentType();
-
-        if (contentType == null
-            || !contentType.startsWith("image/")) {
-
-            throw new ResponseStatusException(
-                HttpStatus.BAD_REQUEST,
-                "Only image files are allowed"
-            );
-        }
-
-        try {
-
-            String originalFilename =
-                file.getOriginalFilename();
-
-            String extension = "";
-
-            if (originalFilename != null
-                && originalFilename.contains(".")) {
-
-                extension =
-                    originalFilename.substring(
-                        originalFilename.lastIndexOf(".")
-                    );
-            }
-
-            String fileName =
-                UUID.randomUUID() + extension;
-
-            Path uploadPath =
-                Paths.get(UPLOAD_DIR);
-
-            Files.createDirectories(uploadPath);
-
-            Path filePath =
-                uploadPath.resolve(fileName);
-
-            Files.write(filePath, file.getBytes());
-
-            if (isMain) {
-
-                List<FarmImage> existingImages =
-                    farmImageRepository.findByFarmId(
-                        farmId
-                    );
-
-                for (FarmImage image : existingImages) {
-
-                    image.setMain(false);
-
-                    farmImageRepository.save(image);
-                }
-            }
-
-            FarmImage farmImage = new FarmImage();
-
-            farmImage.setImageUrl(
-                "/uploads/" + fileName
-            );
-
-            farmImage.setMain(isMain);
-            farmImage.setFarm(farm);
-
-            farmImageRepository.save(farmImage);
-
-        } catch (IOException e) {
-
-            throw new ResponseStatusException(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                "Failed to upload image"
-            );
-        }
-    }
-
-    public List<String> getFarmImages(Long farmId) {
-
-        Farm farm = farmRepository.findById(farmId)
-            .orElseThrow(() ->
-                new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Farm not found"
-                )
-            );
-
-        return farmImageRepository.findByFarmId(
-                farm.getId()
-            )
-            .stream()
-            .map(FarmImage::getImageUrl)
-            .toList();
-    }
-
-    @Transactional
-    public void deleteImage(
-        Long farmId,
-        Long imageId,
-        Long userId
-    ) {
-
-        Farm farm = farmRepository.findById(farmId)
-            .orElseThrow(() ->
-                new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Farm not found"
-                )
-            );
-
-        if (farm.getOwner() == null
-            || !farm.getOwner().getId().equals(userId)) {
-
-            throw new ResponseStatusException(
-                HttpStatus.FORBIDDEN,
-                "You can only delete images from your own farms"
-            );
-        }
-
-        FarmImage image =
-            farmImageRepository.findById(imageId)
-                .orElseThrow(() ->
-                    new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Image not found"
-                    )
-                );
-
-        if (!image.getFarm().getId().equals(farmId)) {
-
-            throw new ResponseStatusException(
-                HttpStatus.BAD_REQUEST,
-                "Image does not belong to this farm"
-            );
-        }
-
-        try {
-
-            Path filePath =
-                Paths.get(
-                    image.getImageUrl().substring(1)
-                );
-
-            Files.deleteIfExists(filePath);
-
-        } catch (IOException ignored) {
-
-        }
-
-        farmImageRepository.delete(image);
-    }
-
     public List<FarmResponseDto>
         findActiveFarmsByAccommodationTypes(
         Set<String> accommodationTypes
     ) {
-
         FarmSearchCriteria criteria =
             FarmSearchCriteria.builder()
                 .active(true)
-                .accommodationTypes(
-                    accommodationTypes
-                )
+                .accommodationTypes(accommodationTypes)
                 .build();
 
         List<FarmResponseDto> cached =
-            cacheService.getCachedFarmSearch(
-                criteria
-            );
+            cacheService.getCachedFarmSearch(criteria);
 
         if (cached != null) {
             return cached;
@@ -691,19 +464,14 @@ public class FarmService {
 
         List<Farm> farms =
             farmRepository
-                .findActiveFarmsWithAccommodationTypesEager(
-                    typesList
-                );
+                .findActiveFarmsWithAccommodationTypesEager(typesList);
 
         List<FarmResponseDto> result =
             farms.stream()
                 .map(FarmMapper::toDto)
                 .toList();
 
-        cacheService.putFarmSearch(
-            criteria,
-            result
-        );
+        cacheService.putFarmSearch(criteria, result);
 
         return result;
     }
@@ -712,12 +480,8 @@ public class FarmService {
         findActiveFarmsByNameNative(
         String namePart
     ) {
-
         List<Farm> farms =
-            farmRepository
-                .findActiveFarmsByNameNative(
-                    namePart
-                );
+            farmRepository.findActiveFarmsByNameNative(namePart);
 
         return farms.stream()
             .map(FarmMapper::toDto)
@@ -728,7 +492,6 @@ public class FarmService {
         getAllFarmsPaginated(
         Pageable pageable
     ) {
-
         Pageable defaultPageable =
             pageable.getSort().isSorted()
                 ? pageable
@@ -739,18 +502,14 @@ public class FarmService {
             );
 
         Page<Long> idsPage =
-            farmRepository.findAllIds(
-                defaultPageable
-            );
+            farmRepository.findAllIds(defaultPageable);
 
         if (idsPage.isEmpty()) {
             return Page.empty(pageable);
         }
 
         List<Farm> farms =
-            farmRepository.findAllByIdIn(
-                idsPage.getContent()
-            );
+            farmRepository.findAllByIdIn(idsPage.getContent());
 
         Map<Long, FarmResponseDto> farmMap =
             farms.stream()
@@ -779,7 +538,6 @@ public class FarmService {
         Set<String> accommodationTypes,
         Pageable pageable
     ) {
-
         List<String> typesList =
             accommodationTypes != null
                 ? List.copyOf(accommodationTypes)
@@ -800,7 +558,6 @@ public class FarmService {
         Set<String> accommodationTypes,
         Pageable pageable
     ) {
-
         Pageable withoutSort =
             PageRequest.of(
                 pageable.getPageNumber(),
@@ -830,9 +587,7 @@ public class FarmService {
                 .toList();
 
         List<Farm> farmsWithData =
-            farmRepository.findAllByIdIn(
-                farmIds
-            );
+            farmRepository.findAllByIdIn(farmIds);
 
         Map<Long, Farm> farmMap =
             farmsWithData.stream()
@@ -860,43 +615,27 @@ public class FarmService {
     }
 
     private Farm buildFarm(FarmCreateDto dto) {
-
-        if (farmRepository.existsByName(
-            dto.getName())) {
-
+        if (farmRepository.existsByName(dto.getName())) {
             throw new ResponseStatusException(
                 HttpStatus.BAD_REQUEST,
-                "Farm already exists: "
-                    + dto.getName()
+                "Farm already exists: " + dto.getName()
             );
         }
 
         Farm farm = new Farm();
-
         farm.setName(dto.getName());
         farm.setActive(dto.isActive());
-        farm.setRegion(
-            getOrCreateRegion(dto.getRegion())
-        );
-        farm.setDescription(
-            dto.getDescription()
-        );
+        farm.setRegion(getOrCreateRegion(dto.getRegion()));
+        farm.setDescription(dto.getDescription());
         farm.setEmail(dto.getEmail());
         farm.setPhone(dto.getPhone());
-        farm.setEstablishedYear(
-            dto.getEstablishedYear()
-        );
+        farm.setEstablishedYear(dto.getEstablishedYear());
 
         return farm;
     }
 
-    private Region getOrCreateRegion(
-        String name
-    ) {
-
-        if (name == null
-            || name.isBlank()) {
-
+    private Region getOrCreateRegion(String name) {
+        if (name == null || name.isBlank()) {
             throw new ResponseStatusException(
                 HttpStatus.BAD_REQUEST,
                 REGION_REQUIRED_MESSAGE
@@ -905,14 +644,9 @@ public class FarmService {
 
         return regionRepository.findByName(name)
             .orElseGet(() -> {
-
                 Region region = new Region();
-
                 region.setName(name);
-
-                return regionRepository.save(
-                    region
-                );
+                return regionRepository.save(region);
             });
     }
 }

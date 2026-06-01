@@ -1,0 +1,473 @@
+/* Hero секция для админа */
+.admin-hero {
+    background-color: var(--primary-green);
+    position: relative;
+}
+
+.hero-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.hero-title-input {
+    font-size: 26px;
+    font-weight: 700;
+    background: transparent;
+    border: 2px solid var(--bg-white);
+    border-radius: 8px;
+    padding: 8px 16px;
+    color: var(--bg-white);
+    width: 100%;
+    max-width: 500px;
+}
+
+.hero-title-input:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+}
+
+.edit-icon-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.edit-icon-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Редактируемые поля */
+.editable-field {
+    margin-bottom: 20px;
+}
+
+.field-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.field-label {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.inline-edit-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--accent-blue);
+    padding: 4px;
+}
+
+.inline-edit-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--accent-blue);
+    margin-left: 8px;
+    padding: 4px;
+}
+
+.edit-textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-gray);
+    border-radius: var(--border-radius);
+    font-size: 15px;
+    font-family: inherit;
+    resize: vertical;
+}
+
+.edit-input {
+    padding: 6px 12px;
+    border: 1px solid var(--border-gray);
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    width: 150px;
+}
+
+.edit-select {
+    padding: 6px 12px;
+    border: 1px solid var(--border-gray);
+    border-radius: var(--border-radius);
+    font-size: 14px;
+}
+
+/* Статус контрол */
+.status-control {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.status-label {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.status-toggle {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.status-toggle.active {
+    background-color: #e8f5e9;
+    color: var(--primary-green);
+}
+
+.status-toggle.inactive {
+    background-color: #f5f5f5;
+    color: var(--text-light);
+}
+
+/* Редактируемые списки */
+.editable-list {
+    flex: 1;
+}
+
+.list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding: 4px 8px;
+    background-color: #f9f9f9;
+    border-radius: var(--border-radius);
+}
+
+.remove-item-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--error-red);
+    font-size: 14px;
+    padding: 4px;
+}
+
+.add-item-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.add-select {
+    padding: 6px 12px;
+    border: 1px solid var(--border-gray);
+    border-radius: var(--border-radius);
+    font-size: 13px;
+    flex: 1;
+    min-width: 150px;
+}
+
+.add-input {
+    padding: 6px 12px;
+    border: 1px solid var(--border-gray);
+    border-radius: var(--border-radius);
+    font-size: 13px;
+    width: 120px;
+}
+
+.add-btn {
+    padding: 6px 16px;
+    background-color: var(--primary-green);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.add-btn:hover {
+    background-color: var(--primary-green-dark);
+}
+
+/* Галерея с кнопками админа */
+.admin-gallery {
+    position: relative;
+}
+
+.gallery-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.gallery-delete-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    background-color: rgba(211, 47, 47, 0.8);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+    z-index: 10;
+}
+
+.gallery-delete-btn:hover {
+    background-color: var(--error-red);
+}
+
+.gallery-add-btn {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    background-color: var(--accent-blue);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-sm);
+    transition: background-color 0.2s;
+    z-index: 10;
+}
+
+.gallery-add-btn:hover {
+    background-color: #1e6a8a;
+}
+
+/* Контактные данные с редактированием */
+.contact-label {
+    font-weight: 500;
+    color: var(--text-dark);
+    min-width: 120px;
+}
+
+/* Sticky Bottom Bar */
+.sticky-bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    background-color: var(--bg-white);
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.bottom-bar-container {
+    max-width: var(--container-width);
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+}
+
+.bottom-bar-save {
+    width: 200px;
+    height: 44px;
+    background-color: var(--primary-green);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.bottom-bar-save:hover:not(:disabled) {
+    background-color: var(--primary-green-dark);
+}
+
+.bottom-bar-save:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.bottom-bar-cancel {
+    width: 120px;
+    height: 44px;
+    background-color: transparent;
+    color: var(--text-dark);
+    border: 1px solid var(--border-gray);
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.bottom-bar-cancel:hover {
+    background-color: #f5f5f5;
+}
+
+/* Модальное окно */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: var(--bg-white);
+    border-radius: var(--border-radius-lg);
+    padding: 32px;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: var(--shadow-lg);
+}
+
+.modal-content h3 {
+    font-size: 20px;
+    margin-bottom: 16px;
+    color: var(--primary-green);
+}
+
+.modal-content p {
+    margin-bottom: 24px;
+    color: var(--text-gray);
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.modal-btn-cancel {
+    padding: 10px 20px;
+    background-color: transparent;
+    border: 1px solid var(--border-gray);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.modal-btn-confirm {
+    padding: 10px 20px;
+    background-color: var(--error-red);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.modal-btn-confirm:hover {
+    background-color: #b71c1c;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .hero-title-input {
+        font-size: 20px;
+    }
+
+    .add-item-row {
+        flex-direction: column;
+    }
+
+    .add-select, .add-input {
+        width: 100%;
+    }
+
+    .bottom-bar-container {
+        padding: 0 12px;
+    }
+
+    .bottom-bar-save {
+        width: 160px;
+    }
+
+    .bottom-bar-cancel {
+        width: 100px;
+    }
+
+    /* Добавь в конец файла */
+
+    .admin-nav-buttons {
+        display: flex;
+        gap: 16px;
+        margin: 24px 0;
+        align-items: center;
+    }
+
+    .exit-button {
+        padding: 8px 16px;
+        background-color: var(--accent-blue);
+        color: white;
+        border: none;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .exit-button:hover {
+        background-color: #1e6a8a;
+    }
+
+    .delete-farm-button {
+        padding: 8px 16px;
+        background-color: var(--error-red);
+        color: white;
+        border: none;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        font-size: 14px;
+        margin-left: auto;
+    }
+
+    .delete-farm-button:hover {
+        background-color: #b71c1c;
+    }
+
+    .gallery-empty {
+        text-align: center;
+        padding: 60px;
+        background-color: var(--bg-white);
+        border-radius: var(--border-radius);
+    }
+
+    .gallery-add-btn-empty {
+        margin-top: 16px;
+        padding: 10px 20px;
+        background-color: var(--accent-blue);
+        color: white;
+        border: none;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+    }
+}

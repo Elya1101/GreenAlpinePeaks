@@ -19,7 +19,8 @@ public class FarmImage {
     @Column(nullable = false)
     private String imageUrl;
 
-    private boolean isMain;
+    @Column(name = "is_main", nullable = false)
+    private boolean isMain = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "farm_id", nullable = false)

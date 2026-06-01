@@ -62,27 +62,19 @@ const FarmDetailPage = () => {
 
     const nextImage = () => {
         if (images.length === 0) return;
-
-        setCurrentImageIndex(
-            prev => (prev + 1) % images.length
-        );
+        setCurrentImageIndex(prev => (prev + 1) % images.length);
     };
 
     const prevImage = () => {
         if (images.length === 0) return;
-
-        setCurrentImageIndex(
-            prev => (prev - 1 + images.length) % images.length
-        );
+        setCurrentImageIndex(prev => (prev - 1 + images.length) % images.length);
     };
 
     if (loading) {
         return (
             <div>
                 <Header />
-                <div className="loading-spinner">
-                    Загрузка фермы...
-                </div>
+                <div className="loading-spinner">Загрузка фермы...</div>
                 <Footer />
             </div>
         );
@@ -92,26 +84,19 @@ const FarmDetailPage = () => {
         return (
             <div>
                 <Header />
-                <div className="error-message">
-                    Ферма не найдена
-                </div>
+                <div className="error-message">Ферма не найдена</div>
                 <Footer />
             </div>
         );
     }
 
     // Форматируем список проживания для отображения
-    const accommodationsList =
-        farm.accommodations?.map(
-            acc =>
-                `${accommodationTypeMap[acc.type] || acc.type} — ${acc.price}€ / неделя`
-        ).join('; ') ||
-        'Информация о жилье отсутствует';
+    const accommodationsList = farm.accommodations?.map(acc =>
+        `${accommodationTypeMap[acc.type] || acc.type} — ${acc.price}€ / неделя`
+    ).join('; ') || 'Информация о жилье отсутствует';
 
     // Форматируем список активностей
-    const activitiesList =
-        farm.activities?.map(act => act.name).join(', ') ||
-        'Информация о работе отсутствует';
+    const activitiesList = farm.activities?.map(act => act.name).join(', ') || 'Информация о работе отсутствует';
 
     return (
         <div>
@@ -119,17 +104,12 @@ const FarmDetailPage = () => {
 
             <div className="farm-hero">
                 <div className="container">
-                    <h1 className="farm-hero-title">
-                        {farm.name}
-                    </h1>
+                    <h1 className="farm-hero-title">{farm.name}</h1>
                 </div>
             </div>
 
             <div className="container">
-                <button
-                    className="back-button"
-                    onClick={() => navigate('/')}
-                >
+                <button className="back-button" onClick={() => navigate('/')}>
                     ← На главную
                 </button>
 
@@ -138,169 +118,77 @@ const FarmDetailPage = () => {
                     {images.length > 0 ? (
                         <>
                             <div className="gallery-container">
-                                <button
-                                    className="gallery-nav prev"
-                                    onClick={prevImage}
-                                >
-                                    ⟨
-                                </button>
-
-                                <img
-                                    src={images[currentImageIndex]}
-                                    alt={farm.name}
-                                    className="gallery-image"
-                                />
-
-                                <button
-                                    className="gallery-nav next"
-                                    onClick={nextImage}
-                                >
-                                    ⟩
-                                </button>
+                                <button className="gallery-nav prev" onClick={prevImage}>⟨</button>
+                                <img src={images[currentImageIndex]} alt={farm.name} className="gallery-image" />
+                                <button className="gallery-nav next" onClick={nextImage}>⟩</button>
                             </div>
-
                             <div className="gallery-thumbnails">
                                 {images.map((img, idx) => (
                                     <img
                                         key={idx}
                                         src={img}
                                         alt={`Фото ${idx + 1}`}
-                                        className={`thumbnail ${
-                                            idx === currentImageIndex
-                                                ? 'active'
-                                                : ''
-                                        }`}
-                                        onClick={() =>
-                                            setCurrentImageIndex(idx)
-                                        }
+                                        className={`thumbnail ${idx === currentImageIndex ? 'active' : ''}`}
+                                        onClick={() => setCurrentImageIndex(idx)}
                                     />
                                 ))}
                             </div>
                         </>
                     ) : (
                         <div className="gallery-container">
-                            <img
-                                src="https://via.placeholder.com/1200x800?text=Нет+фото"
-                                alt="Нет фотографий"
-                                className="gallery-image"
-                            />
+                            <img src="https://via.placeholder.com/1200x800?text=Нет+фото" alt="Нет фотографий" className="gallery-image" />
                         </div>
                     )}
                 </div>
 
-                {/* Блок "О ферме" — новый двухколоночный дизайн */}
+                {/* Блок "О ферме" - без телефона и email */}
                 <div className="farm-section">
                     <div className="farm-section-grid">
-                        {/* Левая колонка — Текст и Суть */}
                         <div className="farm-section-left">
-                            <h2 className="section-title">
-                                О ферме
-                            </h2>
-
-                            {/* Badge статуса */}
-                            <div
-                                className={`status-badge ${
-                                    farm.active
-                                        ? 'status-active-badge'
-                                        : 'status-inactive-badge'
-                                }`}
-                            >
-                                {farm.active
-                                    ? '● Активна'
-                                    : '○ Не активна'}
+                            <h2 className="section-title">О ферме</h2>
+                            <div className={`status-badge ${farm.active ? 'status-active-badge' : 'status-inactive-badge'}`}>
+                                {farm.active ? '● Активна' : '○ Не активна'}
                             </div>
-
                             <p className="farm-description">
-                                {farm.description ||
-                                    'Описание фермы пока не добавлено. Это место, где традиции альпийского фермерства сочетаются с гостеприимством и заботой о природе.'}
+                                {farm.description || 'Описание фермы пока не добавлено. Это место, где традиции альпийского фермерства сочетаются с гостеприимством и заботой о природе.'}
                             </p>
                         </div>
 
-                        {/* Правая колонка — Характеристики */}
                         <div className="farm-section-right">
                             <div className="fact-item">
-                                <span className="fact-icon">
-                                    📅
-                                </span>
-                                <span className="fact-label">
-                                    Год основания:
-                                </span>
-                                <span className="fact-value">
-                                    {farm.establishedYear || '—'}
-                                </span>
+                                <span className="fact-icon">📅</span>
+                                <span className="fact-label">Год основания:</span>
+                                <span className="fact-value">{farm.establishedYear || '—'}</span>
                             </div>
-
                             <div className="fact-item">
-                                <span className="fact-icon">
-                                    📍
-                                </span>
-                                <span className="fact-label">
-                                    Регион:
-                                </span>
-                                <span className="fact-value">
-                                    {farm.region}
-                                </span>
+                                <span className="fact-icon">📍</span>
+                                <span className="fact-label">Регион:</span>
+                                <span className="fact-value">{farm.region}</span>
                             </div>
-
                             <div className="fact-item">
-                                <span className="fact-icon">
-                                    🏠
-                                </span>
-                                <span className="fact-label">
-                                    Виды жилья:
-                                </span>
-                                <span className="fact-value">
-                                    {accommodationsList}
-                                </span>
+                                <span className="fact-icon">🏠</span>
+                                <span className="fact-label">Виды жилья:</span>
+                                <span className="fact-value">{accommodationsList}</span>
                             </div>
-
                             <div className="fact-item">
-                                <span className="fact-icon">
-                                    🎯
-                                </span>
-                                <span className="fact-label">
-                                    Работа и развлечения:
-                                </span>
-                                <span className="fact-value">
-                                    {activitiesList}
-                                </span>
+                                <span className="fact-icon">🎯</span>
+                                <span className="fact-label">Работа и развлечения:</span>
+                                <span className="fact-value">{activitiesList}</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Контактные данные */}
+                {/* Контактные данные фермы - теперь показываем реальные данные фермы */}
                 <div className="farm-contacts">
-                    <h2 className="section-title">
-                        Контактные данные
-                    </h2>
-
+                    <h2 className="section-title">Контактные данные фермы</h2>
                     <div className="contact-item">
-                        <span className="contact-icon">
-                            📞
-                        </span>
-                        <span className="contact-text">
-                            +375 (29) 369-45-89 (для туристов)
-                        </span>
+                        <span className="contact-icon">📞</span>
+                        <span className="contact-text">{farm.phone || 'Телефон не указан'}</span>
                     </div>
-
                     <div className="contact-item">
-                        <span className="contact-icon">
-                            📞
-                        </span>
-                        <span className="contact-text">
-                            +375 (44) 700-92-65 (для агентов)
-                        </span>
-                    </div>
-
-                    <div className="contact-item">
-                        <span className="contact-icon">
-                            ✉️
-                        </span>
-                        <span className="contact-text">
-                            {farm.email ||
-                                'info@greenalpinepeaks.com'}
-                        </span>
+                        <span className="contact-icon">✉️</span>
+                        <span className="contact-text">{farm.email || 'Email не указан'}</span>
                     </div>
                 </div>
             </div>

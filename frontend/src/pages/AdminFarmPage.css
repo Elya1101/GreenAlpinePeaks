@@ -1,112 +1,261 @@
-/* Hero секция для админа */
-.admin-hero {
+.farm-hero {
+    width: 100%;
+    height: 80px;
     background-color: var(--primary-green);
-    position: relative;
-}
-
-.hero-title-wrapper {
     display: flex;
     align-items: center;
-    gap: 16px;
 }
 
-.hero-title-input {
+.farm-hero-title {
     font-size: 26px;
     font-weight: 700;
-    background: transparent;
-    border: 2px solid var(--bg-white);
-    border-radius: 8px;
-    padding: 8px 16px;
     color: var(--bg-white);
+}
+
+.back-button {
+    background: none;
+    border: none;
+    color: var(--accent-blue);
+    font-size: 14px;
+    cursor: pointer;
+    margin: 24px 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.back-button:hover {
+    text-decoration: underline;
+}
+
+.admin-nav-buttons {
+    display: flex;
+    gap: 16px;
+    margin: 24px 0;
+    align-items: center;
+}
+
+/* Стили для галереи */
+.farm-gallery {
+    margin-bottom: 40px;
+}
+
+.gallery-container {
+    position: relative;
     width: 100%;
-    max-width: 500px;
+    max-width: 700px;
+    height: 450px;
+    margin: 0 auto;
+    border-radius: var(--border-radius);
+    overflow: hidden;
 }
 
-.hero-title-input:focus {
-    outline: none;
-    border-color: var(--accent-blue);
+.gallery-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
-.edit-icon-btn {
-    background: rgba(255, 255, 255, 0.2);
+.gallery-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    background-color: var(--bg-white);
     border: none;
     border-radius: 50%;
-    width: 36px;
-    height: 36px;
+    font-size: 24px;
     cursor: pointer;
-    font-size: 18px;
+    box-shadow: var(--shadow-sm);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gallery-nav.prev {
+    left: 16px;
+}
+
+.gallery-nav.next {
+    right: 16px;
+}
+
+.gallery-nav:hover {
+    background-color: var(--accent-blue-light);
+}
+
+.gallery-thumbnails {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+
+.thumbnail {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.thumbnail:hover,
+.thumbnail.active {
+    opacity: 1;
+    border: 2px solid var(--primary-green);
+}
+
+.gallery-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.gallery-delete-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    background-color: rgba(211, 47, 47, 0.8);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: background-color 0.2s;
+    z-index: 10;
 }
 
-.edit-icon-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
+.gallery-delete-btn:hover {
+    background-color: var(--error-red);
 }
 
-/* Редактируемые поля */
-.editable-field {
-    margin-bottom: 20px;
-}
-
-.field-header {
+.gallery-add-btn {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    background-color: var(--accent-blue);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 24px;
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
+    justify-content: center;
+    box-shadow: var(--shadow-sm);
+    transition: background-color 0.2s;
+    z-index: 10;
 }
 
-.field-label {
+.gallery-add-btn:hover {
+    background-color: #1e6a8a;
+}
+
+.gallery-set-main-btn {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    width: 40px;
+    height: 40px;
+    background-color: rgba(0, 0, 0, 0.6);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+    z-index: 10;
+}
+
+.gallery-set-main-btn:hover {
+    background-color: var(--primary-green);
+}
+
+.main-image-badge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: gold;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    z-index: 10;
+}
+
+.thumbnail-main-badge {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    color: gold;
+    font-size: 12px;
+    text-shadow: 0 0 2px black;
+}
+
+.thumbnail-wrapper {
+    position: relative;
+}
+
+.gallery-empty {
+    text-align: center;
+    padding: 60px;
+    background-color: var(--bg-white);
+    border-radius: var(--border-radius);
+}
+
+.gallery-add-btn-empty {
+    margin-top: 16px;
+    padding: 10px 20px;
+    background-color: var(--accent-blue);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+}
+
+/* Блок "О ферме" */
+.farm-section {
+    background-color: var(--bg-white);
+    border-radius: var(--border-radius-lg);
+    padding: 32px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+}
+
+.farm-section-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+}
+
+.farm-section-left {
+    text-align: left;
+}
+
+.farm-section-right {
+    text-align: left;
+}
+
+.section-title {
+    font-size: 20px;
     font-weight: 600;
-    color: var(--text-dark);
+    color: var(--primary-green);
+    margin-bottom: 16px;
+    text-align: left;
 }
 
-.inline-edit-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-    color: var(--accent-blue);
-    padding: 4px;
-}
-
-.inline-edit-icon {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-    color: var(--accent-blue);
-    margin-left: 8px;
-    padding: 4px;
-}
-
-.edit-textarea {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid var(--border-gray);
-    border-radius: var(--border-radius);
-    font-size: 15px;
-    font-family: inherit;
-    resize: vertical;
-}
-
-.edit-input {
-    padding: 6px 12px;
-    border: 1px solid var(--border-gray);
-    border-radius: var(--border-radius);
-    font-size: 14px;
-    width: 150px;
-}
-
-.edit-select {
-    padding: 6px 12px;
-    border: 1px solid var(--border-gray);
-    border-radius: var(--border-radius);
-    font-size: 14px;
-}
-
-/* Статус контрол */
 .status-control {
     display: flex;
     align-items: center;
@@ -139,7 +288,81 @@
     color: var(--text-light);
 }
 
-/* Редактируемые списки */
+.editable-field {
+    margin-bottom: 20px;
+}
+
+.field-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.field-label {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.edit-input-full {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-gray);
+    border-radius: var(--border-radius);
+    font-size: 14px;
+}
+
+.edit-textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-gray);
+    border-radius: var(--border-radius);
+    font-size: 15px;
+    font-family: inherit;
+    resize: vertical;
+}
+
+.edit-input-small {
+    width: 180px;
+    padding: 6px 12px;
+    border: 1px solid var(--border-gray);
+    border-radius: var(--border-radius);
+    font-size: 14px;
+}
+
+.edit-select {
+    padding: 6px 12px;
+    border: 1px solid var(--border-gray);
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    width: 180px;
+}
+
+.fact-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.fact-icon {
+    font-size: 18px;
+    min-width: 24px;
+    color: var(--secondary-brown);
+}
+
+.fact-label {
+    font-weight: 600;
+    color: var(--text-dark);
+    min-width: 140px;
+}
+
+.fact-value {
+    color: var(--text-gray);
+    flex: 1;
+}
+
 .editable-list {
     flex: 1;
 }
@@ -199,69 +422,6 @@
 
 .add-btn:hover {
     background-color: var(--primary-green-dark);
-}
-
-/* Галерея с кнопками админа */
-.admin-gallery {
-    position: relative;
-}
-
-.gallery-image-wrapper {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
-.gallery-delete-btn {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    width: 40px;
-    height: 40px;
-    background-color: rgba(211, 47, 47, 0.8);
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s;
-    z-index: 10;
-}
-
-.gallery-delete-btn:hover {
-    background-color: var(--error-red);
-}
-
-.gallery-add-btn {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    width: 44px;
-    height: 44px;
-    background-color: var(--accent-blue);
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: var(--shadow-sm);
-    transition: background-color 0.2s;
-    z-index: 10;
-}
-
-.gallery-add-btn:hover {
-    background-color: #1e6a8a;
-}
-
-/* Контактные данные с редактированием */
-.contact-label {
-    font-weight: 500;
-    color: var(--text-dark);
-    min-width: 120px;
 }
 
 /* Sticky Bottom Bar */
@@ -390,10 +550,53 @@
     background-color: #b71c1c;
 }
 
+.error-message {
+    text-align: center;
+    padding: 60px;
+    font-size: 18px;
+    color: var(--error-red);
+}
+
+.loading-spinner {
+    text-align: center;
+    padding: 60px;
+    font-size: 18px;
+    color: var(--text-light);
+}
+
 /* Адаптивность */
 @media (max-width: 768px) {
-    .hero-title-input {
-        font-size: 20px;
+    .farm-section-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .fact-item {
+        flex-wrap: wrap;
+    }
+
+    .fact-label {
+        min-width: auto;
+    }
+
+    .gallery-container {
+        height: 300px;
+    }
+
+    .gallery-nav {
+        width: 32px;
+        height: 32px;
+        font-size: 18px;
+    }
+
+    .thumbnail {
+        width: 60px;
+        height: 45px;
+    }
+
+    .admin-nav-buttons {
+        flex-direction: column;
+        align-items: flex-start;
     }
 
     .add-item-row {
@@ -415,59 +618,84 @@
     .bottom-bar-cancel {
         width: 100px;
     }
+}
+/* Добавьте в конец файла AdminFarmPage.css */
 
-    /* Добавь в конец файла */
+/* Контактные данные фермы */
+.farm-contacts-section {
+    background-color: var(--bg-white);
+    border-radius: var(--border-radius-lg);
+    padding: 32px;
+    margin-bottom: 40px;
+    box-shadow: var(--shadow-sm);
+}
 
-    .admin-nav-buttons {
-        display: flex;
+.contacts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 20px;
+}
+
+.contact-field {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background-color: #f9f9f9;
+    border-radius: var(--border-radius);
+    transition: all 0.2s;
+}
+
+.contact-field:hover {
+    background-color: #f5f5f5;
+    box-shadow: var(--shadow-sm);
+}
+
+.contact-field-icon {
+    font-size: 28px;
+    min-width: 40px;
+    text-align: center;
+}
+
+.contact-field-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.contact-field-label {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 14px;
+}
+
+.contact-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-gray);
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.contact-input:focus {
+    outline: none;
+    border-color: var(--primary-green);
+}
+
+@media (max-width: 768px) {
+    .contacts-grid {
+        grid-template-columns: 1fr;
         gap: 16px;
-        margin: 24px 0;
-        align-items: center;
     }
 
-    .exit-button {
-        padding: 8px 16px;
-        background-color: var(--accent-blue);
-        color: white;
-        border: none;
-        border-radius: var(--border-radius);
-        cursor: pointer;
-        font-size: 14px;
+    .contact-field {
+        padding: 12px;
     }
 
-    .exit-button:hover {
-        background-color: #1e6a8a;
-    }
-
-    .delete-farm-button {
-        padding: 8px 16px;
-        background-color: var(--error-red);
-        color: white;
-        border: none;
-        border-radius: var(--border-radius);
-        cursor: pointer;
-        font-size: 14px;
-        margin-left: auto;
-    }
-
-    .delete-farm-button:hover {
-        background-color: #b71c1c;
-    }
-
-    .gallery-empty {
-        text-align: center;
-        padding: 60px;
-        background-color: var(--bg-white);
-        border-radius: var(--border-radius);
-    }
-
-    .gallery-add-btn-empty {
-        margin-top: 16px;
-        padding: 10px 20px;
-        background-color: var(--accent-blue);
-        color: white;
-        border: none;
-        border-radius: var(--border-radius);
-        cursor: pointer;
+    .contact-field-icon {
+        font-size: 24px;
     }
 }

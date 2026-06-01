@@ -17,7 +17,6 @@ const adminClient = axios.create({
 
 // Добавляем X-User-Id только для админских операций
 adminClient.interceptors.request.use((config) => {
-    // Для админских операций используем фиксированный ID
     config.headers['X-User-Id'] = '1';
     return config;
 });
@@ -31,6 +30,14 @@ export const farmApi = {
 
     getFarmById: async (id: number): Promise<Farm> => {
         const response = await publicClient.get(`/farms/${id}`);
+        return response.data;
+    },
+
+    getFarmsByFilter: async (region?: string, name?: string): Promise<Farm[]> => {
+        const params: any = {};
+        if (region) params.region = region;
+        if (name) params.name = name;
+        const response = await publicClient.get('/farms/filter', { params });
         return response.data;
     },
 

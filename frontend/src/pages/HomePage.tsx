@@ -19,9 +19,61 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
     const [allFarms, setAllFarms] = useState<Farm[]>([]);
     const [filteredFarms, setFilteredFarms] = useState<Farm[]>([]);
     const [loading, setLoading] = useState(true);
-    const [viewMode, setViewMode] = useState<'admin' | 'user'>(isAdmin ? 'admin' : 'user');
     const [showDeleteConfirm, setShowDeleteConfirm] = useState<{ id: number; name: string } | null>(null);
     const [farmImages, setFarmImages] = useState<Map<number, string>>(new Map());
+    const [hasHomepageChanges, setHasHomepageChanges] = useState(false);
+    const [savingHomepage, setSavingHomepage] = useState(false);
+    const [workingHours, setWorkingHours] = useState([
+        { days: 'Пн - Пт', hours: '10:00 - 19:00' },
+        { days: 'Сб', hours: '10:00 - 18:00' }
+    ]);
+    const [phones, setPhones] = useState([
+        { number: '+375 (29) 369-45-89', label: 'для туристов' },
+        { number: '+375 (44) 700-92-65', label: 'для агентов' }
+    ]);
+    const [originalWorkingHours, setOriginalWorkingHours] = useState([...workingHours]);
+    const [originalPhones, setOriginalPhones] = useState([...phones]);
+
+    // Загрузка сохраненных данных при монтировании
+    useEffect(() => {
+        const savedHours = localStorage.getItem('workingHours');
+        if (savedHours) {
+            const parsed = JSON.parse(savedHours);
+            setWorkingHours(parsed);
+            setOriginalWorkingHours(parsed);
+        }
+        const savedPhones = localStorage.getItem('phones');
+        if (savedPhones) {
+            const parsed = JSON.parse(savedPhones);
+            setPhones(parsed);
+            setOriginalPhones(parsed);
+        }
+    }, []);
+
+    // Слушаем изменения в localStorage через событие storage
+    useEffect(() => {
+        const handleStorageChange = (e: StorageEvent) => {
+            if (e.key === 'workingHours' && e.newValue) {
+                const newHours = JSON.parse(e.newValue);
+                setWorkingHours(newHours);
+                setOriginalWorkingHours(newHours);
+            }
+            if (e.key === 'phones' && e.newValue) {
+                const newPhones = JSON.parse(e.newValue);
+                setPhones(newPhones);
+                setOriginalPhones(newPhones);
+            }
+        };
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
+
+    // Проверка изменений на главной странице
+    useEffect(() => {
+        const hoursChanged = JSON.stringify(workingHours) !== JSON.stringify(originalWorkingHours);
+        const phonesChanged = JSON.stringify(phones) !== JSON.stringify(originalPhones);
+        setHasHomepageChanges(hoursChanged || phonesChanged);
+    }, [workingHours, phones, originalWorkingHours, originalPhones]);
 
     // Получаем уникальные регионы и названия из всех ферм
     const regions = useMemo(() => {
@@ -48,7 +100,17 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
                     const farmImagesData = await farmApi.getFarmImages(farm.id);
                     const mainImage = farmImagesData.find(img => img.isMain);
                     if (mainImage) {
-                        imagesMap.set(farm.id, mainImage.url);
+                        let imageUrl = mainImage.url;
+                        if (!imageUrl.startsWith('http')) {
+                            imageUrl = `http://localhost:8080${imageUrl}`;
+                        }
+                        imagesMap.set(farm.id, imageUrl);
+                    } else if (farmImagesData.length > 0) {
+                        let imageUrl = farmImagesData[0].url;
+                        if (!imageUrl.startsWith('http')) {
+                            imageUrl = `http://localhost:8080${imageUrl}`;
+                        }
+                        imagesMap.set(farm.id, imageUrl);
                     }
                 } catch (err) {
                     console.error(`Ошибка загрузки изображения для фермы ${farm.id}:`, err);
@@ -77,7 +139,6 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
             setFilteredFarms(data);
         } catch (err) {
             console.error('Ошибка поиска:', err);
-            // Fallback на клиентскую фильтрацию
             let filtered = [...allFarms];
             if (region) filtered = filtered.filter(f => f.region === region);
             if (name) filtered = filtered.filter(f => f.name.toLowerCase().includes(name.toLowerCase()));
@@ -123,30 +184,55 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
         }
     };
 
-    const handleViewModeChange = (mode: 'admin' | 'user') => {
-        setViewMode(mode);
+    // Сохранение изменений главной страницы
+    const handleSaveHomepage = () => {
+        setSavingHomepage(true);
+        setTimeout(() => {
+            setOriginalWorkingHours([...workingHours]);
+            setOriginalPhones([...phones]);
+            setHasHomepageChanges(false);
+            setSavingHomepage(false);
+            alert('Изменения успешно сохранены!');
+        }, 500);
+    };
+
+    // Отмена изменений главной страницы
+    const handleCancelHomepage = () => {
+        setWorkingHours([...originalWorkingHours]);
+        setPhones([...originalPhones]);
+        setHasHomepageChanges(false);
     };
 
     if (loading) {
         return (
             <div>
-                <Header isAdmin={isAdmin} viewMode={viewMode} onViewModeChange={handleViewModeChange} />
+                <Header
+                    isAdmin={isAdmin}
+                    onSave={handleSaveHomepage}
+                    onCancel={handleCancelHomepage}
+                    hasChanges={hasHomepageChanges}
+                    saving={savingHomepage}
+                />
                 <div className="loading-spinner">Загрузка ферм...</div>
                 <Footer onAdminLogin={onAdminLogin} onAdminLogout={onAdminLogout} isAdmin={isAdmin} />
             </div>
         );
     }
 
-    const showAdminActions = isAdmin && viewMode === 'admin';
-
     return (
         <div>
-            <Header isAdmin={isAdmin} viewMode={viewMode} onViewModeChange={handleViewModeChange} />
+            <Header
+                isAdmin={isAdmin}
+                onSave={handleSaveHomepage}
+                onCancel={handleCancelHomepage}
+                hasChanges={hasHomepageChanges}
+                saving={savingHomepage}
+            />
             <SearchPanel
                 regions={regions}
                 farmNames={farmNames}
                 onSearch={handleSearch}
-                isAdmin={showAdminActions}
+                isAdmin={isAdmin}
                 onAddFarm={handleAddFarm}
             />
 
@@ -160,7 +246,7 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
                             description={farm.description || 'Описание фермы пока не добавлено'}
                             imageUrl={farmImages.get(farm.id)}
                             isActive={farm.active}
-                            isAdmin={showAdminActions}
+                            isAdmin={isAdmin}
                             onDetails={() => handleFarmClick(farm.id)}
                             onEdit={() => handleEditFarm(farm.id)}
                             onDelete={() => handleDeleteFarm(farm.id, farm.name)}

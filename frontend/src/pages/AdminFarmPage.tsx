@@ -50,7 +50,6 @@ const AdminFarmPage = () => {
     const [hasChanges, setHasChanges] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-    const [showDeleteFarmConfirm, setShowDeleteFarmConfirm] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     // Редактируемые поля
@@ -111,14 +110,12 @@ const AdminFarmPage = () => {
             setEditPhone(data.phone || '');
             setEditEmail(data.email || '');
 
-            // Загружаем активности с ID
             setActivities(data.activities.map(a => ({
                 id: a.id,
                 name: a.name,
                 status: 'existing'
             })));
 
-            // Загружаем проживание с ID
             setAccommodations(data.accommodations.map(a => ({
                 id: a.id,
                 type: a.type,
@@ -171,7 +168,7 @@ const AdminFarmPage = () => {
         loadFarm();
     }, [id, isNewFarm]);
 
-    // Проверка изменений - ИСПРАВЛЕННАЯ ВЕРСИЯ
+    // Проверка изменений
     useEffect(() => {
         if (!farm) return;
 
@@ -192,45 +189,37 @@ const AdminFarmPage = () => {
     }, [editName, editDescription, editEstablishedYear, editRegion,
         editPhone, editEmail, activities, accommodations, images, farm, originalFarm]);
 
-    // Сохранение активностей
     const saveActivities = async (farmId: number) => {
         const toDelete = activities.filter(a => a.status === 'deleted' && a.id);
         const toAdd = activities.filter(a => a.status === 'new');
 
-        // Удаляем удаленные активности
         for (const activity of toDelete) {
             if (activity.id) {
                 await farmApi.removeActivityFromFarm(farmId, activity.id);
             }
         }
 
-        // Добавляем новые активности
         for (const activity of toAdd) {
             await farmApi.addActivityToFarm(farmId, activity.name);
         }
     };
 
-    // Сохранение проживания
     const saveAccommodations = async (farmId: number) => {
         const toDelete = accommodations.filter(a => a.status === 'deleted' && a.id);
         const toAdd = accommodations.filter(a => a.status === 'new');
 
-        // Удаляем удаленное проживание
         for (const accommodation of toDelete) {
             if (accommodation.id) {
                 await farmApi.deleteAccommodation(accommodation.id);
             }
         }
 
-        // Добавляем новое проживание
         for (const accommodation of toAdd) {
             await farmApi.addAccommodationToFarm(farmId, accommodation.type, accommodation.price);
         }
     };
 
-    // Сохранение изображений
     const saveImages = async (farmId: number) => {
-        // Удаляем помеченные изображения
         const toDelete = images.filter(img => img.status === 'deleted' && img.id);
         for (const img of toDelete) {
             if (img.id) {
@@ -238,7 +227,6 @@ const AdminFarmPage = () => {
             }
         }
 
-        // Загружаем новые изображения
         const toUpload = images.filter(img => img.status === 'new');
         for (const img of toUpload) {
             if (img.file) {
@@ -246,7 +234,6 @@ const AdminFarmPage = () => {
             }
         }
 
-        // Обновляем главное фото если изменилось
         const mainImageChanged = images.some(img => img.status === 'existing' &&
             img.isMain !== (img.id === images.find(i => i.isMain)?.id));
         if (mainImageChanged) {
@@ -269,7 +256,6 @@ const AdminFarmPage = () => {
                 active: farm?.active ?? true,
             };
 
-            // Добавляем только непустые поля
             if (editDescription && editDescription.trim()) {
                 updateData.description = editDescription;
             }
@@ -285,8 +271,6 @@ const AdminFarmPage = () => {
             if (editEmail && editEmail.trim()) {
                 updateData.email = editEmail;
             }
-
-            console.log('Saving farm data:', updateData); // Для отладки
 
             let farmId: number;
 
@@ -309,7 +293,6 @@ const AdminFarmPage = () => {
             }
         } catch (err: any) {
             console.error('Ошибка сохранения:', err);
-            console.error('Response data:', err.response?.data);
             setError(err.response?.data?.message || err.response?.data?.error || 'Не удалось сохранить изменения');
         } finally {
             setSaving(false);
@@ -323,18 +306,6 @@ const AdminFarmPage = () => {
         navigate('/');
     };
 
-    const handleDeleteFarm = async () => {
-        if (!farm) return;
-        try {
-            await farmApi.deleteFarm(farm.id);
-            alert('Ферма успешно удалена');
-            navigate('/');
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Не удалось удалить ферму');
-        }
-    };
-
-    // Управление активностями
     const addActivity = () => {
         if (newActivityName.trim()) {
             setActivities([...activities, {
@@ -348,17 +319,14 @@ const AdminFarmPage = () => {
     const removeActivity = (index: number) => {
         const activity = activities[index];
         if (activity.id) {
-            // Помечаем как удаленную, если она уже есть на сервере
             setActivities(activities.map((a, i) =>
                 i === index ? { ...a, status: 'deleted' } : a
             ));
         } else {
-            // Просто удаляем, если новая
             setActivities(activities.filter((_, i) => i !== index));
         }
     };
 
-    // Управление проживанием
     const addAccommodation = () => {
         if (newAccommodationType && newAccommodationPrice > 0) {
             setAccommodations([...accommodations, {
@@ -374,17 +342,14 @@ const AdminFarmPage = () => {
     const removeAccommodation = (index: number) => {
         const accommodation = accommodations[index];
         if (accommodation.id) {
-            // Помечаем как удаленную
             setAccommodations(accommodations.map((a, i) =>
                 i === index ? { ...a, status: 'deleted' } : a
             ));
         } else {
-            // Просто удаляем
             setAccommodations(accommodations.filter((_, i) => i !== index));
         }
     };
 
-    // Управление изображениями
     const addImage = () => {
         fileInputRef.current?.click();
     };
@@ -460,7 +425,6 @@ const AdminFarmPage = () => {
     };
 
     const getVisibleImages = () => images.filter(img => img.status !== 'deleted');
-
     const visibleImages = getVisibleImages();
 
     if (loading) {
@@ -505,9 +469,6 @@ const AdminFarmPage = () => {
                 <div className="admin-nav-buttons">
                     <button className="back-button" onClick={() => navigate('/')}>
                         ← На главную
-                    </button>
-                    <button className="delete-farm-button" onClick={() => setShowDeleteFarmConfirm(true)}>
-                        🗑️ Удалить ферму
                     </button>
                 </div>
 
@@ -567,7 +528,7 @@ const AdminFarmPage = () => {
                     )}
                 </div>
 
-                {/* Форма редактирования */}
+                {/* Блок "О ферме" - без телефона и email */}
                 <div className="farm-section">
                     <div className="farm-section-grid">
                         <div className="farm-section-left">
@@ -630,28 +591,6 @@ const AdminFarmPage = () => {
                             </div>
 
                             <div className="fact-item">
-                                <span className="fact-icon">📞</span>
-                                <span className="fact-label">Телефон:</span>
-                                <input
-                                    type="text"
-                                    value={editPhone}
-                                    onChange={(e) => setEditPhone(e.target.value)}
-                                    className="edit-input-small"
-                                />
-                            </div>
-
-                            <div className="fact-item">
-                                <span className="fact-icon">✉️</span>
-                                <span className="fact-label">Email:</span>
-                                <input
-                                    type="email"
-                                    value={editEmail}
-                                    onChange={(e) => setEditEmail(e.target.value)}
-                                    className="edit-input-small"
-                                />
-                            </div>
-
-                            <div className="fact-item">
                                 <span className="fact-icon">🏠</span>
                                 <span className="fact-label">Виды жилья:</span>
                                 <div className="fact-value editable-list">
@@ -709,6 +648,39 @@ const AdminFarmPage = () => {
                         </div>
                     </div>
                 </div>
+
+                {/* Контактные данные - отдельный блок */}
+                <div className="farm-contacts-section">
+                    <h2 className="section-title">Контактные данные фермы</h2>
+                    <div className="contacts-grid">
+                        <div className="contact-field">
+                            <span className="contact-field-icon">📞</span>
+                            <div className="contact-field-content">
+                                <span className="contact-field-label">Телефон:</span>
+                                <input
+                                    type="text"
+                                    value={editPhone}
+                                    onChange={(e) => setEditPhone(e.target.value)}
+                                    className="contact-input"
+                                    placeholder="+XXX (XX) XXX-XX-XX"
+                                />
+                            </div>
+                        </div>
+                        <div className="contact-field">
+                            <span className="contact-field-icon">✉️</span>
+                            <div className="contact-field-content">
+                                <span className="contact-field-label">Email:</span>
+                                <input
+                                    type="email"
+                                    value={editEmail}
+                                    onChange={(e) => setEditEmail(e.target.value)}
+                                    className="contact-input"
+                                    placeholder="example@domain.com"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <Footer />
@@ -726,7 +698,7 @@ const AdminFarmPage = () => {
                 </div>
             )}
 
-            {/* Модальные окна */}
+            {/* Модальное окно для удаления фото */}
             {showDeleteConfirm && (
                 <div className="modal-overlay">
                     <div className="modal-content">
@@ -735,19 +707,6 @@ const AdminFarmPage = () => {
                         <div className="modal-buttons">
                             <button className="modal-btn-cancel" onClick={() => setShowDeleteConfirm(false)}>Отмена</button>
                             <button className="modal-btn-confirm" onClick={deleteImage}>Да, удалить</button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {showDeleteFarmConfirm && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        <h3>Подтверждение удаления фермы</h3>
-                        <p>Вы уверены, что хотите удалить ферму <strong>{editName}</strong>? Это действие необратимо.</p>
-                        <div className="modal-buttons">
-                            <button className="modal-btn-cancel" onClick={() => setShowDeleteFarmConfirm(false)}>Отмена</button>
-                            <button className="modal-btn-confirm" onClick={handleDeleteFarm}>Да, удалить</button>
                         </div>
                     </div>
                 </div>

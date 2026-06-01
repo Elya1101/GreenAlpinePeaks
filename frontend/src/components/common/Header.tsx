@@ -3,11 +3,19 @@ import './Header.css';
 
 interface HeaderProps {
     isAdmin?: boolean;
-    viewMode?: 'admin' | 'user';
-    onViewModeChange?: (mode: 'admin' | 'user') => void;
+    onSave?: () => void;
+    onCancel?: () => void;
+    hasChanges?: boolean;
+    saving?: boolean;
 }
 
-const Header = ({ isAdmin = false, viewMode = 'user', onViewModeChange }: HeaderProps) => {
+const Header = ({
+                    isAdmin = false,
+                    onSave,
+                    onCancel,
+                    hasChanges = false,
+                    saving = false
+                }: HeaderProps) => {
     const [editingField, setEditingField] = useState<string | null>(null);
     const [editValue, setEditValue] = useState('');
 
@@ -20,6 +28,18 @@ const Header = ({ isAdmin = false, viewMode = 'user', onViewModeChange }: Header
         { number: '+375 (29) 369-45-89', label: 'для туристов' },
         { number: '+375 (44) 700-92-65', label: 'для агентов' }
     ]);
+
+    // Загрузка сохраненных данных из localStorage
+    useState(() => {
+        const savedHours = localStorage.getItem('workingHours');
+        if (savedHours) {
+            setWorkingHours(JSON.parse(savedHours));
+        }
+        const savedPhones = localStorage.getItem('phones');
+        if (savedPhones) {
+            setPhones(JSON.parse(savedPhones));
+        }
+    });
 
     const handleEditHours = (index: number) => {
         setEditingField(`hours-${index}`);
@@ -35,6 +55,7 @@ const Header = ({ isAdmin = false, viewMode = 'user', onViewModeChange }: Header
         const newHours = [...workingHours];
         newHours[index].hours = editValue;
         setWorkingHours(newHours);
+        localStorage.setItem('workingHours', JSON.stringify(newHours));
         setEditingField(null);
     };
 
@@ -42,6 +63,7 @@ const Header = ({ isAdmin = false, viewMode = 'user', onViewModeChange }: Header
         const newPhones = [...phones];
         newPhones[index].number = editValue;
         setPhones(newPhones);
+        localStorage.setItem('phones', JSON.stringify(newPhones));
         setEditingField(null);
     };
 
@@ -50,7 +72,6 @@ const Header = ({ isAdmin = false, viewMode = 'user', onViewModeChange }: Header
             <div className="container header-container">
                 <div className="header-logo">
                     <span className="logo-text">GreenAlpinePeaks</span>
-                    {isAdmin && viewMode === 'admin' && <button className="edit-icon" title="Редактировать логотип">✏️</button>}
                 </div>
 
                 <div className="header-hours">
@@ -74,7 +95,7 @@ const Header = ({ isAdmin = false, viewMode = 'user', onViewModeChange }: Header
                                 ) : (
                                     <span>{item.days}: {item.hours}</span>
                                 )}
-                                {isAdmin && viewMode === 'admin' && (
+                                {isAdmin && (
                                     <button
                                         className="inline-edit-icon-small"
                                         onClick={() => handleEditHours(idx)}
@@ -111,7 +132,7 @@ const Header = ({ isAdmin = false, viewMode = 'user', onViewModeChange }: Header
                                         <span className="phone-label"> ({phone.label})</span>
                                     </>
                                 )}
-                                {isAdmin && viewMode === 'admin' && (
+                                {isAdmin && (
                                     <button
                                         className="inline-edit-icon-small"
                                         onClick={() => handleEditPhone(idx)}
@@ -124,20 +145,21 @@ const Header = ({ isAdmin = false, viewMode = 'user', onViewModeChange }: Header
                     </div>
                 </div>
 
-                {/* Переключатель режимов (только для админа) */}
-                {isAdmin && (
-                    <div className="view-mode-switcher">
+                {/* Кнопки Сохранить/Отменить для главной страницы (только для админа) */}
+                {isAdmin && hasChanges && (
+                    <div className="homepage-edit-buttons">
                         <button
-                            className={`mode-btn ${viewMode === 'user' ? 'active' : ''}`}
-                            onClick={() => onViewModeChange?.('user')}
+                            className="homepage-save-btn"
+                            onClick={onSave}
+                            disabled={saving}
                         >
-                            👁️ Пользователь
+                            {saving ? '💾 Сохранение...' : '💾 Сохранить'}
                         </button>
                         <button
-                            className={`mode-btn ${viewMode === 'admin' ? 'active' : ''}`}
-                            onClick={() => onViewModeChange?.('admin')}
+                            className="homepage-cancel-btn"
+                            onClick={onCancel}
                         >
-                            ✏️ Админ
+                            ✕ Отмена
                         </button>
                     </div>
                 )}

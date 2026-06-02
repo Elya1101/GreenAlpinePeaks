@@ -151,14 +151,30 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
     };
 
     const handleAddFarm = () => {
+        console.log('handleAddFarm вызвана, isAdmin:', isAdmin);
+
+        if (!isAdmin) {
+            alert('Доступ запрещен. Только для администраторов.');
+            return;
+        }
+
+        console.log('Навигация на /admin/farms/new');
         navigate('/admin/farms/new');
     };
 
     const handleEditFarm = (farmId: number) => {
+        if (!isAdmin) {
+            alert('Доступ запрещен. Только для администраторов.');
+            return;
+        }
         navigate(`/admin/farms/${farmId}`);
     };
 
     const handleDeleteFarm = async (id: number, name: string) => {
+        if (!isAdmin) {
+            alert('Доступ запрещен. Только для администраторов.');
+            return;
+        }
         setShowDeleteConfirm({ id, name });
     };
 
@@ -168,16 +184,22 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
             await farmApi.deleteFarm(showDeleteConfirm.id);
             await loadAllFarms();
             setShowDeleteConfirm(null);
+            alert('Ферма успешно удалена');
         } catch (err) {
             console.error('Ошибка удаления:', err);
-            alert('Не удалось удалить ферму');
+            alert('Не удалось удалить ферму. Возможно, у неё есть активные бронирования.');
         }
     };
 
     const handleToggleStatus = async (farm: Farm) => {
+        if (!isAdmin) {
+            alert('Доступ запрещен. Только для администраторов.');
+            return;
+        }
         try {
             await farmApi.updateFarm(farm.id, { active: !farm.active });
             await loadAllFarms();
+            alert(`Ферма ${!farm.active ? 'активирована' : 'деактивирована'}`);
         } catch (err) {
             console.error('Ошибка изменения статуса:', err);
             alert('Не удалось изменить статус');
@@ -238,6 +260,16 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
 
             <div className="container">
                 <div className="farms-list">
+                    {filteredFarms.length === 0 && (
+                        <div className="no-results">
+                            <p>Фермы не найдены</p>
+                            {isAdmin && (
+                                <button className="add-farm-empty-btn" onClick={handleAddFarm}>
+                                    + Добавить первую ферму
+                                </button>
+                            )}
+                        </div>
+                    )}
                     {filteredFarms.map(farm => (
                         <FarmCard
                             key={farm.id}
@@ -254,9 +286,6 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
                         />
                     ))}
                 </div>
-                {filteredFarms.length === 0 && (
-                    <div className="no-results">Фермы не найдены</div>
-                )}
             </div>
 
             <Footer onAdminLogin={onAdminLogin} onAdminLogout={onAdminLogout} isAdmin={isAdmin} />
@@ -266,6 +295,7 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
                     <div className="modal-content">
                         <h3>Подтверждение удаления</h3>
                         <p>Вы уверены, что хотите удалить ферму <strong>{showDeleteConfirm.name}</strong>?</p>
+                        <p className="warning-text">Это действие необратимо. Все данные о ферме будут удалены.</p>
                         <div className="modal-buttons">
                             <button className="modal-btn-cancel" onClick={() => setShowDeleteConfirm(null)}>
                                 Отмена

@@ -59,3 +59,39 @@
 .modal-btn-confirm:hover {
     background-color: #b71c1c;
 }
+/* Стили для пустого состояния */
+.no-results {
+    text-align: center;
+    padding: 60px 20px;
+    background-color: var(--bg-white);
+    border-radius: var(--border-radius-lg);
+    margin: 40px 0;
+}
+
+.no-results p {
+    font-size: 18px;
+    color: var(--text-gray);
+    margin-bottom: 20px;
+}
+
+.add-farm-empty-btn {
+    padding: 12px 24px;
+    background-color: var(--primary-green);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.add-farm-empty-btn:hover {
+    background-color: var(--primary-green-dark);
+}
+
+.warning-text {
+    color: var(--error-red);
+    font-size: 12px;
+    margin-top: 8px;
+}

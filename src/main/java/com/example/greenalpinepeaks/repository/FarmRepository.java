@@ -16,6 +16,9 @@ public interface FarmRepository extends JpaRepository<Farm, Long> {
 
     List<Farm> findByRegionName(String name);
 
+    // ↓↓↓ НОВЫЙ МЕТОД ДЛЯ ПОИСКА ПО НАЗВАНИЮ ↓↓↓
+    List<Farm> findByNameContainingIgnoreCase(String name);
+
     @Query("SELECT DISTINCT f FROM Farm f " +
         "JOIN f.accommodations a " +
         "WHERE f.active = true " +
@@ -83,4 +86,12 @@ public interface FarmRepository extends JpaRepository<Farm, Long> {
     Optional<Farm> findById(@NonNull Long id);
 
     boolean existsByName(String name);
+
+    @Query("SELECT f FROM Farm f WHERE " +
+        "LOWER(f.region.name) LIKE LOWER(CONCAT('%', :region, '%')) AND " +
+        "LOWER(f.name) LIKE LOWER(CONCAT('%', :name, '%'))")
+    List<Farm> findByRegionNameContainingIgnoreCaseAndNameContainingIgnoreCase(
+        @Param("region") String region,
+        @Param("name") String name
+    );
 }

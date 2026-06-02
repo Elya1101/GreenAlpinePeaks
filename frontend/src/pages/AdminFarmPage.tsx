@@ -1,9 +1,10 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { useParams, useNavigate, useBeforeUnload } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, useBeforeUnload } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import { farmApi } from '../services/api';
-import type { Farm, Activity, Accommodation, Image } from '../types';
+import type { Farm } from '../types';
+import { cleanPhoneNumber, isValidPhoneNumber, getPhoneErrorMessage } from '../utils/phoneHelper';
 import './AdminFarmPage.css';
 
 const accommodationTypeMap: { [key: string]: string } = {
@@ -39,8 +40,11 @@ interface ImageData {
 
 const AdminFarmPage = () => {
     const { id } = useParams<{ id: string }>();
+    const location = useLocation();
     const navigate = useNavigate();
-    const isNewFarm = id === 'new';
+
+    // Надёжный способ определения режима создания новой фермы
+    const isNewFarm = location.pathname === '/admin/farms/new';
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [farm, setFarm] = useState<Farm | null>(null);
@@ -59,20 +63,17 @@ const AdminFarmPage = () => {
     const [editRegion, setEditRegion] = useState('');
     const [editEmail, setEditEmail] = useState('');
     const [editPhone, setEditPhone] = useState('');
+    const [phoneError, setPhoneError] = useState<string | null>(null);
 
-    // Активности с отслеживанием статуса
     const [activities, setActivities] = useState<ActivityWithStatus[]>([]);
     const [newActivityName, setNewActivityName] = useState('');
 
-    // Проживание с отслеживанием статуса
     const [accommodations, setAccommodations] = useState<AccommodationWithStatus[]>([]);
     const [newAccommodationType, setNewAccommodationType] = useState('');
     const [newAccommodationPrice, setNewAccommodationPrice] = useState(0);
 
-    // Изображения
     const [images, setImages] = useState<ImageData[]>([]);
 
-    // Предупреждение о несохраненных изменениях
     useBeforeUnload(
         useCallback(() => {
             if (hasChanges) {
@@ -80,6 +81,17 @@ const AdminFarmPage = () => {
             }
         }, [hasChanges])
     );
+
+    // Функция для форматирования телефона при вводе
+    const handlePhoneChange = (value: string) => {
+        setEditPhone(value);
+        // Проверяем валидность в реальном времени
+        if (value && !isValidPhoneNumber(value)) {
+            setPhoneError(getPhoneErrorMessage(value));
+        } else {
+            setPhoneError(null);
+        }
+    };
 
     const loadImages = async (farmId: number) => {
         try {
@@ -127,48 +139,78 @@ const AdminFarmPage = () => {
         } catch (err) {
             console.error('Ошибка загрузки фермы:', err);
             setError('Не удалось загрузить данные фермы');
+            throw err;
         }
     };
 
     useEffect(() => {
         const loadFarm = async () => {
-            if (isNewFarm) {
-                const emptyFarm: Farm = {
-                    id: 0,
-                    name: 'Новая ферма',
-                    region: 'Швейцария',
-                    active: true,
-                    description: '',
-                    establishedYear: new Date().getFullYear(),
-                    phone: '',
-                    email: '',
-                    activities: [],
-                    accommodations: []
-                };
-                setFarm(emptyFarm);
-                setOriginalFarm(JSON.parse(JSON.stringify(emptyFarm)));
-                setEditName(emptyFarm.name);
-                setEditDescription('');
-                setEditEstablishedYear(String(emptyFarm.establishedYear));
-                setEditRegion(emptyFarm.region);
-                setEditPhone('');
-                setEditEmail('');
-                setActivities([]);
-                setAccommodations([]);
-                setImages([]);
-                setLoading(false);
-                return;
-            }
+            try {
+                console.log('AdminFarmPage useEffect:', { location: location.pathname, isNewFarm });
 
-            if (!id) return;
-            await loadFarmData(parseInt(id));
-            setLoading(false);
+                // ВАЖНО: СНАЧАЛА проверяем создание новой фермы
+                if (isNewFarm) {
+                    console.log('Режим создания новой фермы');
+                    const emptyFarm: Farm = {
+                        id: 0,
+                        name: '',
+                        region: 'Швейцария',
+                        active: true,
+                        description: '',
+                        establishedYear: new Date().getFullYear(),
+                        phone: '',
+                        email: '',
+                        activities: [],
+                        accommodations: []
+                    };
+                    setFarm(emptyFarm);
+                    setOriginalFarm(JSON.parse(JSON.stringify(emptyFarm)));
+                    setEditName('');
+                    setEditDescription('');
+                    setEditEstablishedYear(String(new Date().getFullYear()));
+                    setEditRegion('Швейцария');
+                    setEditPhone('');
+                    setEditEmail('');
+                    setActivities([]);
+                    setAccommodations([]);
+                    setImages([]);
+                    setError(null);
+                    setLoading(false);
+                    return;
+                }
+
+                // ПОТОМ проверяем, есть ли ID для существующей фермы
+                if (!id) {
+                    console.error('ID фермы не указан');
+                    setError('ID фермы не указан');
+                    setLoading(false);
+                    return;
+                }
+
+                // Проверяем, что ID - это число
+                const farmId = parseInt(id);
+                if (isNaN(farmId)) {
+                    console.error('Некорректный ID фермы:', id);
+                    setError('Некорректный ID фермы');
+                    setLoading(false);
+                    return;
+                }
+
+                // Загружаем существующую ферму
+                console.log('Загрузка фермы с ID:', farmId);
+                await loadFarmData(farmId);
+                setError(null);
+            } catch (err) {
+                console.error('Ошибка в loadFarm:', err);
+                setError('Не удалось загрузить данные фермы');
+            } finally {
+                setLoading(false);
+            }
         };
 
         loadFarm();
-    }, [id, isNewFarm]);
+    }, [id, isNewFarm, location.pathname]);
 
-    // Проверка изменений
     useEffect(() => {
         if (!farm) return;
 
@@ -234,6 +276,7 @@ const AdminFarmPage = () => {
             }
         }
 
+        // Обработка изменения главного изображения
         const mainImageChanged = images.some(img => img.status === 'existing' &&
             img.isMain !== (img.id === images.find(i => i.isMain)?.id));
         if (mainImageChanged) {
@@ -243,43 +286,95 @@ const AdminFarmPage = () => {
             }
         }
 
+        // Обновляем изображения после сохранения
         await loadImages(farmId);
     };
 
+    // ГЛАВНОЕ ИСПРАВЛЕНИЕ - handleSave
     const handleSave = async () => {
         setSaving(true);
         setError(null);
 
         try {
+            // Валидация названия
+            if (!editName.trim()) {
+                setError('Название фермы обязательно для заполнения');
+                setSaving(false);
+                return;
+            }
+
+            // Валидация региона
+            if (!editRegion.trim()) {
+                setError('Регион обязателен для заполнения');
+                setSaving(false);
+                return;
+            }
+
+            // Валидация телефона
+            if (editPhone && editPhone.trim() && !isValidPhoneNumber(editPhone)) {
+                const errorMsg = getPhoneErrorMessage(editPhone);
+                setError(errorMsg || 'Неверный формат телефона');
+                setSaving(false);
+                return;
+            }
+
+            // Валидация email
+            if (editEmail && editEmail.trim()) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(editEmail.trim())) {
+                    setError('Введите корректный email адрес');
+                    setSaving(false);
+                    return;
+                }
+            }
+
+            // Формируем данные для отправки
             const updateData: any = {
-                name: editName,
-                active: farm?.active ?? true,
+                name: editName.trim(),
+                active: true,
+                region: editRegion.trim(),
             };
 
             if (editDescription && editDescription.trim()) {
-                updateData.description = editDescription;
+                updateData.description = editDescription.trim();
             }
-            if (editEstablishedYear && parseInt(editEstablishedYear) > 0) {
-                updateData.establishedYear = parseInt(editEstablishedYear);
+
+            if (editEstablishedYear) {
+                const year = parseInt(editEstablishedYear);
+                if (!isNaN(year) && year > 1800 && year <= new Date().getFullYear()) {
+                    updateData.establishedYear = year;
+                }
             }
-            if (editRegion && editRegion.trim()) {
-                updateData.region = editRegion;
-            }
+
             if (editPhone && editPhone.trim()) {
-                updateData.phone = editPhone;
+                // Очищаем телефон от лишних символов
+                updateData.phone = cleanPhoneNumber(editPhone.trim());
             }
+
             if (editEmail && editEmail.trim()) {
-                updateData.email = editEmail;
+                updateData.email = editEmail.trim();
             }
+
+            console.log('Отправляемые данные:', updateData);
 
             let farmId: number;
 
             if (isNewFarm) {
                 const newFarm = await farmApi.createFarm(updateData);
                 farmId = newFarm.id;
-                await saveActivities(farmId);
-                await saveAccommodations(farmId);
-                await saveImages(farmId);
+                console.log('Ферма создана с ID:', farmId);
+
+                // Сохраняем дополнительные данные
+                if (activities.filter(a => a.status === 'new').length > 0) {
+                    await saveActivities(farmId);
+                }
+                if (accommodations.filter(a => a.status === 'new').length > 0) {
+                    await saveAccommodations(farmId);
+                }
+                if (images.filter(img => img.status === 'new').length > 0) {
+                    await saveImages(farmId);
+                }
+
                 alert('Ферма успешно создана!');
                 navigate(`/admin/farms/${farmId}`);
             } else if (farm) {
@@ -293,7 +388,23 @@ const AdminFarmPage = () => {
             }
         } catch (err: any) {
             console.error('Ошибка сохранения:', err);
-            setError(err.response?.data?.message || err.response?.data?.error || 'Не удалось сохранить изменения');
+            console.error('Ответ сервера:', err.response?.data);
+
+            let errorMessage = 'Не удалось сохранить изменения';
+            if (err.response?.data?.message) {
+                errorMessage = err.response.data.message;
+            } else if (err.response?.data?.error) {
+                errorMessage = err.response.data.error;
+            } else if (err.response?.data?.errors) {
+                if (Array.isArray(err.response.data.errors)) {
+                    const fieldErrors = err.response.data.errors.map((e: any) => `${e.field}: ${e.message}`).join(', ');
+                    errorMessage = fieldErrors;
+                } else {
+                    errorMessage = Object.values(err.response.data.errors).join(', ');
+                }
+            }
+
+            setError(errorMessage);
         } finally {
             setSaving(false);
         }
@@ -410,7 +521,10 @@ const AdminFarmPage = () => {
     };
 
     const toggleActiveStatus = async () => {
-        if (!farm) return;
+        if (!farm || isNewFarm) {
+            setFarm(prev => prev ? { ...prev, active: !prev.active } : null);
+            return;
+        }
         try {
             await farmApi.updateFarm(farm.id, { active: !farm.active });
             const updatedFarm = { ...farm, active: !farm.active };
@@ -427,22 +541,29 @@ const AdminFarmPage = () => {
     const getVisibleImages = () => images.filter(img => img.status !== 'deleted');
     const visibleImages = getVisibleImages();
 
+    console.log('AdminFarmPage render:', { isNewFarm, loading, error, farmExists: !!farm });
+
     if (loading) {
         return (
             <div>
                 <Header isAdmin={true} />
                 <div className="loading-spinner">Загрузка...</div>
-                <Footer />
+                <Footer isAdmin={true} />
             </div>
         );
     }
 
-    if (error && !farm) {
+    if (error) {
         return (
             <div>
                 <Header isAdmin={true} />
-                <div className="error-message">{error}</div>
-                <Footer />
+                <div className="error-message">
+                    <p>{error}</p>
+                    <button className="back-button" onClick={() => navigate('/')}>
+                        ← Вернуться на главную
+                    </button>
+                </div>
+                <Footer isAdmin={true} />
             </div>
         );
     }
@@ -461,7 +582,9 @@ const AdminFarmPage = () => {
 
             <div className="farm-hero admin-hero">
                 <div className="container">
-                    <h1 className="farm-hero-title">{editName}</h1>
+                    <h1 className="farm-hero-title">
+                        {isNewFarm ? (editName || 'Новая ферма') : editName}
+                    </h1>
                 </div>
             </div>
 
@@ -528,7 +651,7 @@ const AdminFarmPage = () => {
                     )}
                 </div>
 
-                {/* Блок "О ферме" - без телефона и email */}
+                {/* Блок "О ферме" */}
                 <div className="farm-section">
                     <div className="farm-section-grid">
                         <div className="farm-section-left">
@@ -536,8 +659,11 @@ const AdminFarmPage = () => {
 
                             <div className="status-control">
                                 <span className="status-label">Статус фермы:</span>
-                                <button className={`status-toggle ${farm?.active ? 'active' : 'inactive'}`} onClick={toggleActiveStatus}>
-                                    {farm?.active ? '● Активна' : '○ Не активна'}
+                                <button
+                                    className={`status-toggle ${farm?.active !== false ? 'active' : 'inactive'}`}
+                                    onClick={toggleActiveStatus}
+                                >
+                                    {farm?.active !== false ? '● Активна' : '○ Не активна'}
                                 </button>
                             </div>
 
@@ -550,6 +676,7 @@ const AdminFarmPage = () => {
                                     value={editName}
                                     onChange={(e) => setEditName(e.target.value)}
                                     className="edit-input-full"
+                                    placeholder="Введите название фермы"
                                 />
                             </div>
 
@@ -562,6 +689,7 @@ const AdminFarmPage = () => {
                                     onChange={(e) => setEditDescription(e.target.value)}
                                     className="edit-textarea"
                                     rows={6}
+                                    placeholder="Опишите ферму, её особенности и преимущества..."
                                 />
                             </div>
                         </div>
@@ -575,6 +703,7 @@ const AdminFarmPage = () => {
                                     value={editEstablishedYear}
                                     onChange={(e) => setEditEstablishedYear(e.target.value)}
                                     className="edit-input-small"
+                                    placeholder="Год"
                                 />
                             </div>
 
@@ -649,7 +778,7 @@ const AdminFarmPage = () => {
                     </div>
                 </div>
 
-                {/* Контактные данные - отдельный блок */}
+                {/* Контактные данные */}
                 <div className="farm-contacts-section">
                     <h2 className="section-title">Контактные данные фермы</h2>
                     <div className="contacts-grid">
@@ -658,12 +787,14 @@ const AdminFarmPage = () => {
                             <div className="contact-field-content">
                                 <span className="contact-field-label">Телефон:</span>
                                 <input
-                                    type="text"
+                                    type="tel"
                                     value={editPhone}
-                                    onChange={(e) => setEditPhone(e.target.value)}
-                                    className="contact-input"
-                                    placeholder="+XXX (XX) XXX-XX-XX"
+                                    onChange={(e) => handlePhoneChange(e.target.value)}
+                                    className={`contact-input ${phoneError ? 'input-error' : ''}`}
+                                    placeholder="+375 (29) 123-45-67"
                                 />
+                                {phoneError && <small className="error-hint">{phoneError}</small>}
+                                <small className="phone-hint">Можно вводить в любом формате: +375291234567, +375 (29) 123-45-67, 80291234567 и т.д.</small>
                             </div>
                         </div>
                         <div className="contact-field">
@@ -683,13 +814,13 @@ const AdminFarmPage = () => {
                 </div>
             </div>
 
-            <Footer />
+            <Footer isAdmin={true} />
 
             {hasChanges && (
                 <div className="sticky-bottom-bar">
                     <div className="bottom-bar-container">
                         <button className="bottom-bar-save" onClick={handleSave} disabled={saving}>
-                            {saving ? 'Сохранение...' : '💾 Сохранить изменения'}
+                            {saving ? 'Сохранение...' : (isNewFarm ? '✨ Создать ферму' : '💾 Сохранить изменения')}
                         </button>
                         <button className="bottom-bar-cancel" onClick={handleCancel}>
                             ✕ Отмена
@@ -698,7 +829,6 @@ const AdminFarmPage = () => {
                 </div>
             )}
 
-            {/* Модальное окно для удаления фото */}
             {showDeleteConfirm && (
                 <div className="modal-overlay">
                     <div className="modal-content">

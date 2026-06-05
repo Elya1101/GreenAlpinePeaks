@@ -4,6 +4,7 @@ import Header from '../components/common/Header';
 import SearchPanel from '../components/common/SearchPanel';
 import FarmCard from '../components/farm/FarmCard';
 import Footer from '../components/common/Footer';
+import NotificationModal from '../components/common/NotificationModal';
 import { farmApi, regionApi } from '../services/api';
 import type { Farm, Region } from '../types';
 import './HomePage.css';
@@ -20,6 +21,7 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
     const [filteredFarms, setFilteredFarms] = useState<Farm[]>([]);
     const [loading, setLoading] = useState(true);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState<{ id: number; name: string } | null>(null);
+    const [showNotification, setShowNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
     const [farmImages, setFarmImages] = useState<Map<number, string>>(new Map());
     const [hasHomepageChanges, setHasHomepageChanges] = useState(false);
     const [savingHomepage, setSavingHomepage] = useState(false);
@@ -94,13 +96,11 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
 
     // Получаем уникальные регионы (из ферм, с преобразованием ID в названия)
     const regions = useMemo(() => {
-        // Если фермы имеют regionName, используем его
         const regionNames = allFarms
             .map(f => f.regionName || f.region || '')
             .filter(Boolean);
         const uniqueRegions = [...new Set(regionNames)];
 
-        // Если есть загруженные регионы из БД, добавляем их тоже
         allRegions.forEach(region => {
             if (!uniqueRegions.includes(region.name)) {
                 uniqueRegions.push(region.name);
@@ -159,21 +159,17 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
 
     // Обновлённая функция поиска с поддержкой ручного ввода
     const handleSearch = async (region: string, name: string) => {
-        // Нормализуем входные данные
         const cleanRegion = region?.trim() || '';
         const cleanName = name?.trim() || '';
 
-        // Если оба поля пустые - показываем все фермы
         if (!cleanRegion && !cleanName) {
             setFilteredFarms(allFarms);
             return;
         }
 
         try {
-            // Пытаемся найти регион по названию (частичному совпадению)
             let regionId: number | undefined;
             if (cleanRegion) {
-                // Ищем регион, название которого содержит введённый текст
                 const matchedRegion = allRegions.find(r =>
                     r.name.toLowerCase().includes(cleanRegion.toLowerCase())
                 );
@@ -182,7 +178,6 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
                 }
             }
 
-            // Используем API с регионом (по ID или названию) и названием фермы
             const data = await farmApi.getFarmsByFilter(
                 regionId ? regionId.toString() : (cleanRegion || undefined),
                 cleanName || undefined
@@ -191,7 +186,6 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
         } catch (err) {
             console.error('Ошибка поиска:', err);
 
-            // Fallback - фильтрация на клиенте с поддержкой частичного совпадения
             let filtered = [...allFarms];
 
             if (cleanRegion) {
@@ -216,20 +210,16 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
     };
 
     const handleAddFarm = () => {
-        console.log('handleAddFarm вызвана, isAdmin:', isAdmin);
-
         if (!isAdmin) {
-            alert('Доступ запрещен. Только для администраторов.');
+            setShowNotification({ message: 'Доступ запрещен. Только для администраторов.', type: 'error' });
             return;
         }
-
-        console.log('Навигация на /admin/farms/new');
         navigate('/admin/farms/new');
     };
 
     const handleEditFarm = (farmId: number) => {
         if (!isAdmin) {
-            alert('Доступ запрещен. Только для администраторов.');
+            setShowNotification({ message: 'Доступ запрещен. Только для администраторов.', type: 'error' });
             return;
         }
         navigate(`/admin/farms/${farmId}`);
@@ -237,7 +227,7 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
 
     const handleDeleteFarm = async (id: number, name: string) => {
         if (!isAdmin) {
-            alert('Доступ запрещен. Только для администраторов.');
+            setShowNotification({ message: 'Доступ запрещен. Только для администраторов.', type: 'error' });
             return;
         }
         setShowDeleteConfirm({ id, name });
@@ -249,25 +239,35 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
             await farmApi.deleteFarm(showDeleteConfirm.id);
             await loadAllFarms();
             setShowDeleteConfirm(null);
-            alert('Ферма успешно удалена');
+            // Показываем красивое уведомление об успешном удалении
+            setShowNotification({
+                message: `Ферма "${showDeleteConfirm.name}" успешно удалена`,
+                type: 'success'
+            });
         } catch (err) {
             console.error('Ошибка удаления:', err);
-            alert('Не удалось удалить ферму. Возможно, у неё есть активные бронирования.');
+            setShowNotification({
+                message: 'Не удалось удалить ферму. Возможно, у неё есть активные бронирования.',
+                type: 'error'
+            });
         }
     };
 
     const handleToggleStatus = async (farm: Farm) => {
         if (!isAdmin) {
-            alert('Доступ запрещен. Только для администраторов.');
+            setShowNotification({ message: 'Доступ запрещен. Только для администраторов.', type: 'error' });
             return;
         }
         try {
             await farmApi.updateFarm(farm.id, { active: !farm.active });
             await loadAllFarms();
-            alert(`Ферма ${!farm.active ? 'активирована' : 'деактивирована'}`);
+            setShowNotification({
+                message: `Ферма "${farm.name}" ${!farm.active ? 'активирована' : 'деактивирована'}`,
+                type: 'success'
+            });
         } catch (err) {
             console.error('Ошибка изменения статуса:', err);
-            alert('Не удалось изменить статус');
+            setShowNotification({ message: 'Не удалось изменить статус фермы', type: 'error' });
         }
     };
 
@@ -281,7 +281,7 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
             setOriginalPhones([...phones]);
             setHasHomepageChanges(false);
             setSavingHomepage(false);
-            alert('Изменения успешно сохранены!');
+            setShowNotification({ message: 'Изменения успешно сохранены!', type: 'success' });
         }, 500);
     };
 
@@ -290,6 +290,11 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
         setWorkingHours([...originalWorkingHours]);
         setPhones([...originalPhones]);
         setHasHomepageChanges(false);
+    };
+
+    // Функция закрытия уведомления
+    const closeNotification = () => {
+        setShowNotification(null);
     };
 
     if (loading) {
@@ -357,6 +362,7 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
 
             <Footer onAdminLogin={onAdminLogin} onAdminLogout={onAdminLogout} isAdmin={isAdmin} />
 
+            {/* Модальное окно подтверждения удаления */}
             {showDeleteConfirm && (
                 <div className="modal-overlay">
                     <div className="modal-content">
@@ -373,6 +379,15 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* Красивое модальное уведомление об успешной операции */}
+            {showNotification && (
+                <NotificationModal
+                    message={showNotification.message}
+                    type={showNotification.type}
+                    onClose={closeNotification}
+                />
             )}
         </div>
     );

@@ -1,0 +1,131 @@
+.notification-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.notification-content {
+    position: relative;
+    min-width: 320px;
+    max-width: 450px;
+    background-color: var(--bg-white);
+    border-radius: 16px;
+    padding: 24px 32px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    animation: slideIn 0.3s ease-out;
+    overflow: hidden;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.notification-content.notification-success {
+    border-top: 4px solid var(--primary-green);
+}
+
+.notification-content.notification-error {
+    border-top: 4px solid var(--error-red);
+}
+
+.notification-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.notification-message {
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+    word-break: break-word;
+}
+
+.notification-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--text-light);
+    padding: 4px 8px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.notification-close:hover {
+    background-color: var(--border-light);
+}
+
+.notification-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background-color: var(--border-light);
+}
+
+.notification-progress-bar {
+    height: 100%;
+    width: 100%;
+    background-color: var(--primary-green);
+    animation: progress 3s linear forwards;
+}
+
+.notification-error .notification-progress-bar {
+    background-color: var(--error-red);
+}
+
+@keyframes progress {
+    from {
+        width: 100%;
+    }
+    to {
+        width: 0%;
+    }
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+    .notification-content {
+        min-width: 280px;
+        padding: 20px 24px;
+        margin: 0 16px;
+    }
+
+    .notification-icon {
+        font-size: 36px;
+    }
+
+    .notification-message {
+        font-size: 14px;
+    }
+}

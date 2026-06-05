@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, useNavigate, useLocation, useBeforeUnload } from 'react-router-dom';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
+import NotificationModal from '../components/common/NotificationModal';
 import { farmApi, regionApi, accommodationTypeApi, activitiesApi } from '../services/api';
 import type { Farm, Region, AccommodationType, Activity } from '../types';
 import { cleanPhoneNumber, isValidPhoneNumber, getPhoneErrorMessage } from '../utils/phoneHelper';
@@ -362,7 +363,11 @@ const useImagesManagement = () => {
 };
 
 // ==================== ОСНОВНОЙ КОМПОНЕНТ ====================
-const AdminFarmPage = () => {
+interface AdminFarmPageProps {
+    onAdminLogout?: () => void;
+}
+
+const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
     const { id } = useParams<{ id: string }>();
     const location = useLocation();
     const navigate = useNavigate();
@@ -376,6 +381,7 @@ const AdminFarmPage = () => {
     const [saving, setSaving] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [showNotification, setShowNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
     const [accommodationTypes, setAccommodationTypes] = useState<AccommodationType[]>([]);
 
     const [editName, setEditName] = useState('');
@@ -503,6 +509,10 @@ const AdminFarmPage = () => {
         }
     };
 
+    const closeNotification = () => {
+        setShowNotification(null);
+    };
+
     const handleSave = async () => {
         setSaving(true);
         setError(null);
@@ -578,42 +588,38 @@ const AdminFarmPage = () => {
             let farmId: number;
 
             if (isNewFarm) {
-                console.log('1. Создание фермы (без жилья):', updateData);
-
-                // ШАГ 1: Создаём ферму через обычный createFarm (не with-accommodations)
+                // ШАГ 1: Создаём ферму
                 const newFarm = await farmApi.createFarm(updateData);
                 farmId = newFarm.id;
-                console.log('2. Ферма создана с ID:', farmId);
 
-                // ШАГ 2: Сохраняем кастомное жильё (если есть)
+                // ШАГ 2: Сохраняем жильё
                 const hasNewAccommodations = accommodationsManager.accommodations.some(a => a.status === 'new');
                 if (hasNewAccommodations) {
                     await accommodationsManager.saveAccommodations(farmId);
-                    console.log('3. Кастомное жильё добавлено');
-                } else {
-                    console.log('3. Кастомное жильё не добавлено (нет данных)');
                 }
 
-                // ШАГ 3: Сохраняем активности (если есть новые)
+                // ШАГ 3: Сохраняем активности
                 const hasNewActivities = activitiesManager.farmActivities.some(a => a.status === 'new' && a.id);
                 if (hasNewActivities) {
                     await activitiesManager.saveActivities(farmId);
-                    console.log('4. Активности добавлены');
-                } else {
-                    console.log('4. Активности не добавлены (нет данных)');
                 }
 
-                // ШАГ 4: Сохраняем изображения (если есть)
+                // ШАГ 4: Сохраняем изображения
                 const hasNewImages = imagesManager.images.some(img => img.status === 'new');
                 if (hasNewImages) {
                     await imagesManager.saveImages(farmId);
-                    console.log('5. Изображения добавлены');
-                } else {
-                    console.log('5. Изображения не добавлены (нет данных)');
                 }
 
-                alert('Ферма успешно создана!');
-                navigate(`/admin/farms/${farmId}`);
+                // Показываем красивое модальное уведомление
+                setShowNotification({
+                    message: `✅ Ферма "${editName.trim()}" успешно создана!`,
+                    type: 'success'
+                });
+
+                // Ждём 1.5 секунды, чтобы пользователь увидел уведомление, затем переходим на главную
+                setTimeout(() => {
+                    navigate('/');
+                }, 1500);
 
             } else if (farm) {
                 // Обновление существующей фермы
@@ -622,24 +628,34 @@ const AdminFarmPage = () => {
                 await accommodationsManager.saveAccommodations(farm.id);
                 await imagesManager.saveImages(farm.id);
 
-                alert('Изменения успешно сохранены!');
-
+                // Обновляем локальное состояние
                 const updatedFarm = await farmApi.getFarmById(farm.id);
                 setFarm(updatedFarm);
                 setOriginalFarm(JSON.parse(JSON.stringify(updatedFarm)));
                 setHasChanges(false);
+
+                // Показываем красивое модальное уведомление
+                setShowNotification({
+                    message: `✅ Изменения для фермы "${editName.trim()}" успешно сохранены!`,
+                    type: 'success'
+                });
+
+                // Ждём 1.5 секунды, чтобы пользователь увидел уведомление, затем переходим на главную
+                setTimeout(() => {
+                    navigate('/');
+                }, 1500);
             }
         } catch (err: any) {
             console.error('Ошибка сохранения:', err);
-            let errorMessage = 'Не удалось сохранить изменения';
+            let errorMessage = '❌ Не удалось сохранить изменения';
             if (err.response?.data?.message) {
-                errorMessage = err.response.data.message;
+                errorMessage = `❌ ${err.response.data.message}`;
             } else if (err.response?.data?.error) {
-                errorMessage = err.response.data.error;
+                errorMessage = `❌ ${err.response.data.error}`;
             } else if (err.message) {
-                errorMessage = err.message;
+                errorMessage = `❌ ${err.message}`;
             }
-            setError(errorMessage);
+            setShowNotification({ message: errorMessage, type: 'error' });
         } finally {
             setSaving(false);
         }
@@ -698,9 +714,13 @@ const AdminFarmPage = () => {
             if (originalFarm) {
                 setOriginalFarm({ ...originalFarm, active: !farm.active });
             }
+            setShowNotification({
+                message: `✅ Ферма "${farm.name}" ${!farm.active ? 'активирована' : 'деактивирована'}`,
+                type: 'success'
+            });
         } catch (err) {
             console.error('Ошибка изменения статуса:', err);
-            setError('Не удалось изменить статус фермы');
+            setShowNotification({ message: '❌ Не удалось изменить статус фермы', type: 'error' });
         }
     };
 
@@ -711,7 +731,7 @@ const AdminFarmPage = () => {
             <div>
                 <Header isAdmin={true} />
                 <div className="loading-spinner">Загрузка...</div>
-                <Footer isAdmin={true} />
+                <Footer isAdmin={true} onAdminLogin={() => {}} onAdminLogout={onAdminLogout} />
             </div>
         );
     }
@@ -726,7 +746,7 @@ const AdminFarmPage = () => {
                         ← Вернуться на главную
                     </button>
                 </div>
-                <Footer isAdmin={true} />
+                <Footer isAdmin={true} onAdminLogin={() => {}} onAdminLogout={onAdminLogout} />
             </div>
         );
     }
@@ -1054,12 +1074,11 @@ const AdminFarmPage = () => {
                                 </div>
                             </div>
 
-                            {/* АКТИВНОСТИ - выбор из существующих или создание новой */}
+                            {/* АКТИВНОСТИ */}
                             <div className="fact-item">
                                 <span className="fact-icon">🎯</span>
                                 <span className="fact-label">Работа и развлечения:</span>
                                 <div className="fact-value editable-list">
-                                    {/* Список уже добавленных активностей */}
                                     {activitiesManager.farmActivities
                                         .filter(a => a.status !== 'deleted')
                                         .map((act, idx) => (
@@ -1074,7 +1093,6 @@ const AdminFarmPage = () => {
                                             </div>
                                         ))}
 
-                                    {/* Выбор существующей активности или создание новой */}
                                     {!activitiesManager.isCreatingNewActivity ? (
                                         <>
                                             <div className="add-item-row">
@@ -1208,13 +1226,17 @@ const AdminFarmPage = () => {
                 </div>
             </div>
 
-            <Footer isAdmin={true} />
+            <Footer
+                isAdmin={true}
+                onAdminLogin={() => {}}
+                onAdminLogout={onAdminLogout}
+            />
 
             {hasChanges && (
                 <div className="sticky-bottom-bar">
                     <div className="bottom-bar-container">
                         <button className="bottom-bar-save" onClick={handleSave} disabled={saving}>
-                            {saving ? 'Сохранение...' : (isNewFarm ? '✨ Создать ферму' : '💾 Сохранить изменения')}
+                            {saving ? '💾 Сохранение...' : (isNewFarm ? '✨ Создать ферму' : '💾 Сохранить изменения')}
                         </button>
                         <button className="bottom-bar-cancel" onClick={handleCancel}>
                             ✕ Отмена
@@ -1238,6 +1260,15 @@ const AdminFarmPage = () => {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* Красивое модальное уведомление по центру экрана */}
+            {showNotification && (
+                <NotificationModal
+                    message={showNotification.message}
+                    type={showNotification.type}
+                    onClose={closeNotification}
+                />
             )}
         </div>
     );

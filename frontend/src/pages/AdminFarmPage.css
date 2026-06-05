@@ -1,13 +1,14 @@
+/* src/pages/AdminFarmPage.css - ПОЛНОСТЬЮ ОБНОВЛЕН */
+
+/* ===== ОСНОВНЫЕ СТИЛИ ФОРМЫ ===== */
 .farm-hero {
     width: 100%;
-    height: 80px;
     background-color: var(--primary-green);
-    display: flex;
-    align-items: center;
+    padding: 32px 0;
 }
 
 .farm-hero-title {
-    font-size: 26px;
+    font-size: 28px;
     font-weight: 700;
     color: var(--bg-white);
 }
@@ -21,10 +22,12 @@
     margin: 24px 0;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
+    transition: color 0.2s ease;
 }
 
 .back-button:hover {
+    color: var(--primary-green);
     text-decoration: underline;
 }
 
@@ -35,7 +38,411 @@
     align-items: center;
 }
 
-/* Стили для галереи */
+/* ===== СЕТКА ФОРМЫ ===== */
+.farm-section {
+    background-color: var(--bg-white);
+    border-radius: var(--border-radius-lg);
+    padding: 32px;
+    margin-bottom: 40px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-light);
+}
+
+.farm-section-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--primary-green);
+    margin-bottom: 24px;
+}
+
+/* ===== ЛЕВАЯ КОЛОНКА ===== */
+.farm-section-left {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.status-control {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.status-label {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.status-toggle {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 40px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.status-toggle.active {
+    background-color: rgba(46, 125, 50, 0.1);
+    color: var(--primary-green);
+}
+
+.status-toggle.inactive {
+    background-color: #f5f5f5;
+    color: var(--text-light);
+}
+
+.editable-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.field-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.field-label {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 14px;
+}
+
+/* Поля ввода - единая высота 40px */
+.edit-input-full,
+.edit-textarea,
+.contact-input {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--border-gray);
+    border-radius: var(--border-radius-md);
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.edit-textarea {
+    height: 140px;
+    padding: 12px;
+    resize: none;
+    font-family: inherit;
+}
+
+.edit-input-full:focus,
+.edit-textarea:focus,
+.contact-input:focus {
+    outline: none;
+    border-color: var(--primary-green);
+    box-shadow: var(--focus-ring);
+}
+
+/* ===== ПРАВАЯ КОЛОНКА ===== */
+.farm-section-right {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.fact-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    width: 100%;
+}
+
+.fact-icon {
+    flex-shrink: 0;
+    width: 20px;
+    color: #4A6B52;
+    margin-top: 10px;
+}
+
+.fact-label {
+    flex-shrink: 0;
+    width: 140px;
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 14px;
+    padding-top: 10px;
+}
+
+.fact-value {
+    flex: 1;
+}
+
+/* Поля в правой колонке */
+.edit-input-small {
+    width: 140px;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--border-gray);
+    border-radius: var(--border-radius-md);
+    font-size: 14px;
+}
+
+.edit-select-full {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--border-gray);
+    border-radius: var(--border-radius-md);
+    font-size: 14px;
+    background-color: var(--bg-white);
+    margin-bottom: 12px;
+}
+
+/* Список элементов (жилье, активности) */
+.editable-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background-color: var(--bg-gray);
+    border-radius: var(--border-radius-md);
+    font-size: 14px;
+}
+
+.remove-item-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--error-red);
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+.remove-item-btn:hover {
+    background-color: rgba(211, 47, 47, 0.1);
+}
+
+/* Строка добавления */
+.add-item-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+    align-items: center;
+}
+
+.add-select {
+    flex: 2;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--border-gray);
+    border-radius: var(--border-radius-md);
+    font-size: 14px;
+}
+
+.add-select-full {
+    flex: 1;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--border-gray);
+    border-radius: var(--border-radius-md);
+    font-size: 14px;
+}
+
+.add-input-price {
+    width: 140px;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--border-gray);
+    border-radius: var(--border-radius-md);
+    font-size: 14px;
+}
+
+/* Контурные вспомогательные кнопки */
+.add-btn-outline {
+    padding: 8px 16px;
+    background-color: transparent;
+    color: var(--primary-green);
+    border: 1px dashed var(--primary-green);
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+}
+
+.add-btn-outline:hover {
+    background-color: rgba(30, 63, 32, 0.05);
+    border: 1px solid var(--primary-green);
+}
+
+.add-btn-primary {
+    padding: 8px 20px;
+    background-color: var(--primary-green);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.add-btn-primary:hover:not(:disabled) {
+    background-color: var(--primary-green-dark);
+    transform: translateY(-1px);
+}
+
+.add-btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Форма создания нового элемента */
+.new-item-form {
+    padding: 16px;
+    background-color: var(--bg-gray);
+    border-radius: var(--border-radius-md);
+    margin-top: 8px;
+}
+
+.new-item-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.add-btn-confirm {
+    flex: 1;
+    padding: 8px 16px;
+    background-color: var(--primary-green);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.add-btn-confirm:hover:not(:disabled) {
+    background-color: var(--primary-green-dark);
+}
+
+.add-btn-confirm:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.add-btn-cancel {
+    flex: 1;
+    padding: 8px 16px;
+    background-color: transparent;
+    color: var(--text-gray);
+    border: 1px solid var(--border-gray);
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.add-btn-cancel:hover {
+    background-color: var(--bg-white);
+}
+
+/* ===== КОНТАКТНЫЕ ДАННЫЕ (без серых подложек) ===== */
+.farm-contacts-section {
+    background-color: transparent;
+    padding: 0;
+    margin-bottom: 40px;
+}
+
+.contacts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 20px;
+}
+
+.contact-field {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 0;
+    background-color: transparent;
+    border: 1px solid var(--border-light);
+    border-radius: var(--border-radius-lg);
+    padding: 20px;
+    transition: all 0.2s ease;
+}
+
+.contact-field:hover {
+    border-color: var(--primary-green);
+    box-shadow: var(--shadow-sm);
+}
+
+.contact-field-icon {
+    flex-shrink: 0;
+    color: #4A6B52;
+    margin-top: 2px;
+}
+
+.contact-field-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.contact-field-label {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 14px;
+}
+
+.phone-hint {
+    font-size: 11px;
+    color: #95A5A6;
+    display: block;
+    text-align: left;
+}
+
+.error-hint {
+    font-size: 11px;
+    color: var(--error-red);
+}
+
+.input-error {
+    border-color: var(--error-red);
+}
+
+/* ===== ГАЛЕРЕЯ ===== */
 .farm-gallery {
     margin-bottom: 40px;
 }
@@ -46,14 +453,20 @@
     max-width: 700px;
     height: 450px;
     margin: 0 auto;
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius-lg);
     overflow: hidden;
+    background-color: var(--bg-gray);
 }
 
 .gallery-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.gallery-container:hover .gallery-image {
+    transform: scale(1.02);
 }
 
 .gallery-nav {
@@ -62,16 +475,16 @@
     transform: translateY(-50%);
     width: 44px;
     height: 44px;
-    background-color: var(--bg-white);
+    background-color: rgba(255, 255, 255, 0.9);
     border: none;
     border-radius: 50%;
-    font-size: 24px;
     cursor: pointer;
     box-shadow: var(--shadow-sm);
     z-index: 10;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.2s ease;
 }
 
 .gallery-nav.prev {
@@ -83,31 +496,8 @@
 }
 
 .gallery-nav:hover {
-    background-color: var(--accent-blue-light);
-}
-
-.gallery-thumbnails {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    margin-top: 16px;
-    flex-wrap: wrap;
-}
-
-.thumbnail {
-    width: 80px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    opacity: 0.6;
-    transition: opacity 0.2s;
-}
-
-.thumbnail:hover,
-.thumbnail.active {
-    opacity: 1;
-    border: 2px solid var(--primary-green);
+    background-color: var(--bg-white);
+    transform: translateY(-50%) scale(1.05);
 }
 
 .gallery-image-wrapper {
@@ -126,12 +516,12 @@
     border: none;
     border-radius: 50%;
     cursor: pointer;
-    font-size: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: background-color 0.2s;
     z-index: 10;
+    color: white;
 }
 
 .gallery-delete-btn:hover {
@@ -148,17 +538,18 @@
     border: none;
     border-radius: 50%;
     cursor: pointer;
-    font-size: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: var(--shadow-sm);
     transition: background-color 0.2s;
     z-index: 10;
+    color: white;
 }
 
 .gallery-add-btn:hover {
     background-color: #1e6a8a;
+    transform: scale(1.05);
 }
 
 .gallery-set-main-btn {
@@ -171,12 +562,12 @@
     border: none;
     border-radius: 50%;
     cursor: pointer;
-    font-size: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: background-color 0.2s;
     z-index: 10;
+    color: gold;
 }
 
 .gallery-set-main-btn:hover {
@@ -189,10 +580,42 @@
     left: 16px;
     background-color: rgba(0, 0, 0, 0.7);
     color: gold;
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: 6px 12px;
+    border-radius: 20px;
     font-size: 12px;
     z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.gallery-thumbnails {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.thumbnail {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    opacity: 0.6;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+}
+
+.thumbnail:hover,
+.thumbnail.active {
+    opacity: 1;
+    border-color: var(--primary-green);
+}
+
+.thumbnail-wrapper {
+    position: relative;
 }
 
 .thumbnail-main-badge {
@@ -204,266 +627,76 @@
     text-shadow: 0 0 2px black;
 }
 
-.thumbnail-wrapper {
-    position: relative;
-}
-
 .gallery-empty {
     text-align: center;
     padding: 60px;
-    background-color: var(--bg-white);
-    border-radius: var(--border-radius);
+    background-color: var(--bg-gray);
+    border-radius: var(--border-radius-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
 }
 
 .gallery-add-btn-empty {
-    margin-top: 16px;
-    padding: 10px 20px;
+    padding: 10px 24px;
     background-color: var(--accent-blue);
     color: white;
     border: none;
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius-md);
     cursor: pointer;
-}
-
-/* Блок "О ферме" */
-.farm-section {
-    background-color: var(--bg-white);
-    border-radius: var(--border-radius-lg);
-    padding: 32px;
-    margin-bottom: 24px;
-    box-shadow: var(--shadow-sm);
-}
-
-.farm-section-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
-}
-
-.farm-section-left {
-    text-align: left;
-}
-
-.farm-section-right {
-    text-align: left;
-}
-
-.section-title {
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--primary-green);
-    margin-bottom: 16px;
-    text-align: left;
-}
-
-.status-control {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 24px;
-}
-
-.status-label {
-    font-weight: 600;
-    color: var(--text-dark);
-}
-
-.status-toggle {
-    padding: 6px 16px;
-    border: none;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.status-toggle.active {
-    background-color: #e8f5e9;
-    color: var(--primary-green);
-}
-
-.status-toggle.inactive {
-    background-color: #f5f5f5;
-    color: var(--text-light);
-}
-
-.editable-field {
-    margin-bottom: 20px;
-}
-
-.field-header {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 8px;
+    transition: all 0.2s ease;
 }
 
-.field-label {
-    font-weight: 600;
-    color: var(--text-dark);
+.gallery-add-btn-empty:hover {
+    background-color: #1e6a8a;
+    transform: translateY(-1px);
 }
 
-.edit-input-full {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid var(--border-gray);
-    border-radius: var(--border-radius);
-    font-size: 14px;
-}
-
-.edit-textarea {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid var(--border-gray);
-    border-radius: var(--border-radius);
-    font-size: 15px;
-    font-family: inherit;
-    resize: vertical;
-}
-
-.edit-input-small {
-    width: 180px;
-    padding: 6px 12px;
-    border: 1px solid var(--border-gray);
-    border-radius: var(--border-radius);
-    font-size: 14px;
-}
-
-.edit-select {
-    padding: 6px 12px;
-    border: 1px solid var(--border-gray);
-    border-radius: var(--border-radius);
-    font-size: 14px;
-    width: 180px;
-}
-
-.fact-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-}
-
-.fact-icon {
-    font-size: 18px;
-    min-width: 24px;
-    color: var(--secondary-brown);
-}
-
-.fact-label {
-    font-weight: 600;
-    color: var(--text-dark);
-    min-width: 140px;
-}
-
-.fact-value {
-    color: var(--text-gray);
-    flex: 1;
-}
-
-.editable-list {
-    flex: 1;
-}
-
-.list-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
-    padding: 4px 8px;
-    background-color: #f9f9f9;
-    border-radius: var(--border-radius);
-}
-
-.remove-item-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--error-red);
-    font-size: 14px;
-    padding: 4px;
-}
-
-.add-item-row {
-    display: flex;
-    gap: 8px;
-    margin-top: 8px;
-    flex-wrap: wrap;
-}
-
-.add-select {
-    padding: 6px 12px;
-    border: 1px solid var(--border-gray);
-    border-radius: var(--border-radius);
-    font-size: 13px;
-    flex: 1;
-    min-width: 150px;
-}
-
-.add-input {
-    padding: 6px 12px;
-    border: 1px solid var(--border-gray);
-    border-radius: var(--border-radius);
-    font-size: 13px;
-    width: 120px;
-}
-
-.add-btn {
-    padding: 6px 16px;
-    background-color: var(--primary-green);
-    color: white;
-    border: none;
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    font-size: 13px;
-}
-
-.add-btn:hover {
-    background-color: var(--primary-green-dark);
-}
-
-/* Sticky Bottom Bar */
+/* ===== STICKY BOTTOM BAR ===== */
 .sticky-bottom-bar {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    height: 70px;
     background-color: var(--bg-white);
-    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 100;
+    padding: 12px 0;
 }
 
 .bottom-bar-container {
     max-width: var(--container-width);
     width: 100%;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 24px;
     display: flex;
     gap: 16px;
     justify-content: center;
 }
 
 .bottom-bar-save {
-    width: 200px;
+    min-width: 200px;
     height: 44px;
     background-color: var(--primary-green);
     color: white;
     border: none;
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius-md);
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.2s ease;
 }
 
 .bottom-bar-save:hover:not(:disabled) {
     background-color: var(--primary-green-dark);
+    transform: translateY(-1px);
 }
 
 .bottom-bar-save:disabled {
@@ -472,22 +705,22 @@
 }
 
 .bottom-bar-cancel {
-    width: 120px;
+    min-width: 120px;
     height: 44px;
     background-color: transparent;
     color: var(--text-dark);
     border: 1px solid var(--border-gray);
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius-md);
     font-size: 14px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.2s ease;
 }
 
 .bottom-bar-cancel:hover {
-    background-color: #f5f5f5;
+    background-color: var(--bg-gray);
 }
 
-/* Модальное окно */
+/* ===== МОДАЛЬНЫЕ ОКНА ===== */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -495,6 +728,7 @@
     right: 0;
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -504,8 +738,8 @@
 .modal-content {
     background-color: var(--bg-white);
     border-radius: var(--border-radius-lg);
-    padding: 32px;
-    width: 400px;
+    padding: 28px 32px;
+    width: 420px;
     max-width: 90%;
     box-shadow: var(--shadow-lg);
 }
@@ -513,7 +747,7 @@
 .modal-content h3 {
     font-size: 20px;
     margin-bottom: 16px;
-    color: var(--primary-green);
+    color: var(--text-dark);
 }
 
 .modal-content p {
@@ -528,55 +762,87 @@
 }
 
 .modal-btn-cancel {
-    padding: 10px 20px;
+    padding: 10px 24px;
     background-color: transparent;
     border: 1px solid var(--border-gray);
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius-md);
     cursor: pointer;
     font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.modal-btn-cancel:hover {
+    background-color: var(--bg-gray);
 }
 
 .modal-btn-confirm {
-    padding: 10px 20px;
+    padding: 10px 24px;
     background-color: var(--error-red);
     color: white;
     border: none;
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius-md);
     cursor: pointer;
     font-size: 14px;
+    transition: all 0.2s ease;
 }
 
 .modal-btn-confirm:hover {
-    background-color: #b71c1c;
+    background-color: var(--error-red-dark);
 }
 
+/* ===== ОШИБКИ И ЗАГРУЗКА ===== */
 .error-message {
     text-align: center;
-    padding: 60px;
-    font-size: 18px;
+    padding: 40px;
+    font-size: 16px;
     color: var(--error-red);
 }
 
 .loading-spinner {
     text-align: center;
     padding: 60px;
-    font-size: 18px;
+    font-size: 16px;
     color: var(--text-light);
 }
 
-/* Адаптивность */
+/* ===== АДАПТИВНОСТЬ ===== */
 @media (max-width: 768px) {
     .farm-section-grid {
         grid-template-columns: 1fr;
-        gap: 24px;
+        gap: 32px;
+    }
+
+    .farm-section {
+        padding: 24px;
     }
 
     .fact-item {
         flex-wrap: wrap;
+        gap: 8px;
     }
 
     .fact-label {
-        min-width: auto;
+        width: 100%;
+        padding-top: 0;
+    }
+
+    .fact-icon {
+        margin-top: 0;
+    }
+
+    .contacts-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .add-item-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .add-select,
+    .add-input-price {
+        width: 100%;
     }
 
     .gallery-container {
@@ -584,9 +850,8 @@
     }
 
     .gallery-nav {
-        width: 32px;
-        height: 32px;
-        font-size: 18px;
+        width: 36px;
+        height: 36px;
     }
 
     .thumbnail {
@@ -594,184 +859,15 @@
         height: 45px;
     }
 
-    .admin-nav-buttons {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .add-item-row {
-        flex-direction: column;
-    }
-
-    .add-select, .add-input {
-        width: 100%;
-    }
-
     .bottom-bar-container {
-        padding: 0 12px;
+        padding: 0 16px;
     }
 
     .bottom-bar-save {
-        width: 160px;
+        min-width: 160px;
     }
 
     .bottom-bar-cancel {
-        width: 100px;
+        min-width: 100px;
     }
-}
-/* Добавьте в конец файла AdminFarmPage.css */
-
-/* Контактные данные фермы */
-.farm-contacts-section {
-    background-color: var(--bg-white);
-    border-radius: var(--border-radius-lg);
-    padding: 32px;
-    margin-bottom: 40px;
-    box-shadow: var(--shadow-sm);
-}
-
-.contacts-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    margin-top: 20px;
-}
-
-.contact-field {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 16px;
-    background-color: #f9f9f9;
-    border-radius: var(--border-radius);
-    transition: all 0.2s;
-}
-
-.contact-field:hover {
-    background-color: #f5f5f5;
-    box-shadow: var(--shadow-sm);
-}
-
-.contact-field-icon {
-    font-size: 28px;
-    min-width: 40px;
-    text-align: center;
-}
-
-.contact-field-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.contact-field-label {
-    font-weight: 600;
-    color: var(--text-dark);
-    font-size: 14px;
-}
-
-.contact-input {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid var(--border-gray);
-    border-radius: var(--border-radius);
-    font-size: 14px;
-    transition: border-color 0.2s;
-}
-
-.contact-input:focus {
-    outline: none;
-    border-color: var(--primary-green);
-}
-
-@media (max-width: 768px) {
-    .contacts-grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
-    }
-
-    .contact-field {
-        padding: 12px;
-    }
-
-    .contact-field-icon {
-        font-size: 24px;
-    }
-}
-/* Добавьте в конец AdminFarmPage.css */
-
-.region-input-wrapper {
-    flex: 1;
-}
-
-.region-type-toggle {
-    display: flex;
-    gap: 4px;
-    margin-bottom: 8px;
-}
-
-.region-toggle-btn {
-    flex: 1;
-    padding: 4px 8px;
-    font-size: 11px;
-    border: 1px solid var(--border-gray);
-    background-color: var(--bg-white);
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.region-toggle-btn.active {
-    background-color: var(--primary-green);
-    color: white;
-    border-color: var(--primary-green);
-}
-
-.accommodation-type-wrapper {
-    flex: 2;
-}
-
-.accommodation-type-toggle {
-    display: flex;
-    gap: 4px;
-    margin-bottom: 6px;
-}
-
-.type-toggle-small {
-    flex: 1;
-    padding: 3px 6px;
-    font-size: 10px;
-    border: 1px solid var(--border-gray);
-    background-color: var(--bg-white);
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.type-toggle-small.active {
-    background-color: var(--primary-green);
-    color: white;
-    border-color: var(--primary-green);
-}
-
-.add-input-custom {
-    width: 100%;
-    padding: 6px 12px;
-    border: 1px solid var(--border-gray);
-    border-radius: var(--border-radius);
-    font-size: 13px;
-}
-
-.add-item-row {
-    display: flex;
-    gap: 8px;
-    margin-top: 8px;
-    flex-wrap: wrap;
-    align-items: flex-end;
-}
-
-.add-select, .add-input, .add-input-custom {
-    flex: 1;
-    min-width: 120px;
 }

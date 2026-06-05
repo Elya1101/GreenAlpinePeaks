@@ -6,6 +6,10 @@ import NotificationModal from '../components/common/NotificationModal';
 import { farmApi, regionApi, accommodationTypeApi, activitiesApi } from '../services/api';
 import type { Farm, Region, AccommodationType, Activity } from '../types';
 import { cleanPhoneNumber, isValidPhoneNumber, getPhoneErrorMessage } from '../utils/phoneHelper';
+import {
+    Calendar, MapPin, Home, Briefcase, Phone, Mail,
+    Trash2, Plus, Star, ImagePlus, X, Check, ChevronLeft, ChevronRight
+} from 'lucide-react';
 import './AdminFarmPage.css';
 
 const accommodationTypeMap: { [key: string]: string } = {
@@ -18,7 +22,6 @@ const accommodationTypeMap: { [key: string]: string } = {
     'LODGE': 'Лодж'
 };
 
-// ==================== ТИПЫ ====================
 interface ActivityWithStatus {
     id?: number;
     name: string;
@@ -41,7 +44,6 @@ interface ImageData {
     status: 'existing' | 'new' | 'deleted';
 }
 
-// ==================== ХУК ДЛЯ РАБОТЫ С РЕГИОНАМИ ====================
 const useRegionManagement = () => {
     const [regions, setRegions] = useState<Region[]>([]);
     const [selectedRegionId, setSelectedRegionId] = useState<number | null>(null);
@@ -86,7 +88,6 @@ const useRegionManagement = () => {
     };
 };
 
-// ==================== ХУК ДЛЯ РАБОТЫ С АКТИВНОСТЯМИ ====================
 const useActivitiesManagement = () => {
     const [allActivities, setAllActivities] = useState<Activity[]>([]);
     const [selectedActivityId, setSelectedActivityId] = useState<number | null>(null);
@@ -121,7 +122,7 @@ const useActivitiesManagement = () => {
             setFarmActivities(prev => [...prev, {
                 id: activity.id,
                 name: activity.name,
-                status: 'existing'
+                status: 'new'  // ИСПРАВЛЕНО: 'existing' → 'new'
             }]);
             setSelectedActivityId(null);
         }
@@ -181,6 +182,12 @@ const useActivitiesManagement = () => {
                 await farmApi.addActivityToFarm(farmId, activity.id);
             }
         }
+
+        // Сбрасываем статусы после успешного сохранения
+        setFarmActivities(prev => prev.map(a => ({
+            ...a,
+            status: 'existing'
+        })));
     }, [farmActivities]);
 
     return {
@@ -204,11 +211,22 @@ const useActivitiesManagement = () => {
     };
 };
 
-// ==================== ХУК ДЛЯ РАБОТЫ С ПРОЖИВАНИЕМ ====================
 const useAccommodationsManagement = () => {
     const [accommodations, setAccommodations] = useState<AccommodationWithStatus[]>([]);
     const [newAccommodationTypeId, setNewAccommodationTypeId] = useState<number | null>(null);
     const [newAccommodationPrice, setNewAccommodationPrice] = useState<number>(0);
+    const [accommodationTypes, setAccommodationTypes] = useState<AccommodationType[]>([]);
+    const [isTypesLoaded, setIsTypesLoaded] = useState(false);
+
+    const loadAccommodationTypes = useCallback(async () => {
+        try {
+            const types = await accommodationTypeApi.getAllTypes();
+            setAccommodationTypes(types);
+            setIsTypesLoaded(true);
+        } catch (err) {
+            console.error('Ошибка загрузки типов жилья:', err);
+        }
+    }, []);
 
     const addAccommodation = useCallback((typeId: number, price: number, typeName: string) => {
         if (!typeId || price <= 0) return;
@@ -234,14 +252,17 @@ const useAccommodationsManagement = () => {
         });
     }, []);
 
-    const loadAccommodationsFromFarm = useCallback((farmAccommodations: any[]) => {
-        setAccommodations(farmAccommodations.map(a => ({
-            id: a.id,
-            typeId: a.typeId,
-            typeName: a.typeName || '',
-            price: a.price,
-            status: 'existing'
-        })));
+    const loadAccommodationsFromFarm = useCallback((farmAccommodations: any[], types: AccommodationType[]) => {
+        setAccommodations(farmAccommodations.map(a => {
+            const type = types.find(t => t.id === a.typeId);
+            return {
+                id: a.id,
+                typeId: a.typeId,
+                typeName: a.typeName || type?.name || 'Неизвестный тип',
+                price: a.price,
+                status: 'existing'
+            };
+        }));
     }, []);
 
     const saveAccommodations = useCallback(async (farmId: number) => {
@@ -266,6 +287,9 @@ const useAccommodationsManagement = () => {
         setNewAccommodationTypeId,
         newAccommodationPrice,
         setNewAccommodationPrice,
+        accommodationTypes,
+        isTypesLoaded,
+        loadAccommodationTypes,
         addAccommodation,
         removeAccommodation,
         loadAccommodationsFromFarm,
@@ -273,7 +297,6 @@ const useAccommodationsManagement = () => {
     };
 };
 
-// ==================== ХУК ДЛЯ РАБОТЫ С ИЗОБРАЖЕНИЯМИ ====================
 const useImagesManagement = () => {
     const [images, setImages] = useState<ImageData[]>([]);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -362,7 +385,6 @@ const useImagesManagement = () => {
     };
 };
 
-// ==================== ОСНОВНОЙ КОМПОНЕНТ ====================
 interface AdminFarmPageProps {
     onAdminLogout?: () => void;
 }
@@ -382,7 +404,6 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
     const [hasChanges, setHasChanges] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showNotification, setShowNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-    const [accommodationTypes, setAccommodationTypes] = useState<AccommodationType[]>([]);
 
     const [editName, setEditName] = useState('');
     const [editDescription, setEditDescription] = useState('');
@@ -396,14 +417,13 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
     const accommodationsManager = useAccommodationsManagement();
     const imagesManager = useImagesManagement();
 
-    // Загрузка справочников
     useEffect(() => {
         const loadSelectData = async () => {
             try {
                 await Promise.all([
                     regionManager.loadRegions(),
                     activitiesManager.loadAllActivities(),
-                    accommodationTypeApi.getAllTypes().then(setAccommodationTypes)
+                    accommodationsManager.loadAccommodationTypes()
                 ]);
             } catch (err) {
                 console.error('Ошибка загрузки справочников:', err);
@@ -412,7 +432,6 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
         loadSelectData();
     }, []);
 
-    // Загрузка данных фермы
     useEffect(() => {
         const loadFarmData = async (farmId: number) => {
             try {
@@ -429,7 +448,7 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                 setEditPhone(data.phone || '');
 
                 activitiesManager.loadActivitiesFromFarm(data.activities);
-                accommodationsManager.loadAccommodationsFromFarm(data.accommodations);
+                accommodationsManager.loadAccommodationsFromFarm(data.accommodations, accommodationsManager.accommodationTypes);
                 await imagesManager.loadImagesFromFarm(farmId);
             } catch (err) {
                 console.error('Ошибка загрузки фермы:', err);
@@ -457,6 +476,10 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                     return;
                 }
 
+                if (!accommodationsManager.isTypesLoaded) {
+                    await accommodationsManager.loadAccommodationTypes();
+                }
+
                 await loadFarmData(farmId);
                 setError(null);
             } catch (err) {
@@ -470,7 +493,6 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
         loadFarm();
     }, [id, isNewFarm, location.pathname]);
 
-    // Отслеживание изменений
     useEffect(() => {
         if (!farm && !isNewFarm) return;
 
@@ -526,7 +548,6 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
 
             let finalRegionName: string;
 
-            // Обработка региона
             if (regionManager.isCreatingNewRegion && regionManager.newRegionName.trim()) {
                 const newRegion = await regionManager.createRegion(regionManager.newRegionName.trim());
                 finalRegionName = newRegion.name;
@@ -541,7 +562,6 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                 return;
             }
 
-            // Валидация телефона
             if (editPhone && editPhone.trim() && !isValidPhoneNumber(editPhone)) {
                 const errorMsg = getPhoneErrorMessage(editPhone);
                 setError(errorMsg || 'Неверный формат телефона');
@@ -549,7 +569,6 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                 return;
             }
 
-            // Валидация email
             if (editEmail && editEmail.trim()) {
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!emailRegex.test(editEmail.trim())) {
@@ -559,7 +578,6 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                 }
             }
 
-            // Подготовка данных для фермы
             const updateData: any = {
                 name: editName.trim(),
                 active: true,
@@ -588,59 +606,49 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
             let farmId: number;
 
             if (isNewFarm) {
-                // ШАГ 1: Создаём ферму
                 const newFarm = await farmApi.createFarm(updateData);
                 farmId = newFarm.id;
 
-                // ШАГ 2: Сохраняем жильё
                 const hasNewAccommodations = accommodationsManager.accommodations.some(a => a.status === 'new');
                 if (hasNewAccommodations) {
                     await accommodationsManager.saveAccommodations(farmId);
                 }
 
-                // ШАГ 3: Сохраняем активности
                 const hasNewActivities = activitiesManager.farmActivities.some(a => a.status === 'new' && a.id);
                 if (hasNewActivities) {
                     await activitiesManager.saveActivities(farmId);
                 }
 
-                // ШАГ 4: Сохраняем изображения
                 const hasNewImages = imagesManager.images.some(img => img.status === 'new');
                 if (hasNewImages) {
                     await imagesManager.saveImages(farmId);
                 }
 
-                // Показываем красивое модальное уведомление
                 setShowNotification({
                     message: `✅ Ферма "${editName.trim()}" успешно создана!`,
                     type: 'success'
                 });
 
-                // Ждём 1.5 секунды, чтобы пользователь увидел уведомление, затем переходим на главную
                 setTimeout(() => {
                     navigate('/');
                 }, 1500);
 
             } else if (farm) {
-                // Обновление существующей фермы
                 await farmApi.updateFarm(farm.id, updateData);
                 await activitiesManager.saveActivities(farm.id);
                 await accommodationsManager.saveAccommodations(farm.id);
                 await imagesManager.saveImages(farm.id);
 
-                // Обновляем локальное состояние
                 const updatedFarm = await farmApi.getFarmById(farm.id);
                 setFarm(updatedFarm);
                 setOriginalFarm(JSON.parse(JSON.stringify(updatedFarm)));
                 setHasChanges(false);
 
-                // Показываем красивое модальное уведомление
                 setShowNotification({
                     message: `✅ Изменения для фермы "${editName.trim()}" успешно сохранены!`,
                     type: 'success'
                 });
 
-                // Ждём 1.5 секунды, чтобы пользователь увидел уведомление, затем переходим на главную
                 setTimeout(() => {
                     navigate('/');
                 }, 1500);
@@ -780,7 +788,6 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
 
                 {error && <div className="error-message">{error}</div>}
 
-                {/* Галерея */}
                 <div className="farm-gallery admin-gallery">
                     {visibleImages.length > 0 ? (
                         <>
@@ -792,7 +799,9 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                                             (imagesManager.currentImageIndex - 1 + visibleImages.length) % visibleImages.length
                                         );
                                     }}
-                                >⟨</button>
+                                >
+                                    <ChevronLeft size={24} strokeWidth={2} />
+                                </button>
 
                                 <div className="gallery-image-wrapper">
                                     <img
@@ -801,20 +810,22 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                                         className="gallery-image"
                                     />
                                     {visibleImages[imagesManager.currentImageIndex]?.isMain && (
-                                        <div className="main-image-badge">Главное фото</div>
+                                        <div className="main-image-badge">
+                                            <Star size={12} fill="gold" color="gold" /> Главное
+                                        </div>
                                     )}
                                     <button
                                         className="gallery-delete-btn"
                                         onClick={() => imagesManager.setShowDeleteConfirm(true)}
                                     >
-                                        🗑️
+                                        <Trash2 size={18} />
                                     </button>
                                     {!visibleImages[imagesManager.currentImageIndex]?.isMain && (
                                         <button
                                             className="gallery-set-main-btn"
                                             onClick={() => imagesManager.setAsMainImage(imagesManager.currentImageIndex)}
                                         >
-                                            ⭐
+                                            <Star size={18} />
                                         </button>
                                     )}
                                 </div>
@@ -826,9 +837,13 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                                             (imagesManager.currentImageIndex + 1) % visibleImages.length
                                         );
                                     }}
-                                >⟩</button>
+                                >
+                                    <ChevronRight size={24} strokeWidth={2} />
+                                </button>
 
-                                <button className="gallery-add-btn" onClick={() => fileInputRef.current?.click()}>➕</button>
+                                <button className="gallery-add-btn" onClick={() => fileInputRef.current?.click()}>
+                                    <ImagePlus size={20} />
+                                </button>
                             </div>
 
                             {visibleImages.length > 1 && (
@@ -848,15 +863,15 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                         </>
                     ) : (
                         <div className="gallery-empty">
+                            <ImagePlus size={48} strokeWidth={1} color="#CBD5E0" />
                             <p>Нет фотографий</p>
                             <button className="gallery-add-btn-empty" onClick={() => fileInputRef.current?.click()}>
-                                ➕ Добавить фото
+                                <Plus size={16} /> Добавить фото
                             </button>
                         </div>
                     )}
                 </div>
 
-                {/* Блок "О ферме" */}
                 <div className="farm-section">
                     <div className="farm-section-grid">
                         <div className="farm-section-left">
@@ -901,7 +916,7 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
 
                         <div className="farm-section-right">
                             <div className="fact-item">
-                                <span className="fact-icon">📅</span>
+                                <Calendar size={18} className="fact-icon" strokeWidth={1.5} />
                                 <span className="fact-label">Год основания:</span>
                                 <input
                                     type="number"
@@ -912,9 +927,8 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                                 />
                             </div>
 
-                            {/* РЕГИОН - выбор из существующих или создание нового */}
                             <div className="fact-item">
-                                <span className="fact-icon">📍</span>
+                                <MapPin size={18} className="fact-icon" strokeWidth={1.5} />
                                 <span className="fact-label">Регион:</span>
                                 <div className="fact-value">
                                     {!regionManager.isCreatingNewRegion ? (
@@ -929,8 +943,7 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                                                         regionManager.setSelectedRegionName(region.name);
                                                     }
                                                 }}
-                                                className="edit-select"
-                                                style={{ marginBottom: '8px', width: '100%' }}
+                                                className="edit-select-full"
                                             >
                                                 <option value="">Выберите регион</option>
                                                 {regionManager.regions.map(region => (
@@ -942,21 +955,19 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                                             <button
                                                 type="button"
                                                 onClick={() => regionManager.setIsCreatingNewRegion(true)}
-                                                className="add-btn"
-                                                style={{ width: '100%' }}
+                                                className="add-btn-outline"
                                             >
-                                                + Создать новый регион
+                                                <Plus size={14} /> Создать новый регион
                                             </button>
                                         </>
                                     ) : (
-                                        <div style={{ padding: '12px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
+                                        <div className="new-item-form">
                                             <input
                                                 type="text"
                                                 value={regionManager.newRegionName}
                                                 onChange={(e) => regionManager.setNewRegionName(e.target.value)}
                                                 className="edit-input-full"
                                                 placeholder="Введите название нового региона"
-                                                style={{ marginBottom: '8px' }}
                                                 autoFocus
                                                 onKeyPress={(e) => {
                                                     if (e.key === 'Enter' && regionManager.newRegionName.trim()) {
@@ -971,7 +982,7 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                                                     }
                                                 }}
                                             />
-                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                            <div className="new-item-actions">
                                                 <button
                                                     type="button"
                                                     onClick={async () => {
@@ -987,11 +998,10 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                                                             }
                                                         }
                                                     }}
-                                                    className="add-btn"
-                                                    style={{ flex: 1 }}
+                                                    className="add-btn-confirm"
                                                     disabled={regionManager.isSavingRegion}
                                                 >
-                                                    {regionManager.isSavingRegion ? '⏳ Создание...' : '✓ Сохранить'}
+                                                    <Check size={14} /> {regionManager.isSavingRegion ? 'Создание...' : 'Сохранить'}
                                                 </button>
                                                 <button
                                                     type="button"
@@ -999,10 +1009,9 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                                                         regionManager.setIsCreatingNewRegion(false);
                                                         regionManager.setNewRegionName('');
                                                     }}
-                                                    className="modal-btn-cancel"
-                                                    style={{ flex: 1 }}
+                                                    className="add-btn-cancel"
                                                 >
-                                                    ✕ Отмена
+                                                    <X size={14} /> Отмена
                                                 </button>
                                             </div>
                                         </div>
@@ -1010,9 +1019,8 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                                 </div>
                             </div>
 
-                            {/* ТИПЫ ЖИЛЬЯ */}
                             <div className="fact-item">
-                                <span className="fact-icon">🏠</span>
+                                <Home size={18} className="fact-icon" strokeWidth={1.5} />
                                 <span className="fact-label">Виды жилья:</span>
                                 <div className="fact-value editable-list">
                                     {accommodationsManager.accommodations
@@ -1020,14 +1028,14 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                                         .map((acc, idx) => (
                                             <div key={acc.id ?? idx} className="list-item">
                                                 <span>
-                                                    {acc.typeName || accommodationTypes.find(t => t.id === acc.typeId)?.name || 'Загрузка...'}
+                                                    {acc.typeName || accommodationsManager.accommodationTypes.find(t => t.id === acc.typeId)?.name || 'Загрузка...'}
                                                     — {acc.price}€ / неделя
                                                 </span>
                                                 <button
                                                     className="remove-item-btn"
                                                     onClick={() => accommodationsManager.removeAccommodation(idx)}
                                                 >
-                                                    ✕
+                                                    <X size={14} />
                                                 </button>
                                             </div>
                                         ))}
@@ -1039,7 +1047,7 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                                             className="add-select"
                                         >
                                             <option value="">Выберите тип жилья</option>
-                                            {accommodationTypes.map(type => (
+                                            {accommodationsManager.accommodationTypes.map(type => (
                                                 <option key={type.id} value={type.id}>
                                                     {accommodationTypeMap[type.code] || type.name}
                                                 </option>
@@ -1051,11 +1059,11 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                                             placeholder="Цена €/неделя"
                                             value={accommodationsManager.newAccommodationPrice || ''}
                                             onChange={(e) => accommodationsManager.setNewAccommodationPrice(parseInt(e.target.value) || 0)}
-                                            className="add-input"
+                                            className="add-input-price"
                                         />
                                         <button
                                             onClick={() => {
-                                                const selectedType = accommodationTypes.find(t => t.id === accommodationsManager.newAccommodationTypeId);
+                                                const selectedType = accommodationsManager.accommodationTypes.find(t => t.id === accommodationsManager.newAccommodationTypeId);
                                                 if (selectedType && accommodationsManager.newAccommodationTypeId && accommodationsManager.newAccommodationPrice > 0) {
                                                     accommodationsManager.addAccommodation(
                                                         accommodationsManager.newAccommodationTypeId,
@@ -1066,17 +1074,16 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                                                     accommodationsManager.setNewAccommodationPrice(0);
                                                 }
                                             }}
-                                            className="add-btn"
+                                            className="add-btn-primary"
                                         >
-                                            + Добавить
+                                            <Plus size={14} /> Добавить
                                         </button>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* АКТИВНОСТИ */}
                             <div className="fact-item">
-                                <span className="fact-icon">🎯</span>
+                                <Briefcase size={18} className="fact-icon" strokeWidth={1.5} />
                                 <span className="fact-label">Работа и развлечения:</span>
                                 <div className="fact-value editable-list">
                                     {activitiesManager.farmActivities
@@ -1088,7 +1095,7 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                                                     className="remove-item-btn"
                                                     onClick={() => activitiesManager.removeActivity(idx)}
                                                 >
-                                                    ✕
+                                                    <X size={14} />
                                                 </button>
                                             </div>
                                         ))}
@@ -1102,8 +1109,7 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                                                         const id = parseInt(e.target.value);
                                                         activitiesManager.setSelectedActivityId(id || null);
                                                     }}
-                                                    className="add-select"
-                                                    style={{ flex: 2 }}
+                                                    className="add-select-full"
                                                 >
                                                     <option value="">Выберите активность</option>
                                                     {activitiesManager.allActivities
@@ -1120,30 +1126,29 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                                                             activitiesManager.addExistingActivityToFarm(activitiesManager.selectedActivityId);
                                                         }
                                                     }}
-                                                    className="add-btn"
+                                                    className="add-btn-primary"
                                                     disabled={!activitiesManager.selectedActivityId}
                                                 >
-                                                    + Добавить
+                                                    <Plus size={14} /> Добавить
                                                 </button>
                                             </div>
                                             <button
                                                 type="button"
                                                 onClick={() => activitiesManager.setIsCreatingNewActivity(true)}
-                                                className="add-btn"
-                                                style={{ width: '100%', marginTop: '8px' }}
+                                                className="add-btn-outline"
+                                                style={{ width: '100%' }}
                                             >
-                                                + Создать новую активность
+                                                <Plus size={14} /> Создать новую активность
                                             </button>
                                         </>
                                     ) : (
-                                        <div style={{ marginTop: '8px', padding: '12px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
+                                        <div className="new-item-form">
                                             <input
                                                 type="text"
                                                 placeholder="Введите название новой активности"
                                                 value={activitiesManager.newActivityName}
                                                 onChange={(e) => activitiesManager.setNewActivityName(e.target.value)}
                                                 className="edit-input-full"
-                                                style={{ marginBottom: '8px' }}
                                                 autoFocus
                                                 onKeyPress={(e) => {
                                                     if (e.key === 'Enter' && activitiesManager.newActivityName.trim()) {
@@ -1152,7 +1157,7 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                                                     }
                                                 }}
                                             />
-                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                            <div className="new-item-actions">
                                                 <button
                                                     type="button"
                                                     onClick={async () => {
@@ -1164,11 +1169,10 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                                                             }
                                                         }
                                                     }}
-                                                    className="add-btn"
-                                                    style={{ flex: 1 }}
+                                                    className="add-btn-confirm"
                                                     disabled={activitiesManager.isSavingActivity}
                                                 >
-                                                    {activitiesManager.isSavingActivity ? '⏳ Создание...' : '✓ Создать и добавить'}
+                                                    <Check size={14} /> {activitiesManager.isSavingActivity ? 'Создание...' : 'Создать'}
                                                 </button>
                                                 <button
                                                     type="button"
@@ -1176,10 +1180,9 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                                                         activitiesManager.setIsCreatingNewActivity(false);
                                                         activitiesManager.setNewActivityName('');
                                                     }}
-                                                    className="modal-btn-cancel"
-                                                    style={{ flex: 1 }}
+                                                    className="add-btn-cancel"
                                                 >
-                                                    ✕ Отмена
+                                                    <X size={14} /> Отмена
                                                 </button>
                                             </div>
                                         </div>
@@ -1190,12 +1193,11 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                     </div>
                 </div>
 
-                {/* Контактные данные */}
                 <div className="farm-contacts-section">
                     <h2 className="section-title">Контактные данные фермы</h2>
                     <div className="contacts-grid">
                         <div className="contact-field">
-                            <span className="contact-field-icon">📞</span>
+                            <Phone size={18} className="contact-field-icon" strokeWidth={1.5} />
                             <div className="contact-field-content">
                                 <span className="contact-field-label">Телефон:</span>
                                 <input
@@ -1210,7 +1212,7 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                             </div>
                         </div>
                         <div className="contact-field">
-                            <span className="contact-field-icon">✉️</span>
+                            <Mail size={18} className="contact-field-icon" strokeWidth={1.5} />
                             <div className="contact-field-content">
                                 <span className="contact-field-label">Email:</span>
                                 <input
@@ -1236,7 +1238,7 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                 <div className="sticky-bottom-bar">
                     <div className="bottom-bar-container">
                         <button className="bottom-bar-save" onClick={handleSave} disabled={saving}>
-                            {saving ? '💾 Сохранение...' : (isNewFarm ? '✨ Создать ферму' : '💾 Сохранить изменения')}
+                            {saving ? '💾 Сохранение...' : (isNewFarm ? 'Создать ферму' : 'Сохранить изменения')}
                         </button>
                         <button className="bottom-bar-cancel" onClick={handleCancel}>
                             ✕ Отмена
@@ -1262,7 +1264,6 @@ const AdminFarmPage = ({ onAdminLogout }: AdminFarmPageProps) => {
                 </div>
             )}
 
-            {/* Красивое модальное уведомление по центру экрана */}
             {showNotification && (
                 <NotificationModal
                     message={showNotification.message}

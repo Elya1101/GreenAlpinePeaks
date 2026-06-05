@@ -1,4 +1,6 @@
+// src/components/common/Header.tsx
 import { useState } from 'react';
+import { Clock, Phone, Mail, Edit2 } from 'lucide-react'; // Импорт векторных иконок
 import './Header.css';
 
 interface HeaderProps {
@@ -29,16 +31,11 @@ const Header = ({
         { number: '+375 (44) 700-92-65', label: 'для агентов' }
     ]);
 
-    // Загрузка сохраненных данных из localStorage
     useState(() => {
         const savedHours = localStorage.getItem('workingHours');
-        if (savedHours) {
-            setWorkingHours(JSON.parse(savedHours));
-        }
+        if (savedHours) setWorkingHours(JSON.parse(savedHours));
         const savedPhones = localStorage.getItem('phones');
-        if (savedPhones) {
-            setPhones(JSON.parse(savedPhones));
-        }
+        if (savedPhones) setPhones(JSON.parse(savedPhones));
     });
 
     const handleEditHours = (index: number) => {
@@ -70,95 +67,100 @@ const Header = ({
     return (
         <header className="header">
             <div className="container header-container">
-                <div className="header-logo">
-                    <span className="logo-text">GreenAlpinePeaks</span>
-                </div>
+                <div className="header-left">
+                    <div className="header-logo">
+                        <span className="logo-text">GreenAlpinePeaks</span>
+                    </div>
 
-                <div className="header-hours">
-                    <span className="header-icon">🕒</span>
-                    <div className="hours-text">
-                        {workingHours.map((item, idx) => (
-                            <div key={idx} className="hours-row">
-                                {editingField === `hours-${idx}` ? (
-                                    <>
-                                        <span>{item.days}: </span>
-                                        <input
-                                            type="text"
-                                            value={editValue}
-                                            onChange={(e) => setEditValue(e.target.value)}
-                                            onBlur={() => saveHours(idx)}
-                                            onKeyPress={(e) => e.key === 'Enter' && saveHours(idx)}
-                                            className="edit-input-small"
-                                            autoFocus
-                                        />
-                                    </>
-                                ) : (
-                                    <span>{item.days}: {item.hours}</span>
-                                )}
-                                {isAdmin && (
-                                    <button
-                                        className="inline-edit-icon-small"
-                                        onClick={() => handleEditHours(idx)}
-                                    >
-                                        ✏️
-                                    </button>
-                                )}
-                            </div>
-                        ))}
+                    {/* НОВЫЙ ЛОЗУНГ */}
+                    <div className="header-slogan">
+                        <span className="slogan-main">Альпийские каникулы со смыслом:</span>
+                        <br />
+                        наполняйся энергией гор, помогая локальным фермам
                     </div>
                 </div>
 
-                <div className="header-phones">
-                    <span className="header-icon">📞</span>
-                    <div className="phones-text">
-                        {phones.map((phone, idx) => (
-                            <div key={idx} className="phone-row">
-                                {editingField === `phone-${idx}` ? (
-                                    <>
-                                        <input
-                                            type="text"
-                                            value={editValue}
-                                            onChange={(e) => setEditValue(e.target.value)}
-                                            onBlur={() => savePhone(idx)}
-                                            onKeyPress={(e) => e.key === 'Enter' && savePhone(idx)}
-                                            className="edit-input-small"
-                                            autoFocus
-                                        />
-                                        <span className="phone-label"> ({phone.label})</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <strong>{phone.number}</strong>
-                                        <span className="phone-label"> ({phone.label})</span>
-                                    </>
-                                )}
-                                {isAdmin && (
-                                    <button
-                                        className="inline-edit-icon-small"
-                                        onClick={() => handleEditPhone(idx)}
-                                    >
-                                        ✏️
-                                    </button>
-                                )}
-                            </div>
-                        ))}
+                <div className="header-info">
+                    <div className="header-hours">
+                        <Clock size={18} className="header-icon" strokeWidth={1.5} />
+                        <div className="hours-text">
+                            {workingHours.map((item, idx) => (
+                                <div key={idx} className="hours-row">
+                                    {editingField === `hours-${idx}` ? (
+                                        <>
+                                            <span>{item.days}: </span>
+                                            <input
+                                                type="text"
+                                                value={editValue}
+                                                onChange={(e) => setEditValue(e.target.value)}
+                                                onBlur={() => saveHours(idx)}
+                                                onKeyPress={(e) => e.key === 'Enter' && saveHours(idx)}
+                                                className="edit-input-small"
+                                                autoFocus
+                                            />
+                                        </>
+                                    ) : (
+                                        <span>{item.days}: {item.hours}</span>
+                                    )}
+                                    {isAdmin && (
+                                        <button
+                                            className="inline-edit-icon-small"
+                                            onClick={() => handleEditHours(idx)}
+                                            aria-label="Редактировать часы работы"
+                                        >
+                                            <Edit2 size={12} />
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="header-phones">
+                        <Phone size={18} className="header-icon" strokeWidth={1.5} />
+                        <div className="phones-text">
+                            {phones.map((phone, idx) => (
+                                <div key={idx} className="phone-row">
+                                    {editingField === `phone-${idx}` ? (
+                                        <>
+                                            <input
+                                                type="text"
+                                                value={editValue}
+                                                onChange={(e) => setEditValue(e.target.value)}
+                                                onBlur={() => savePhone(idx)}
+                                                onKeyPress={(e) => e.key === 'Enter' && savePhone(idx)}
+                                                className="edit-input-small"
+                                                autoFocus
+                                            />
+                                            <span className="phone-label"> ({phone.label})</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <strong>{phone.number}</strong>
+                                            <span className="phone-label"> ({phone.label})</span>
+                                        </>
+                                    )}
+                                    {isAdmin && (
+                                        <button
+                                            className="inline-edit-icon-small"
+                                            onClick={() => handleEditPhone(idx)}
+                                            aria-label="Редактировать телефон"
+                                        >
+                                            <Edit2 size={12} />
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
-                {/* Кнопки Сохранить/Отменить для главной страницы (только для админа) */}
                 {isAdmin && hasChanges && (
                     <div className="homepage-edit-buttons">
-                        <button
-                            className="homepage-save-btn"
-                            onClick={onSave}
-                            disabled={saving}
-                        >
+                        <button className="homepage-save-btn" onClick={onSave} disabled={saving}>
                             {saving ? '💾 Сохранение...' : '💾 Сохранить'}
                         </button>
-                        <button
-                            className="homepage-cancel-btn"
-                            onClick={onCancel}
-                        >
+                        <button className="homepage-cancel-btn" onClick={onCancel}>
                             ✕ Отмена
                         </button>
                     </div>

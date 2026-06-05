@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { X } from 'lucide-react';
 import Header from '../components/common/Header';
 import SearchPanel from '../components/common/SearchPanel';
 import FarmCard from '../components/farm/FarmCard';
@@ -322,13 +323,17 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
                 hasChanges={hasHomepageChanges}
                 saving={savingHomepage}
             />
-            <SearchPanel
-                regions={regions}
-                farmNames={farmNames}
-                onSearch={handleSearch}
-                isAdmin={isAdmin}
-                onAddFarm={handleAddFarm}
-            />
+
+            {/* ОБЕРТКА ДЛЯ ЛОЗУНГА И ФИЛЬТРОВ С АЛЬПИЙСКИМ ФОНОМ */}
+            <div className="homepage-hero">
+                <SearchPanel
+                    regions={regions}
+                    farmNames={farmNames}
+                    onSearch={handleSearch}
+                    isAdmin={isAdmin}
+                    onAddFarm={handleAddFarm}
+                />
+            </div>
 
             <div className="container">
                 <div className="farms-list">
@@ -362,13 +367,20 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
 
             <Footer onAdminLogin={onAdminLogin} onAdminLogout={onAdminLogout} isAdmin={isAdmin} />
 
-            {/* Модальное окно подтверждения удаления */}
+            {/* МОДЕРНИЗИРОВАННОЕ МОДАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ УДАЛЕНИЯ */}
             {showDeleteConfirm && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        <h3>Подтверждение удаления</h3>
-                        <p>Вы уверены, что хотите удалить ферму <strong>{showDeleteConfirm.name}</strong>?</p>
-                        <p className="warning-text">Это действие необратимо. Все данные о ферме будут удалены.</p>
+                <div className="modal-overlay" onClick={() => setShowDeleteConfirm(null)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3>Подтверждение удаления</h3>
+                            <button className="modal-close-icon" onClick={() => setShowDeleteConfirm(null)}>
+                                <X size={20} strokeWidth={1.5} />
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            <p>Вы уверены, что хотите удалить ферму <strong>«{showDeleteConfirm.name}»</strong>?</p>
+                            <p className="warning-text">Это действие необратимо. Все данные о ферме будут удалены.</p>
+                        </div>
                         <div className="modal-buttons">
                             <button className="modal-btn-cancel" onClick={() => setShowDeleteConfirm(null)}>
                                 Отмена

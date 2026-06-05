@@ -1,4 +1,6 @@
+// src/pages/LoginPage.tsx
 import { useState } from 'react';
+import { Lock, Eye, EyeOff, X } from 'lucide-react';
 import './LoginPage.css';
 
 interface LoginPageProps {
@@ -33,7 +35,16 @@ const LoginPage = ({ onLogin, onCancel, error }: LoginPageProps) => {
         <div className="login-page">
             <div className="login-container">
                 <div className="login-form">
-                    <button className="login-close" onClick={onCancel}>✕</button>
+                    {/* Крестик закрытия - теперь с SVG */}
+                    <button className="login-close" onClick={onCancel} aria-label="Закрыть">
+                        <X size={20} strokeWidth={1.5} />
+                    </button>
+
+                    {/* Векторная иконка замка вместо битого символа */}
+                    <div className="login-icon">
+                        <Lock size={52} strokeWidth={1.5} color="#1E3F20" />
+                    </div>
+
                     <h2 className="login-title">Авторизация</h2>
                     <p className="login-subtitle">Вход в админ-панель</p>
 
@@ -62,8 +73,9 @@ const LoginPage = ({ onLogin, onCancel, error }: LoginPageProps) => {
                                     type="button"
                                     className="password-toggle"
                                     onClick={() => setShowPassword(!showPassword)}
+                                    aria-label={showPassword ? 'Скрыть пароль' : 'Показать пароль'}
                                 >
-                                    {showPassword ? '🙈' : '👁️'}
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                 </button>
                             </div>
                             {fieldErrors.password && <span className="login-error">{fieldErrors.password}</span>}
@@ -73,8 +85,10 @@ const LoginPage = ({ onLogin, onCancel, error }: LoginPageProps) => {
                         <button type="submit" className="login-button">
                             Войти
                         </button>
+
+                        {/* Кнопка отмены как текстовая ссылка без квадратов и крестика */}
                         <button type="button" className="login-cancel-button" onClick={onCancel}>
-                            Отмена
+                            Вернуться на главную
                         </button>
                     </form>
                 </div>

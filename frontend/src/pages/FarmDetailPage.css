@@ -1,80 +1,71 @@
-/* Добавьте в .farm-contacts для лучшей читаемости */
+/* src/pages/FarmDetailPage.css */
 
-.farm-contacts {
-    background-color: #FBF8F3;
-    border-radius: var(--border-radius-lg);
-    padding: 24px;
-    margin-bottom: 40px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+/* ===== ПЕРЕМЕННЫЕ (если не определены глобально) ===== */
+:root {
+    --primary-green: #2E7D32;
+    --accent-blue: #1976D2;
+    --bg-white: #FFFFFF;
+    --bg-gray: #F5F5F5;
+    --text-dark: #212121;
+    --text-gray: #616161;
+    --text-light: #9E9E9E;
+    --border-light: #E0E0E0;
+    --error-red: #D32F2F;
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+    --border-radius-lg: 12px;
+    --border-radius-md: 8px;
 }
 
-.farm-contacts:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+/* ===== HERO СЕКЦИЯ ===== */
+.farm-hero {
+    width: 100%;
+    background-color: var(--primary-green);
+    padding: 40px 0;
 }
 
-.contact-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-    padding: 8px 0;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+.farm-hero-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--bg-white);
+    margin: 0;
 }
 
-.contact-item:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-}
-
-.contact-icon {
-    font-size: 18px;
-    width: 24px;
-    color: var(--primary-green);
-}
-
-.contact-text {
-    font-size: 15px;
-    color: var(--text-dark);
-    transition: color 0.2s ease;
-}
-
-.contact-item:hover .contact-text {
-    color: var(--primary-green);
-}
-
-/* Добавьте ссылки для контактных данных */
-.contact-link {
-    color: var(--text-dark);
-    text-decoration: none;
-    transition: color 0.2s ease;
-}
-
-.contact-link:hover {
+/* ===== КНОПКИ НАВИГАЦИИ ===== */
+.back-button {
+    background: none;
+    border: none;
     color: var(--accent-blue);
+    font-size: 14px;
+    cursor: pointer;
+    margin: 24px 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s ease;
+}
+
+.back-button:hover {
+    color: var(--primary-green);
     text-decoration: underline;
 }
 
-/* Кнопка действия (если нужна) */
-.action-button {
+/* ===== ГАЛЕРЕЯ ===== */
+.farm-gallery {
+    margin-bottom: 40px;
+}
+
+.gallery-container {
+    position: relative;
     width: 100%;
-    padding: 14px;
-    background-color: var(--primary-green);
-    color: white;
-    border: none;
-    border-radius: var(--border-radius);
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 20px;
-    transition: background-color 0.2s ease;
+    max-width: 800px;
+    height: 450px;
+    margin: 0 auto;
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    background-color: var(--bg-gray);
 }
 
-.action-button:hover {
-    background-color: #2d6a4f;
-}
-
-/* Анимация для галереи */
 .gallery-image {
     width: 100%;
     height: 100%;
@@ -86,53 +77,510 @@
     transform: scale(1.02);
 }
 
-/* Улучшенная адаптивность для мобильных */
+/* Кнопки навигации галереи */
+.gallery-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: var(--text-dark);
+}
+
+.gallery-nav.prev {
+    left: 16px;
+}
+
+.gallery-nav.next {
+    right: 16px;
+}
+
+.gallery-nav:hover {
+    background-color: var(--bg-white);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-50%) scale(1.05);
+}
+
+/* Миниатюры */
+.gallery-thumbnails {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.thumbnail {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    opacity: 0.6;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+}
+
+.thumbnail:hover {
+    opacity: 0.8;
+}
+
+.thumbnail.active {
+    opacity: 1;
+    border-color: var(--primary-green);
+}
+
+/* Плейсхолдер для пустой галереи */
+.gallery-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-light);
+    background-color: var(--bg-gray);
+}
+
+.gallery-placeholder p {
+    margin-top: 16px;
+    font-size: 14px;
+}
+
+/* ===== БЛОК "О ФЕРМЕ" ===== */
+.farm-section {
+    background-color: var(--bg-white);
+    border-radius: var(--border-radius-lg);
+    padding: 32px;
+    margin-bottom: 32px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-light);
+}
+
+.farm-section-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--primary-green);
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.section-title::after {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 3px;
+    background-color: var(--primary-green);
+    margin-top: 8px;
+    border-radius: 2px;
+}
+
+/* ===== ФОРМАТИРОВАНИЕ ОПИСАНИЯ ===== */
+.farm-description {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text-gray);
+}
+
+.farm-description-paragraph {
+    margin-bottom: 16px;
+    line-height: 1.7;
+}
+
+.farm-description-paragraph:last-child {
+    margin-bottom: 0;
+}
+
+/* ===== СТАТУС ФЕРМЫ ===== */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 40px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    width: fit-content;
+}
+
+.status-active-badge {
+    background-color: rgba(46, 125, 50, 0.1);
+    color: var(--primary-green);
+}
+
+.status-inactive-badge {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: var(--text-light);
+}
+
+/* ===== ФАКТЫ О ФЕРМЕ (ПРАВЫЙ БЛОК) ===== */
+.fact-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.fact-icon {
+    flex-shrink: 0;
+    color: #4A6B52; /* Цвет лесного мха */
+    margin-top: 2px;
+}
+
+.fact-label {
+    flex-shrink: 0;
+    width: 140px;
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 14px;
+}
+
+.fact-value {
+    flex: 1;
+    color: var(--text-gray);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* ===== СПИСОК ТИПОВ ЖИЛЬЯ ===== */
+.accommodation-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.accommodation-list-item {
+    margin-bottom: 8px;
+    padding-left: 0;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.accommodation-list-item:last-child {
+    margin-bottom: 0;
+}
+
+.accommodation-empty {
+    color: var(--text-gray);
+    font-style: italic;
+}
+
+.accommodation-price {
+    font-weight: 600;
+    color: var(--primary-green);
+    white-space: nowrap;
+}
+
+/* ===== СПИСОК АКТИВНОСТЕЙ ===== */
+.activities-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.activities-list-item {
+    margin-bottom: 6px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.activities-list-item:last-child {
+    margin-bottom: 0;
+}
+
+.activity-icon {
+    font-size: 12px;
+    color: var(--primary-green);
+}
+
+/* ===== КОНТАКТНЫЕ ДАННЫЕ ===== */
+.farm-contacts {
+    background-color: var(--bg-white);
+    border-radius: var(--border-radius-lg);
+    padding: 28px 32px;
+    margin-bottom: 40px;
+    border: 1px solid var(--border-light);
+    transition: all 0.2s ease;
+}
+
+.farm-contacts:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.contact-item:last-child {
+    border-bottom: none;
+}
+
+.contact-icon {
+    flex-shrink: 0;
+    color: var(--primary-green);
+}
+
+.contact-text {
+    font-size: 15px;
+    color: var(--text-dark);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.contact-text:hover {
+    color: var(--primary-green);
+}
+
+/* ===== ЗАГРУЗКА И ОШИБКИ ===== */
+.loading-spinner {
+    text-align: center;
+    padding: 80px 20px;
+    font-size: 16px;
+    color: var(--text-light);
+}
+
+.error-message {
+    text-align: center;
+    padding: 80px 20px;
+    font-size: 16px;
+    color: var(--error-red);
+}
+
+/* ===== ДОПОЛНИТЕЛЬНЫЕ УТИЛИТЫ ===== */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ===== АНИМАЦИИ ===== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.farm-section,
+.farm-contacts,
+.farm-gallery {
+    animation: fadeIn 0.4s ease-out;
+}
+
+/* ===== АДАПТИВНОСТЬ ===== */
+@media (max-width: 1024px) {
+    .container {
+        padding: 0 24px;
+    }
+
+    .farm-section-grid {
+        gap: 32px;
+    }
+}
+
 @media (max-width: 768px) {
-    .farm-section {
-        padding: 20px;
+    .farm-hero-title {
+        font-size: 28px;
+    }
+
+    .farm-hero {
+        padding: 32px 0;
     }
 
     .farm-section-grid {
         grid-template-columns: 1fr;
-        gap: 24px;
+        gap: 32px;
     }
 
-    .fact-item {
-        flex-wrap: wrap;
+    .farm-section {
+        padding: 24px;
     }
 
-    .fact-label {
-        min-width: auto;
-        width: 100%;
-        margin-bottom: 4px;
-    }
-
-    .fact-value {
-        margin-left: 36px;
+    .farm-contacts {
+        padding: 20px 24px;
     }
 
     .gallery-container {
-        height: 300px;
+        height: 350px;
+        max-width: 100%;
+    }
+
+    .gallery-nav {
+        width: 36px;
+        height: 36px;
+    }
+
+    .gallery-nav svg {
+        width: 18px;
+        height: 18px;
     }
 
     .thumbnail {
         width: 60px;
         height: 45px;
     }
-}
 
-/* Скелетон лоадер (опционально) */
-.skeleton {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: loading 1.5s infinite;
-}
-
-@keyframes loading {
-    0% {
-        background-position: 200% 0;
+    .fact-item {
+        flex-wrap: wrap;
+        gap: 8px;
     }
-    100% {
-        background-position: -200% 0;
+
+    .fact-label {
+        width: 100%;
+        margin-bottom: 4px;
+    }
+
+    .fact-value {
+        margin-left: 32px;
+        width: calc(100% - 32px);
+    }
+
+    .section-title {
+        font-size: 18px;
+    }
+
+    .section-title::after {
+        width: 30px;
+    }
+}
+
+@media (max-width: 480px) {
+    .farm-hero-title {
+        font-size: 24px;
+    }
+
+    .farm-hero {
+        padding: 24px 0;
+    }
+
+    .farm-section {
+        padding: 20px;
+        border-radius: var(--border-radius-md);
+    }
+
+    .farm-contacts {
+        padding: 16px 20px;
+        border-radius: var(--border-radius-md);
+    }
+
+    .contact-item {
+        gap: 12px;
+        padding: 10px 0;
+    }
+
+    .contact-text {
+        font-size: 14px;
+    }
+
+    .gallery-container {
+        height: 250px;
+    }
+
+    .thumbnail {
+        width: 50px;
+        height: 38px;
+    }
+
+    .back-button {
+        margin: 16px 0;
+    }
+
+    .farm-description {
+        font-size: 14px;
+    }
+
+    .fact-label,
+    .fact-value {
+        font-size: 13px;
+    }
+
+    .accommodation-list-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        margin-bottom: 12px;
+    }
+
+    .accommodation-price {
+        align-self: flex-start;
+    }
+}
+
+/* ===== ПОДДЕРЖКА DARK MODE (опционально) ===== */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-white: #1E1E1E;
+        --bg-gray: #2D2D2D;
+        --text-dark: #E0E0E0;
+        --text-gray: #B0B0B0;
+        --text-light: #808080;
+        --border-light: #404040;
+    }
+
+    .gallery-nav {
+        background-color: rgba(30, 30, 30, 0.9);
+        color: var(--text-dark);
+    }
+
+    .gallery-nav:hover {
+        background-color: var(--bg-gray);
+    }
+
+    .status-active-badge {
+        background-color: rgba(46, 125, 50, 0.2);
+    }
+
+    .status-inactive-badge {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+}
+
+/* ===== ПРИНТ СТИЛИ ===== */
+@media print {
+    .gallery-nav,
+    .back-button {
+        display: none;
+    }
+
+    .farm-section,
+    .farm-contacts {
+        box-shadow: none;
+        border: 1px solid #ccc;
+        break-inside: avoid;
+    }
+
+    .gallery-container {
+        break-inside: avoid;
+        page-break-inside: avoid;
     }
 }

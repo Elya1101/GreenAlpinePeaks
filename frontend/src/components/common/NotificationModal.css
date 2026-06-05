@@ -1,3 +1,4 @@
+/* src/components/common/NotificationModal.css */
 .notification-overlay {
     position: fixed;
     top: 0;
@@ -5,6 +6,7 @@
     right: 0;
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -13,83 +15,86 @@
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 .notification-content {
     position: relative;
-    min-width: 320px;
-    max-width: 450px;
+    width: 400px;
+    max-width: 90%;
     background-color: var(--bg-white);
-    border-radius: 16px;
-    padding: 24px 32px;
+    border-radius: var(--border-radius-lg);
+    padding: 32px 24px;
     text-align: center;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-    animation: slideIn 0.3s ease-out;
+    box-shadow: var(--shadow-lg);
+    animation: scaleIn 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
     overflow: hidden;
 }
 
-@keyframes slideIn {
+@keyframes scaleIn {
     from {
-        transform: translateY(-30px);
+        transform: scale(0.95);
         opacity: 0;
     }
     to {
-        transform: translateY(0);
+        transform: scale(1);
         opacity: 1;
     }
 }
 
+/* Цветные полоски сверху */
 .notification-content.notification-success {
-    border-top: 4px solid var(--primary-green);
+    border-top: 3px solid var(--primary-green);
 }
 
 .notification-content.notification-error {
-    border-top: 4px solid var(--error-red);
+    border-top: 3px solid var(--error-red);
 }
 
+/* Векторные SVG-иконки (рендерятся через компонент) */
 .notification-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
 }
 
-.notification-message {
-    font-size: 16px;
-    line-height: 1.5;
-    color: var(--text-dark);
-    margin-bottom: 8px;
-    word-break: break-word;
-}
-
+/* Крестик закрытия */
 .notification-close {
     position: absolute;
-    top: 12px;
-    right: 12px;
+    top: 16px;
+    right: 16px;
     background: none;
     border: none;
-    font-size: 18px;
     cursor: pointer;
     color: var(--text-light);
-    padding: 4px 8px;
+    padding: 4px;
     border-radius: 50%;
-    transition: background-color 0.2s;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .notification-close:hover {
-    background-color: var(--border-light);
+    background-color: var(--bg-gray);
+    color: var(--text-dark);
 }
 
+.notification-message {
+    font-size: var(--font-size-body);
+    line-height: 1.5;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+/* Прогресс-бар */
 .notification-progress {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    height: 3px;
+    height: 2px;
     background-color: var(--border-light);
 }
 
@@ -105,27 +110,6 @@
 }
 
 @keyframes progress {
-    from {
-        width: 100%;
-    }
-    to {
-        width: 0%;
-    }
-}
-
-/* Адаптивность */
-@media (max-width: 480px) {
-    .notification-content {
-        min-width: 280px;
-        padding: 20px 24px;
-        margin: 0 16px;
-    }
-
-    .notification-icon {
-        font-size: 36px;
-    }
-
-    .notification-message {
-        font-size: 14px;
-    }
+    from { width: 100%; }
+    to { width: 0%; }
 }

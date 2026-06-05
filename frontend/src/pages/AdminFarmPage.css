@@ -699,3 +699,79 @@
         font-size: 24px;
     }
 }
+/* Добавьте в конец AdminFarmPage.css */
+
+.region-input-wrapper {
+    flex: 1;
+}
+
+.region-type-toggle {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 8px;
+}
+
+.region-toggle-btn {
+    flex: 1;
+    padding: 4px 8px;
+    font-size: 11px;
+    border: 1px solid var(--border-gray);
+    background-color: var(--bg-white);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.region-toggle-btn.active {
+    background-color: var(--primary-green);
+    color: white;
+    border-color: var(--primary-green);
+}
+
+.accommodation-type-wrapper {
+    flex: 2;
+}
+
+.accommodation-type-toggle {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 6px;
+}
+
+.type-toggle-small {
+    flex: 1;
+    padding: 3px 6px;
+    font-size: 10px;
+    border: 1px solid var(--border-gray);
+    background-color: var(--bg-white);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.type-toggle-small.active {
+    background-color: var(--primary-green);
+    color: white;
+    border-color: var(--primary-green);
+}
+
+.add-input-custom {
+    width: 100%;
+    padding: 6px 12px;
+    border: 1px solid var(--border-gray);
+    border-radius: var(--border-radius);
+    font-size: 13px;
+}
+
+.add-item-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.add-select, .add-input, .add-input-custom {
+    flex: 1;
+    min-width: 120px;
+}

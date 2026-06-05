@@ -164,12 +164,12 @@ public class BookingService {
         String accommodationType = null;
         String farmName = null;
 
-        if (booking.getAccommodation() != null) {
-            accommodationType = booking.getAccommodation().getType() != null ?
-                booking.getAccommodation().getType().name() : null;
-            if (booking.getAccommodation().getFarm() != null) {
-                farmName = booking.getAccommodation().getFarm().getName();
-            }
+        if (booking.getAccommodation() != null && booking.getAccommodation().getType() != null) {
+            accommodationType = booking.getAccommodation().getType().getName();
+        }
+
+        if (booking.getAccommodation() != null && booking.getAccommodation().getFarm() != null) {
+            farmName = booking.getAccommodation().getFarm().getName();
         }
 
         return new BookingResponseDto(

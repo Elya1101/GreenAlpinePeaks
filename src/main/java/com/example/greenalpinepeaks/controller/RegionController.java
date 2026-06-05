@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -50,6 +51,30 @@ public class RegionController {
     @GetMapping
     public List<RegionResponseDto> getAll() {
         return regionService.getAll();
+    }
+
+    @Operation(
+        summary = "Get region by name",
+        description = "Retrieves a single region by its name (case-sensitive exact match)"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Region found and returned",
+            content = @Content(schema = @Schema(implementation = RegionResponseDto.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Region not found with specified name",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        )
+    })
+    @GetMapping("/search")
+    public RegionResponseDto getRegionByName(
+        @Parameter(description = "Region name to search for", required = true, example = "Switzerland")
+        @RequestParam String name
+    ) {
+        return regionService.getByName(name);
     }
 
     @Operation(

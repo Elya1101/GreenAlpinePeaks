@@ -9,11 +9,18 @@ public final class AccommodationMapper {
     }
 
     public static AccommodationResponseDto toDto(Accommodation acc) {
+        if (acc == null) {
+            return null;
+        }
+
+        String typeName = acc.getType() != null ? acc.getType().getName() : "";
+        String farmName = acc.getFarm() != null ? acc.getFarm().getName() : "";
+
         return new AccommodationResponseDto(
             acc.getId(),
-            acc.getType().name(),
+            typeName,
             acc.getPrice(),
-            acc.getFarm().getName()
+            farmName
         );
     }
 }

@@ -16,6 +16,7 @@ import com.example.greenalpinepeaks.dto.FarmUpdateDto;
 import com.example.greenalpinepeaks.mapper.ActivityMapper;
 import com.example.greenalpinepeaks.mapper.FarmMapper;
 import com.example.greenalpinepeaks.repository.AccommodationRepository;
+import com.example.greenalpinepeaks.repository.AccommodationTypeRepository;
 import com.example.greenalpinepeaks.repository.ActivityRepository;
 import com.example.greenalpinepeaks.repository.BookingRepository;
 import com.example.greenalpinepeaks.repository.FarmImageRepository;
@@ -59,10 +60,9 @@ public class FarmService {
     private final RegionRepository regionRepository;
     private final BookingRepository bookingRepository;
     private final AccommodationRepository accommodationRepository;
+    private final AccommodationTypeRepository accommodationTypeRepository;
     private final CacheService cacheService;
     private final FarmImageRepository farmImageRepository;
-
-    // userRepository удалён — не нужен
 
     public FarmService(
         FarmRepository farmRepository,
@@ -70,6 +70,7 @@ public class FarmService {
         ActivityRepository activityRepository,
         BookingRepository bookingRepository,
         AccommodationRepository accommodationRepository,
+        AccommodationTypeRepository accommodationTypeRepository,
         CacheService cacheService,
         FarmImageRepository farmImageRepository
     ) {
@@ -78,6 +79,7 @@ public class FarmService {
         this.activityRepository = activityRepository;
         this.bookingRepository = bookingRepository;
         this.accommodationRepository = accommodationRepository;
+        this.accommodationTypeRepository = accommodationTypeRepository;
         this.cacheService = cacheService;
         this.farmImageRepository = farmImageRepository;
     }
@@ -88,8 +90,6 @@ public class FarmService {
             .map(FarmMapper::toDto)
             .toList();
     }
-
-    // Метод getFarmsByOwner удалён — больше не нужен
 
     public List<FarmResponseDto> getAllFarmsWithNPlusOne() {
         return farmRepository.findAllBy()
@@ -158,7 +158,6 @@ public class FarmService {
         }
 
         Farm farm = buildFarm(dto);
-        // owner остаётся null — ферма без владельца
 
         FarmResponseDto result = FarmMapper.toDto(farmRepository.save(farm));
         cacheService.invalidateFarmSearchCache();
@@ -177,13 +176,27 @@ public class FarmService {
 
         Farm farm = buildFarm(dto);
 
+        AccommodationType houseType = accommodationTypeRepository.findByCode("HOUSE")
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "House accommodation type not found"
+            ));
+
+        AccommodationType tentType = accommodationTypeRepository.findByCode("TENT")
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Tent accommodation type not found"
+            ));
+
         Accommodation house = new Accommodation();
-        house.setType(AccommodationType.HOUSE);
+        house.setType(houseType);
         house.setPrice(100);
+        house.setFarm(farm);
 
         Accommodation tent = new Accommodation();
-        tent.setType(AccommodationType.TENT);
+        tent.setType(tentType);
         tent.setPrice(50);
+        tent.setFarm(farm);
 
         farm.addAccommodation(house);
         farm.addAccommodation(tent);
@@ -205,7 +218,6 @@ public class FarmService {
             farm.setName(dto.getName());
         }
 
-        // Важно: обрабатываем boolean правильно
         farm.setActive(dto.isActive());
 
         if (dto.getRegion() != null && !dto.getRegion().isBlank()) {
@@ -247,19 +259,20 @@ public class FarmService {
             List<Booking> bookings = bookingRepository.findByAccommodationId(accommodation.getId());
 
             if (!bookings.isEmpty()) {
+                String typeName = accommodation.getType() != null ?
+                    accommodation.getType().getName() : "Unknown";
                 throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
                     String.format(
                         "Cannot delete farm '%s' because it has %d active booking(s) for accommodation '%s'",
                         farm.getName(),
                         bookings.size(),
-                        accommodation.getType().name()
+                        typeName
                     )
                 );
             }
         }
 
-        // Удаляем связанные изображения
         List<FarmImage> images = farmImageRepository.findByFarmId(id);
         for (FarmImage image : images) {
             try {
@@ -331,7 +344,7 @@ public class FarmService {
             .map(a -> {
                 FarmEditDto.AccommodationDto ad = new FarmEditDto.AccommodationDto();
                 ad.setId(a.getId());
-                ad.setType(a.getType());
+                ad.setType(a.getType());  // ✅ передаём AccommodationType
                 ad.setPrice(a.getPrice());
                 return ad;
             }).toList());
@@ -524,7 +537,8 @@ public class FarmService {
 
         List<String> typesList = accommodationTypes != null ? List.copyOf(accommodationTypes) : List.of();
 
-        Page<Farm> farmPage = farmRepository.findActiveFarmsWithAccommodationTypesNativePaginated(typesList, withoutSort);
+        Page<Farm> farmPage = farmRepository.findActiveFarmsWithAccommodationTypesNativePaginated(typesList,
+            withoutSort);
 
         if (farmPage.isEmpty()) {
             return Page.empty(pageable);
@@ -562,7 +576,7 @@ public class FarmService {
 
         Farm farm = new Farm();
         farm.setName(dto.getName());
-        farm.setActive(dto.isActive());
+        farm.setActive(dto.isActive());  // ✅ если isActive() возвращает boolean
         farm.setRegion(getOrCreateRegion(dto.getRegion()));
         farm.setDescription(dto.getDescription());
         farm.setEmail(dto.getEmail());

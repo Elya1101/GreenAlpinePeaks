@@ -8,7 +8,6 @@ import java.util.List;
 public final class BookingMapper {
 
     private BookingMapper() {
-
     }
 
     public static BookingResponseDto toDto(Booking booking) {
@@ -16,15 +15,15 @@ public final class BookingMapper {
             return null;
         }
 
-        String userName = booking.getUser() != null
-            ? booking.getUser().getName()
-            : null;
+        String userName = booking.getUser() != null ? booking.getUser().getName() : null;
 
         String accommodationType = null;
         String farmName = null;
 
         if (booking.getAccommodation() != null) {
-            accommodationType = booking.getAccommodation().getType().name();
+            if (booking.getAccommodation().getType() != null) {
+                accommodationType = booking.getAccommodation().getType().getName();
+            }
             if (booking.getAccommodation().getFarm() != null) {
                 farmName = booking.getAccommodation().getFarm().getName();
             }
@@ -49,7 +48,6 @@ public final class BookingMapper {
         if (bookings == null) {
             return List.of();
         }
-
         return bookings.stream()
             .map(BookingMapper::toDto)
             .toList();

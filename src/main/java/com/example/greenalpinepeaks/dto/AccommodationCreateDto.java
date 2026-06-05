@@ -1,6 +1,5 @@
 package com.example.greenalpinepeaks.dto;
 
-import com.example.greenalpinepeaks.domain.AccommodationType;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -10,8 +9,8 @@ import lombok.Setter;
 @Setter
 public class AccommodationCreateDto {
 
-    @NotNull(message = "Accommodation type is required")
-    private AccommodationType type;
+    @NotNull(message = "Accommodation type ID is required")
+    private Long typeId;  // Изменили с AccommodationType на Long
 
     @Min(value = 0, message = "Price cannot be negative")
     private double price;

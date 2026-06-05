@@ -19,6 +19,7 @@ import java.util.List;
 public class RegionService {
 
     private static final String REGION_NOT_FOUND = "Region not found with id: ";
+    private static final String REGION_NOT_FOUND_BY_NAME = "Region not found with name: ";
     private static final String TRANSACTION_FAIL_MESSAGE = "Ошибка: ферма 'fail' не создана";
     private static final String TRANSACTION_ROLLBACK_MESSAGE = "Ошибка: транзакция откатится " +
         "– ни регион, ни ферма не сохранятся";
@@ -48,6 +49,14 @@ public class RegionService {
             .orElseThrow(() -> new ResponseStatusException(
                 HttpStatus.NOT_FOUND,
                 REGION_NOT_FOUND + id));
+        return RegionMapper.toDto(region);
+    }
+
+    public RegionResponseDto getByName(String name) {
+        Region region = regionRepository.findByName(name)
+            .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                REGION_NOT_FOUND_BY_NAME + name));
         return RegionMapper.toDto(region);
     }
 

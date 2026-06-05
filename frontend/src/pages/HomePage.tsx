@@ -4,8 +4,8 @@ import Header from '../components/common/Header';
 import SearchPanel from '../components/common/SearchPanel';
 import FarmCard from '../components/farm/FarmCard';
 import Footer from '../components/common/Footer';
-import { farmApi } from '../services/api';
-import type { Farm } from '../types';
+import { farmApi, regionApi } from '../services/api';
+import type { Farm, Region } from '../types';
 import './HomePage.css';
 
 interface HomePageProps {
@@ -23,6 +23,10 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
     const [farmImages, setFarmImages] = useState<Map<number, string>>(new Map());
     const [hasHomepageChanges, setHasHomepageChanges] = useState(false);
     const [savingHomepage, setSavingHomepage] = useState(false);
+
+    // Список всех регионов для фильтрации
+    const [allRegions, setAllRegions] = useState<Region[]>([]);
+
     const [workingHours, setWorkingHours] = useState([
         { days: 'Пн - Пт', hours: '10:00 - 19:00' },
         { days: 'Сб', hours: '10:00 - 18:00' }
@@ -75,11 +79,36 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
         setHasHomepageChanges(hoursChanged || phonesChanged);
     }, [workingHours, phones, originalWorkingHours, originalPhones]);
 
-    // Получаем уникальные регионы и названия из всех ферм
+    // Загружаем все регионы для фильтрации
+    useEffect(() => {
+        const loadRegions = async () => {
+            try {
+                const regions = await regionApi.getAllRegions();
+                setAllRegions(regions);
+            } catch (err) {
+                console.error('Ошибка загрузки регионов:', err);
+            }
+        };
+        loadRegions();
+    }, []);
+
+    // Получаем уникальные регионы (из ферм, с преобразованием ID в названия)
     const regions = useMemo(() => {
-        const uniqueRegions = [...new Set(allFarms.map(f => f.region))];
+        // Если фермы имеют regionName, используем его
+        const regionNames = allFarms
+            .map(f => f.regionName || f.region || '')
+            .filter(Boolean);
+        const uniqueRegions = [...new Set(regionNames)];
+
+        // Если есть загруженные регионы из БД, добавляем их тоже
+        allRegions.forEach(region => {
+            if (!uniqueRegions.includes(region.name)) {
+                uniqueRegions.push(region.name);
+            }
+        });
+
         return uniqueRegions.sort();
-    }, [allFarms]);
+    }, [allFarms, allRegions]);
 
     const farmNames = useMemo(() => {
         const uniqueNames = [...new Set(allFarms.map(f => f.name))];
@@ -128,20 +157,56 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
         loadAllFarms();
     }, []);
 
+    // Обновлённая функция поиска с поддержкой ручного ввода
     const handleSearch = async (region: string, name: string) => {
-        if (!region && !name) {
+        // Нормализуем входные данные
+        const cleanRegion = region?.trim() || '';
+        const cleanName = name?.trim() || '';
+
+        // Если оба поля пустые - показываем все фермы
+        if (!cleanRegion && !cleanName) {
             setFilteredFarms(allFarms);
             return;
         }
 
         try {
-            const data = await farmApi.getFarmsByFilter(region || undefined, name || undefined);
+            // Пытаемся найти регион по названию (частичному совпадению)
+            let regionId: number | undefined;
+            if (cleanRegion) {
+                // Ищем регион, название которого содержит введённый текст
+                const matchedRegion = allRegions.find(r =>
+                    r.name.toLowerCase().includes(cleanRegion.toLowerCase())
+                );
+                if (matchedRegion) {
+                    regionId = matchedRegion.id;
+                }
+            }
+
+            // Используем API с регионом (по ID или названию) и названием фермы
+            const data = await farmApi.getFarmsByFilter(
+                regionId ? regionId.toString() : (cleanRegion || undefined),
+                cleanName || undefined
+            );
             setFilteredFarms(data);
         } catch (err) {
             console.error('Ошибка поиска:', err);
+
+            // Fallback - фильтрация на клиенте с поддержкой частичного совпадения
             let filtered = [...allFarms];
-            if (region) filtered = filtered.filter(f => f.region === region);
-            if (name) filtered = filtered.filter(f => f.name.toLowerCase().includes(name.toLowerCase()));
+
+            if (cleanRegion) {
+                filtered = filtered.filter(farm => {
+                    const farmRegion = farm.regionName || farm.region || '';
+                    return farmRegion.toLowerCase().includes(cleanRegion.toLowerCase());
+                });
+            }
+
+            if (cleanName) {
+                filtered = filtered.filter(farm =>
+                    farm.name.toLowerCase().includes(cleanName.toLowerCase())
+                );
+            }
+
             setFilteredFarms(filtered);
         }
     };
@@ -210,6 +275,8 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
     const handleSaveHomepage = () => {
         setSavingHomepage(true);
         setTimeout(() => {
+            localStorage.setItem('workingHours', JSON.stringify(workingHours));
+            localStorage.setItem('phones', JSON.stringify(phones));
             setOriginalWorkingHours([...workingHours]);
             setOriginalPhones([...phones]);
             setHasHomepageChanges(false);

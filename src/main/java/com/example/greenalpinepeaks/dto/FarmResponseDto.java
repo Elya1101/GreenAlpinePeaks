@@ -5,7 +5,8 @@ import java.util.List;
 public record FarmResponseDto(
     Long id,
     String name,
-    String region,
+    Long regionId,
+    String regionName,
     boolean active,
     String description,
     String email,
@@ -17,7 +18,7 @@ public record FarmResponseDto(
 ) {
     public record AccommodationInfoDto(
         Long id,
-        String type,
+        String typeName,
         double price
     ) {
 
@@ -30,5 +31,14 @@ public record FarmResponseDto(
         String userEmail
     ) {
 
+    }
+
+    public FarmResponseDto {
+        if (regionId == null) {
+            regionId = 0L;
+        }
+        if (regionName == null) {
+            regionName = "";
+        }
     }
 }

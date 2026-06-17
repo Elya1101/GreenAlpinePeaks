@@ -105,30 +105,32 @@ const FarmDetailPage = () => {
         });
     };
 
-    // Форматируем список проживания - КАЖДЫЙ ТИП С НОВОЙ СТРОКИ
+    // Форматируем список проживания - структурированный список с ценами
     const getAccommodationsList = () => {
         if (!farm?.accommodations || farm.accommodations.length === 0) {
             return <div className="accommodation-empty">Информация о жилье отсутствует</div>;
         }
 
         return (
-            <ul className="accommodation-list">
+            <div className="accommodation-list">
                 {farm.accommodations.map((acc, idx) => {
                     const typeName = accommodationTypes.get(acc.typeId) || acc.typeName || acc.type || `Тип ${acc.typeId}`;
                     return (
-                        <li key={idx} className="accommodation-list-item">
-                            {typeName} — {acc.price}€ / неделя
-                        </li>
+                        <div key={idx} className="accommodation-item">
+                            <span className="accommodation-name">{typeName}</span>
+                            <span className="accommodation-dots"></span>
+                            <span className="accommodation-price">{acc.price}€ <span className="accommodation-period">/нед</span></span>
+                        </div>
                     );
                 })}
-            </ul>
+            </div>
         );
     };
 
-    // Форматируем список активностей
+    // Форматируем список активностей - маркированный список
     const getActivitiesList = () => {
         if (!farm?.activities || farm.activities.length === 0) {
-            return 'Информация о работе отсутствует';
+            return <div className="activities-empty">Информация о работе отсутствует</div>;
         }
 
         const activityNames = farm.activities
@@ -145,13 +147,16 @@ const FarmDetailPage = () => {
             .filter((name): name is string => name !== null && name.trim() !== '');
 
         if (activityNames.length === 0) {
-            return 'Информация о работе отсутствует';
+            return <div className="activities-empty">Информация о работе отсутствует</div>;
         }
 
         return (
             <ul className="activities-list">
                 {activityNames.map((name, idx) => (
-                    <li key={idx} className="activities-list-item">{name}</li>
+                    <li key={idx} className="activities-list-item">
+                        <span className="activity-bullet"></span>
+                        <span>{name}</span>
+                    </li>
                 ))}
             </ul>
         );
@@ -226,55 +231,83 @@ const FarmDetailPage = () => {
                     )}
                 </div>
 
-                <div className="farm-section">
-                    <div className="farm-section-grid">
-                        <div className="farm-section-left">
-                            <h2 className="section-title">О ферме</h2>
-                            <div className={`status-badge ${farm.active ? 'status-active-badge' : 'status-inactive-badge'}`}>
-                                {farm.active ? '● Активна' : '○ Не активна'}
+                {/* ЕДИНЫЙ КОНТЕЙНЕР С ДВУХКОЛОНОЧНОЙ СТРУКТУРОЙ */}
+                <div className="farm-card-container">
+                    <div className="farm-grid">
+                        {/* ЛЕВАЯ КОЛОНКА - 65% */}
+                        <div className="farm-left-column">
+                            {/* Шапка: название и бейдж статуса */}
+                            <div className="farm-header">
+                                <h2 className="farm-name">{farm.name}</h2>
+                                <div className={`status-badge ${farm.active ? 'status-active' : 'status-inactive'}`}>
+                                    <span className="status-dot"></span>
+                                    {farm.active ? 'Активна' : 'Не активна'}
+                                </div>
                             </div>
-                            <div className="farm-description">
-                                {formatDescription(farm.description || '')}
+
+                            {/* Блок "О ферме" */}
+                            <div className="farm-about">
+                                <h3 className="section-title-left">О ферме</h3>
+                                <div className="farm-description">
+                                    {formatDescription(farm.description || '')}
+                                </div>
+                            </div>
+
+                            {/* Блок контактов - интегрирован в левую колонку */}
+                            <div className="farm-contacts-block">
+                                <h3 className="contacts-title">Контакты</h3>
+                                <div className="contacts-items">
+                                    <div className="contact-item">
+                                        <Phone size={18} className="contact-icon" strokeWidth={1.5} />
+                                        <span className="contact-text">{farm.phone || 'Телефон не указан'}</span>
+                                    </div>
+                                    <div className="contact-item">
+                                        <Mail size={18} className="contact-icon" strokeWidth={1.5} />
+                                        <span className="contact-text">{farm.email || 'Email не указан'}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div className="farm-section-right">
-                            <div className="fact-item">
-                                <Calendar size={18} className="fact-icon" strokeWidth={1.5} />
-                                <span className="fact-label">Год основания:</span>
-                                <span className="fact-value">{farm.establishedYear || '—'}</span>
+                        {/* ПРАВАЯ КОЛОНКА - 35% (Сайдбар) */}
+                        <div className="farm-right-column">
+                            {/* Базовые параметры */}
+                            <div className="meta-item">
+                                <Calendar size={18} className="meta-icon" strokeWidth={1.5} />
+                                <span className="meta-label">Год основания:</span>
+                                <span className="meta-value">{farm.establishedYear || '—'}</span>
                             </div>
 
-                            <div className="fact-item">
-                                <MapPin size={18} className="fact-icon" strokeWidth={1.5} />
-                                <span className="fact-label">Регион:</span>
-                                <span className="fact-value">{farm.regionName || farm.region || '—'}</span>
+                            <div className="meta-item">
+                                <MapPin size={18} className="meta-icon" strokeWidth={1.5} />
+                                <span className="meta-label">Регион:</span>
+                                <span className="meta-value">{farm.regionName || farm.region || '—'}</span>
                             </div>
 
-                            <div className="fact-item">
-                                <Home size={18} className="fact-icon" strokeWidth={1.5} />
-                                <span className="fact-label">Виды жилья:</span>
-                                <div className="fact-value">{getAccommodationsList()}</div>
+                            {/* Разделитель */}
+                            <div className="sidebar-divider"></div>
+
+                            {/* Виды жилья */}
+                            <div className="sidebar-section">
+                                <div className="sidebar-section-header">
+                                    <Home size={18} className="section-icon" strokeWidth={1.5} />
+                                    <h4 className="sidebar-section-title">Виды жилья</h4>
+                                </div>
+                                {getAccommodationsList()}
                             </div>
 
-                            <div className="fact-item">
-                                <Briefcase size={18} className="fact-icon" strokeWidth={1.5} />
-                                <span className="fact-label">Работа и развлечения:</span>
-                                <div className="fact-value">{getActivitiesList()}</div>
+                            {/* Разделитель */}
+                            <div className="sidebar-divider"></div>
+
+                            {/* Работа и развлечения */}
+                            <div className="sidebar-section">
+                                <div className="sidebar-section-header">
+                                    <Briefcase size={18} className="section-icon" strokeWidth={1.5} />
+                                    <h4 className="sidebar-section-title">Работа и развлечения</h4>
+                                </div>
+                                {getActivitiesList()}
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <div className="farm-contacts">
-                    <h2 className="section-title">Контактные данные фермы</h2>
-                    <div className="contact-item">
-                        <Phone size={18} className="contact-icon" strokeWidth={1.5} />
-                        <span className="contact-text">{farm.phone || 'Телефон не указан'}</span>
-                    </div>
-                    <div className="contact-item">
-                        <Mail size={18} className="contact-icon" strokeWidth={1.5} />
-                        <span className="contact-text">{farm.email || 'Email не указан'}</span>
                     </div>
                 </div>
             </div>

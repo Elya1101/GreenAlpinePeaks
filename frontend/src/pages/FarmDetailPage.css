@@ -156,189 +156,126 @@
     font-size: 14px;
 }
 
-/* ===== БЛОК "О ФЕРМЕ" ===== */
-.farm-section {
+/* ===== ЕДИНЫЙ КОНТЕЙНЕР С ДВУХКОЛОНОЧНОЙ СТРУКТУРОЙ ===== */
+.farm-card-container {
     background-color: var(--bg-white);
-    border-radius: var(--border-radius-lg);
-    padding: 32px;
-    margin-bottom: 32px;
+    border-radius: 16px;
+    padding: 32px 36px;
+    margin-top: 32px;
+    margin-bottom: 48px;
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--border-light);
 }
 
-.farm-section-grid {
+.farm-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 0.55fr;
     gap: 48px;
 }
 
-.section-title {
-    font-size: 20px;
-    font-weight: 600;
+/* ===== ЛЕВАЯ КОЛОНКА ===== */
+.farm-left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Шапка объекта - выравнивание по левому краю */
+.farm-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.farm-name {
+    font-size: 28px;
+    font-weight: 700;
     color: var(--primary-green);
-    margin-bottom: 20px;
-    position: relative;
+    letter-spacing: -0.02em;
+    margin: 0;
+    line-height: 1.2;
 }
 
-.section-title::after {
-    content: '';
-    display: block;
-    width: 40px;
-    height: 3px;
-    background-color: var(--primary-green);
-    margin-top: 8px;
-    border-radius: 2px;
+/* Аккуратный бейдж статуса - уменьшенный, пастельные тона */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 40px;
+    font-size: 12px;
+    font-weight: 500;
 }
 
-/* ===== ФОРМАТИРОВАНИЕ ОПИСАНИЯ ===== */
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: currentColor;
+}
+
+.status-active {
+    background-color: rgba(46, 125, 50, 0.12);
+    color: var(--primary-green);
+}
+
+.status-inactive {
+    background-color: rgba(0, 0, 0, 0.06);
+    color: var(--text-light);
+}
+
+/* Заголовок "О ферме" - выравнивание по левому краю */
+.section-title-left {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 0 0 16px 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--primary-green);
+    display: inline-block;
+}
+
+/* Текстовое описание - выравнивание по левому краю */
 .farm-description {
-    font-size: 15px;
-    line-height: 1.6;
-    color: var(--text-gray);
+    text-align: left;
 }
 
 .farm-description-paragraph {
-    margin-bottom: 16px;
-    line-height: 1.7;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text-gray);
+    margin-bottom: 18px;
+    text-align: left;
 }
 
 .farm-description-paragraph:last-child {
     margin-bottom: 0;
 }
 
-/* ===== СТАТУС ФЕРМЫ ===== */
-.status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    border-radius: 40px;
-    font-size: 13px;
-    font-weight: 500;
-    margin-bottom: 20px;
-    width: fit-content;
+/* Блок контактов - интегрирован в левую колонку */
+.farm-contacts-block {
+    margin-top: 8px;
+    padding-top: 8px;
 }
 
-.status-active-badge {
-    background-color: rgba(46, 125, 50, 0.1);
-    color: var(--primary-green);
-}
-
-.status-inactive-badge {
-    background-color: rgba(0, 0, 0, 0.05);
-    color: var(--text-light);
-}
-
-/* ===== ФАКТЫ О ФЕРМЕ (ПРАВЫЙ БЛОК) ===== */
-.fact-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    margin-bottom: 20px;
-}
-
-.fact-icon {
-    flex-shrink: 0;
-    color: #4A6B52; /* Цвет лесного мха */
-    margin-top: 2px;
-}
-
-.fact-label {
-    flex-shrink: 0;
-    width: 140px;
+.contacts-title {
+    font-size: 16px;
     font-weight: 600;
     color: var(--text-dark);
-    font-size: 14px;
+    margin: 0 0 16px 0;
 }
 
-.fact-value {
-    flex: 1;
-    color: var(--text-gray);
-    font-size: 14px;
-    line-height: 1.5;
-}
-
-/* ===== СПИСОК ТИПОВ ЖИЛЬЯ ===== */
-.accommodation-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.accommodation-list-item {
-    margin-bottom: 8px;
-    padding-left: 0;
-    position: relative;
+.contacts-items {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.accommodation-list-item:last-child {
-    margin-bottom: 0;
-}
-
-.accommodation-empty {
-    color: var(--text-gray);
-    font-style: italic;
-}
-
-.accommodation-price {
-    font-weight: 600;
-    color: var(--primary-green);
-    white-space: nowrap;
-}
-
-/* ===== СПИСОК АКТИВНОСТЕЙ ===== */
-.activities-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.activities-list-item {
-    margin-bottom: 6px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.activities-list-item:last-child {
-    margin-bottom: 0;
-}
-
-.activity-icon {
-    font-size: 12px;
-    color: var(--primary-green);
-}
-
-/* ===== КОНТАКТНЫЕ ДАННЫЕ ===== */
-.farm-contacts {
-    background-color: var(--bg-white);
-    border-radius: var(--border-radius-lg);
-    padding: 28px 32px;
-    margin-bottom: 40px;
-    border: 1px solid var(--border-light);
-    transition: all 0.2s ease;
-}
-
-.farm-contacts:hover {
-    box-shadow: var(--shadow-md);
+    flex-direction: column;
+    gap: 12px;
 }
 
 .contact-item {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border-light);
-}
-
-.contact-item:last-child {
-    border-bottom: none;
+    gap: 12px;
 }
 
 .contact-icon {
@@ -347,14 +284,154 @@
 }
 
 .contact-text {
-    font-size: 15px;
+    font-size: 14px;
     color: var(--text-dark);
-    text-decoration: none;
-    transition: color 0.2s ease;
 }
 
-.contact-text:hover {
+/* ===== ПРАВАЯ КОЛОНКА ===== */
+.farm-right-column {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Базовые параметры - иконки выровнены по левому краю */
+.meta-item {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.meta-icon {
+    flex-shrink: 0;
+    color: #4A6B52;
+}
+
+.meta-label {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 14px;
+    min-width: 110px;
+}
+
+.meta-value {
+    color: var(--text-gray);
+    font-size: 14px;
+}
+
+/* Разделитель */
+.sidebar-divider {
+    height: 1px;
+    background-color: var(--border-light);
+    margin: 8px 0;
+}
+
+/* Заголовки секций сайдбара */
+.sidebar-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sidebar-section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-icon {
+    flex-shrink: 0;
     color: var(--primary-green);
+}
+
+.sidebar-section-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+/* Виды жилья - структурированный список с ценами */
+.accommodation-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-left: 28px;
+}
+
+.accommodation-item {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.accommodation-name {
+    color: var(--text-gray);
+    flex-shrink: 0;
+}
+
+.accommodation-dots {
+    flex: 1;
+    border-bottom: 1px dashed var(--border-light);
+    height: 1px;
+    margin: 0 8px;
+}
+
+.accommodation-price {
+    font-weight: 600;
+    color: var(--primary-green);
+    white-space: nowrap;
+}
+
+.accommodation-period {
+    font-weight: normal;
+    font-size: 12px;
+    color: var(--text-light);
+}
+
+.accommodation-empty {
+    color: var(--text-light);
+    font-size: 14px;
+    font-style: italic;
+    padding-left: 28px;
+}
+
+/* Работа и развлечения - маркированный список */
+.activities-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-left: 28px;
+}
+
+.activities-list-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--text-gray);
+    line-height: 1.4;
+}
+
+.activity-bullet {
+    width: 5px;
+    height: 5px;
+    background-color: var(--primary-green);
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.activities-empty {
+    color: var(--text-light);
+    font-size: 14px;
+    font-style: italic;
+    padding-left: 28px;
 }
 
 /* ===== ЗАГРУЗКА И ОШИБКИ ===== */
@@ -391,8 +468,7 @@
     }
 }
 
-.farm-section,
-.farm-contacts,
+.farm-card-container,
 .farm-gallery {
     animation: fadeIn 0.4s ease-out;
 }
@@ -403,8 +479,18 @@
         padding: 0 24px;
     }
 
-    .farm-section-grid {
+    .farm-grid {
+        grid-template-columns: 1fr;
         gap: 32px;
+    }
+
+    .farm-card-container {
+        padding: 24px;
+    }
+
+    .farm-right-column {
+        border-top: 1px solid var(--border-light);
+        padding-top: 24px;
     }
 }
 
@@ -417,17 +503,16 @@
         padding: 32px 0;
     }
 
-    .farm-section-grid {
-        grid-template-columns: 1fr;
-        gap: 32px;
+    .farm-card-container {
+        padding: 20px;
     }
 
-    .farm-section {
-        padding: 24px;
+    .farm-name {
+        font-size: 24px;
     }
 
-    .farm-contacts {
-        padding: 20px 24px;
+    .farm-header {
+        gap: 12px;
     }
 
     .gallery-container {
@@ -450,27 +535,27 @@
         height: 45px;
     }
 
-    .fact-item {
-        flex-wrap: wrap;
-        gap: 8px;
+    .accommodation-dots {
+        display: none;
     }
 
-    .fact-label {
-        width: 100%;
-        margin-bottom: 4px;
+    .accommodation-item {
+        flex-direction: column;
+        gap: 4px;
+        margin-bottom: 8px;
     }
 
-    .fact-value {
-        margin-left: 32px;
-        width: calc(100% - 32px);
+    .accommodation-price {
+        align-self: flex-start;
     }
 
-    .section-title {
-        font-size: 18px;
+    .accommodation-list,
+    .activities-list {
+        padding-left: 0;
     }
 
-    .section-title::after {
-        width: 30px;
+    .sidebar-section-header {
+        justify-content: flex-start;
     }
 }
 
@@ -483,22 +568,15 @@
         padding: 24px 0;
     }
 
-    .farm-section {
-        padding: 20px;
-        border-radius: var(--border-radius-md);
+    .farm-card-container {
+        padding: 16px;
     }
 
-    .farm-contacts {
-        padding: 16px 20px;
-        border-radius: var(--border-radius-md);
+    .farm-name {
+        font-size: 20px;
     }
 
-    .contact-item {
-        gap: 12px;
-        padding: 10px 0;
-    }
-
-    .contact-text {
+    .farm-description-paragraph {
         font-size: 14px;
     }
 
@@ -515,28 +593,17 @@
         margin: 16px 0;
     }
 
-    .farm-description {
-        font-size: 14px;
-    }
-
-    .fact-label,
-    .fact-value {
-        font-size: 13px;
-    }
-
-    .accommodation-list-item {
+    .meta-item {
         flex-direction: column;
-        align-items: flex-start;
         gap: 4px;
-        margin-bottom: 12px;
     }
 
-    .accommodation-price {
-        align-self: flex-start;
+    .meta-label {
+        min-width: auto;
     }
 }
 
-/* ===== ПОДДЕРЖКА DARK MODE (опционально) ===== */
+/* ===== ПОДДЕРЖКА DARK MODE ===== */
 @media (prefers-color-scheme: dark) {
     :root {
         --bg-white: #1E1E1E;
@@ -556,11 +623,11 @@
         background-color: var(--bg-gray);
     }
 
-    .status-active-badge {
+    .status-active {
         background-color: rgba(46, 125, 50, 0.2);
     }
 
-    .status-inactive-badge {
+    .status-inactive {
         background-color: rgba(255, 255, 255, 0.1);
     }
 }
@@ -572,8 +639,7 @@
         display: none;
     }
 
-    .farm-section,
-    .farm-contacts {
+    .farm-card-container {
         box-shadow: none;
         border: 1px solid #ccc;
         break-inside: avoid;

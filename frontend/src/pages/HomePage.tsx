@@ -1,3 +1,4 @@
+// src/pages/HomePage.tsx - ПОЛНАЯ ВЕРСИЯ С ИСПРАВЛЕНИЯМИ
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
@@ -27,7 +28,6 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
     const [hasHomepageChanges, setHasHomepageChanges] = useState(false);
     const [savingHomepage, setSavingHomepage] = useState(false);
 
-    // Список всех регионов для фильтрации
     const [allRegions, setAllRegions] = useState<Region[]>([]);
 
     const [workingHours, setWorkingHours] = useState([
@@ -95,7 +95,7 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
         loadRegions();
     }, []);
 
-    // Получаем уникальные регионы (из ферм, с преобразованием ID в названия)
+    // Получаем уникальные регионы
     const regions = useMemo(() => {
         const regionNames = allFarms
             .map(f => f.regionName || f.region || '')
@@ -116,12 +116,22 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
         return uniqueNames.sort();
     }, [allFarms]);
 
+    // ОСНОВНАЯ ФУНКЦИЯ ЗАГРУЗКИ ФЕРМ С УЧЁТОМ РОЛИ
     const loadAllFarms = async () => {
         setLoading(true);
         try {
             const data = await farmApi.getAllFarms();
             setAllFarms(data);
-            setFilteredFarms(data);
+
+            // Фильтруем фермы для отображения:
+            // - Если админ - показывает все фермы (и активные, и неактивные)
+            // - Если пользователь - показывает только активные фермы
+            if (isAdmin) {
+                setFilteredFarms(data);
+            } else {
+                const activeFarms = data.filter(farm => farm.active === true);
+                setFilteredFarms(activeFarms);
+            }
 
             // Загружаем главные изображения для всех ферм
             const imagesMap = new Map<number, string>();
@@ -154,38 +164,40 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
         }
     };
 
+    // При изменении статуса админа перезагружаем фермы
     useEffect(() => {
         loadAllFarms();
-    }, []);
+    }, [isAdmin]);
 
-    // Обновлённая функция поиска с поддержкой ручного ввода
+    // Поиск с учётом активности ферм
     const handleSearch = async (region: string, name: string) => {
         const cleanRegion = region?.trim() || '';
         const cleanName = name?.trim() || '';
 
         if (!cleanRegion && !cleanName) {
-            setFilteredFarms(allFarms);
+            if (isAdmin) {
+                setFilteredFarms(allFarms);
+            } else {
+                const activeFarms = allFarms.filter(farm => farm.active === true);
+                setFilteredFarms(activeFarms);
+            }
             return;
         }
 
         try {
-            let regionId: number | undefined;
-            if (cleanRegion) {
-                const matchedRegion = allRegions.find(r =>
-                    r.name.toLowerCase().includes(cleanRegion.toLowerCase())
-                );
-                if (matchedRegion) {
-                    regionId = matchedRegion.id;
-                }
-            }
-
             const data = await farmApi.getFarmsByFilter(
-                regionId ? regionId.toString() : (cleanRegion || undefined),
+                cleanRegion || undefined,
                 cleanName || undefined
             );
-            setFilteredFarms(data);
+
+            if (isAdmin) {
+                setFilteredFarms(data);
+            } else {
+                const activeFarms = data.filter(farm => farm.active === true);
+                setFilteredFarms(activeFarms);
+            }
         } catch (err) {
-            console.error('Ошибка поиска:', err);
+            console.error('Ошибка поиска через API:', err);
 
             let filtered = [...allFarms];
 
@@ -202,7 +214,12 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
                 );
             }
 
-            setFilteredFarms(filtered);
+            if (isAdmin) {
+                setFilteredFarms(filtered);
+            } else {
+                const activeFarms = filtered.filter(farm => farm.active === true);
+                setFilteredFarms(activeFarms);
+            }
         }
     };
 
@@ -240,7 +257,6 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
             await farmApi.deleteFarm(showDeleteConfirm.id);
             await loadAllFarms();
             setShowDeleteConfirm(null);
-            // Показываем красивое уведомление об успешном удалении
             setShowNotification({
                 message: `Ферма "${showDeleteConfirm.name}" успешно удалена`,
                 type: 'success'
@@ -261,7 +277,7 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
         }
         try {
             await farmApi.updateFarm(farm.id, { active: !farm.active });
-            await loadAllFarms();
+            await loadAllFarms(); // Перезагружаем фермы после изменения статуса
             setShowNotification({
                 message: `Ферма "${farm.name}" ${!farm.active ? 'активирована' : 'деактивирована'}`,
                 type: 'success'
@@ -272,7 +288,6 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
         }
     };
 
-    // Сохранение изменений главной страницы
     const handleSaveHomepage = () => {
         setSavingHomepage(true);
         setTimeout(() => {
@@ -286,14 +301,12 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
         }, 500);
     };
 
-    // Отмена изменений главной страницы
     const handleCancelHomepage = () => {
         setWorkingHours([...originalWorkingHours]);
         setPhones([...originalPhones]);
         setHasHomepageChanges(false);
     };
 
-    // Функция закрытия уведомления
     const closeNotification = () => {
         setShowNotification(null);
     };
@@ -324,7 +337,6 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
                 saving={savingHomepage}
             />
 
-            {/* ОБЕРТКА ДЛЯ ЛОЗУНГА И ФИЛЬТРОВ С АЛЬПИЙСКИМ ФОНОМ */}
             <div className="homepage-hero">
                 <SearchPanel
                     regions={regions}
@@ -367,7 +379,6 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
 
             <Footer onAdminLogin={onAdminLogin} onAdminLogout={onAdminLogout} isAdmin={isAdmin} />
 
-            {/* МОДЕРНИЗИРОВАННОЕ МОДАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ УДАЛЕНИЯ */}
             {showDeleteConfirm && (
                 <div className="modal-overlay" onClick={() => setShowDeleteConfirm(null)}>
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -393,7 +404,6 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
                 </div>
             )}
 
-            {/* Красивое модальное уведомление об успешной операции */}
             {showNotification && (
                 <NotificationModal
                     message={showNotification.message}

@@ -1,5 +1,5 @@
 // src/components/common/SearchPanel.tsx
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { ChevronDown } from 'lucide-react';
 import './SearchPanel.css';
 

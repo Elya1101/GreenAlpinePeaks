@@ -5,7 +5,7 @@ import { Calendar, MapPin, Home, Briefcase, Phone, Mail, ChevronLeft, ChevronRig
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import { farmApi, accommodationTypeApi } from '../services/api';
-import type { Farm, AccommodationTypeInterface } from '../types';
+import type { Farm, AccommodationTypeInterface, Activity } from '../types';
 import './FarmDetailPage.css';
 
 const FarmDetailPage = () => {
@@ -134,12 +134,13 @@ const FarmDetailPage = () => {
         }
 
         const activityNames = farm.activities
-            .map(activity => {
+            .map((activity: Activity) => {
                 if (typeof activity === 'string') return activity;
                 if (activity && typeof activity === 'object') {
+                    // Используем name как основное поле
                     if (activity.name && typeof activity.name === 'string') return activity.name;
-                    if (activity.title && typeof activity.title === 'string') return activity.title;
-                    if (activity.activityName && typeof activity.activityName === 'string') return activity.activityName;
+                    // Если есть id, но нет name, возвращаем строку с id
+                    if (activity.id !== undefined) return `Активность ${activity.id}`;
                     return null;
                 }
                 return null;

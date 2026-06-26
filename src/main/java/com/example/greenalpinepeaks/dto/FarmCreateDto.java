@@ -24,7 +24,7 @@ public class FarmCreateDto {
 
     @NotBlank(message = "Region is required")
     @Size(min = 2, max = 50, message = "Region name must be between 2 and 50 characters")
-    private String region;  // ✅ Long → String
+    private String region;
 
     @Size(max = 500, message = "Description cannot exceed 500 characters")
     private String description;

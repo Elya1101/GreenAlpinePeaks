@@ -1,14 +1,10 @@
-/* src/pages/HomePage.css */
-
-/* ===== ФОН ДЛЯ ВЕРХНЕЙ ЗОНЫ (ЛОЗУНГ + ФИЛЬТРЫ) ===== */
 .homepage-hero {
-    background-color: #F4F7F5; /* Мягкий альпийский оттенок */
+    background-color: #F4F7F5;
     border-bottom: 1px solid #E2EAE4;
     padding: 0 0 24px 0;
     margin-bottom: 32px;
 }
 
-/* ===== ОДНОКОЛОНОЧНАЯ СЕТКА КАРТОЧЕК ===== */
 .farms-list {
     display: flex;
     flex-direction: column;
@@ -16,14 +12,13 @@
     width: 100%;
 }
 
-/* ===== ПЕРЕОПРЕДЕЛЯЕМ КАРТОЧКУ (растягиваем на 100%) ===== */
 .farm-card {
     display: flex;
     width: 100%;
     min-height: 240px;
-    height: 280px; /* Фиксированная высота для всех карточек */
+    height: 280px;
     background-color: var(--bg-white);
-    border: 1px solid #E2EAE4; /* Элегантная рамка цвета хвои */
+    border: 1px solid #E2EAE4;
     border-radius: var(--border-radius-lg);
     box-shadow: var(--shadow-sm);
     overflow: hidden;
@@ -36,12 +31,11 @@
     border-color: var(--primary-green);
 }
 
-/* Левая часть - фиксированная ширина 320px */
 .farm-card-image {
     width: 320px;
     flex-shrink: 0;
     background-color: var(--bg-gray);
-    object-fit: cover; /* Изображение заполняет всю область */
+    object-fit: cover;
 }
 
 .farm-card-image img {
@@ -50,31 +44,27 @@
     object-fit: cover;
 }
 
-/* Правая часть - занимает всё оставшееся место */
 .farm-card-content {
     flex: 1;
     padding: 24px 28px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    min-width: 0; /* Предотвращает переполнение */
+    min-width: 0;
     overflow: hidden;
 }
 
-/* Заголовок карточки */
 .farm-card-title {
     font-size: 20px;
     font-weight: 600;
     color: var(--primary-green);
     margin-bottom: 12px;
     line-height: 1.3;
-    /* Обрезка длинного заголовка */
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-/* Описание */
 .farm-card-description {
     font-size: 14px;
     color: var(--text-gray);
@@ -84,10 +74,9 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
     margin-bottom: 20px;
-    flex: 1; /* Занимает доступное место */
+    flex: 1;
 }
 
-/* Контейнер для кнопок */
 .farm-card-footer {
     display: flex;
     justify-content: space-between;
@@ -95,7 +84,6 @@
     gap: 16px;
 }
 
-/* Кнопка "Подробнее" */
 .farm-card-button {
     padding: 8px 24px;
     background-color: transparent;
@@ -115,14 +103,12 @@
     transform: translateY(-1px);
 }
 
-/* Админские кнопки */
 .farm-card-actions {
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
-/* Стили для админских кнопок действий */
 .admin-action-btn {
     background: none;
     border: none;
@@ -145,7 +131,6 @@
     color: var(--error-red);
 }
 
-/* Статус активности */
 .farm-status {
     display: inline-block;
     padding: 4px 10px;
@@ -166,11 +151,10 @@
     color: var(--text-gray);
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
     .farm-card {
         flex-direction: column;
-        height: auto; /* На мобильных устройствах высота автоматическая */
+        height: auto;
         min-height: auto;
     }
 
@@ -184,7 +168,7 @@
     }
 
     .farm-card-title {
-        white-space: normal; /* На мобильных переносим заголовок */
+        white-space: normal;
     }
 }
 
@@ -204,7 +188,6 @@
     }
 }
 
-/* Пустое состояние */
 .no-results {
     text-align: center;
     padding: 60px 20px;
@@ -237,7 +220,6 @@
     transform: translateY(-1px);
 }
 
-/* Модальное окно подтверждения удаления */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -346,7 +328,6 @@
     box-shadow: var(--shadow-sm);
 }
 
-/* Анимации */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -367,7 +348,6 @@
     }
 }
 
-/* Предупреждающий текст */
 .warning-text {
     color: var(--error-red);
     font-size: var(--font-size-caption);
@@ -376,7 +356,6 @@
     border-radius: var(--border-radius-md);
 }
 
-/* Стили для загрузчика */
 .loading-spinner {
     text-align: center;
     padding: 60px 20px;
@@ -384,7 +363,6 @@
     color: var(--text-gray);
 }
 
-/* Контейнер */
 .container {
     max-width: 1200px;
     margin: 0 auto;

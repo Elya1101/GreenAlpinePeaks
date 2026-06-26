@@ -14,7 +14,6 @@ public class ImageResponseDto {
     @Schema(description = "Является ли изображение главным", example = "false")
     private boolean isMain;
 
-    // Конструкторы
     public ImageResponseDto() {
 
     }
@@ -25,7 +24,6 @@ public class ImageResponseDto {
         this.isMain = isMain;
     }
 
-    // Геттеры и сеттеры
     public Long getId() {
         return id;
     }

@@ -1,5 +1,3 @@
-// ==================== Базовые сущности ====================
-
 export interface Region {
     id: number;
     name: string;
@@ -11,7 +9,6 @@ export interface AccommodationTypeInterface {
     code: string;
 }
 
-// Legacy тип для обратной совместимости
 export type AccommodationTypeLegacy =
     | 'AGRITOURISM_ROOM'
     | 'DAIRY_GUEST_ROOM'
@@ -20,8 +17,6 @@ export type AccommodationTypeLegacy =
     | 'TENT'
     | 'HOUSE'
     | 'LODGE';
-
-// ==================== Активности и жильё ====================
 
 export interface Activity {
     id: number;
@@ -32,11 +27,9 @@ export interface Accommodation {
     id: number;
     typeId: number;
     typeName?: string;
-    type?: string;  // для обратной совместимости
+    type?: string;
     price: number;
 }
-
-// ==================== Изображения ====================
 
 export interface Image {
     id: number;
@@ -44,14 +37,12 @@ export interface Image {
     isMain: boolean;
 }
 
-// ==================== Ферма (основная) ====================
-
 export interface Farm {
     id: number;
     name: string;
     regionId: number;
     regionName?: string;
-    region?: string;      // для обратной совместимости
+    region?: string;
     active: boolean;
     description?: string;
     establishedYear?: number;
@@ -62,12 +53,10 @@ export interface Farm {
     accommodations: Accommodation[];
 }
 
-// ==================== DTO для создания/обновления ====================
-
 export interface FarmCreateDto {
     name: string;
     regionId?: number;
-    region?: string;      // для обратной совместимости
+    region?: string;
     active?: boolean;
     description?: string;
     email?: string;
@@ -75,7 +64,6 @@ export interface FarmCreateDto {
     establishedYear?: number | null;
 }
 
-// ==================== Для совместимости со старым кодом ====================
 
 /** @deprecated Используйте Farm */
 export type FarmLegacy = Farm;

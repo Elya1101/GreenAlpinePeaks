@@ -73,7 +73,6 @@ public class FarmController {
     })
     @GetMapping("/my")
     public List<FarmResponseDto> getMyFarms() {
-        // В режиме только админа возвращаем все фермы
         return farmService.getAllFarms();
     }
 

@@ -122,7 +122,7 @@ const useActivitiesManagement = () => {
             setFarmActivities(prev => [...prev, {
                 id: activity.id,
                 name: activity.name,
-                status: 'new'  // ИСПРАВЛЕНО: 'existing' → 'new'
+                status: 'new'
             }]);
             setSelectedActivityId(null);
         }
@@ -183,7 +183,6 @@ const useActivitiesManagement = () => {
             }
         }
 
-        // Сбрасываем статусы после успешного сохранения
         setFarmActivities(prev => prev.map(a => ({
             ...a,
             status: 'existing'

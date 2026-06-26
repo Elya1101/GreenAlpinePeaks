@@ -1,4 +1,3 @@
-/* src/components/farm/FarmCard.css */
 .farm-card {
     display: flex;
     width: 100%;
@@ -75,7 +74,6 @@
     margin-bottom: 16px;
 }
 
-/* Контейнер для кнопок действий (Админ) */
 .farm-card-actions {
     display: flex;
     align-items: center;
@@ -85,7 +83,6 @@
     border-top: 1px solid var(--border-light);
 }
 
-/* Кнопки и тогл в одном ряду */
 .farm-card-edit, .farm-card-delete {
     background: none;
     border: none;
@@ -112,7 +109,6 @@
     background-color: rgba(211, 47, 47, 0.1);
 }
 
-/* Стилизованный Toggle Switch */
 .toggle-switch {
     position: relative;
     display: inline-block;
@@ -158,7 +154,6 @@ input:checked + .toggle-slider:before {
     transform: translateX(24px);
 }
 
-/* Кнопка "Подробнее" для обычного пользователя */
 .farm-card-button {
     align-self: flex-start;
     margin-top: auto;

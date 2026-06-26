@@ -10,7 +10,7 @@ import lombok.Setter;
 public class AccommodationCreateDto {
 
     @NotNull(message = "Accommodation type ID is required")
-    private Long typeId;  // Изменили с AccommodationType на Long
+    private Long typeId;
 
     @Min(value = 0, message = "Price cannot be negative")
     private double price;

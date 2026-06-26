@@ -1,4 +1,3 @@
-// src/components/farm/FarmCard.tsx
 import { Edit2, Trash2 } from 'lucide-react';
 import './FarmCard.css';
 

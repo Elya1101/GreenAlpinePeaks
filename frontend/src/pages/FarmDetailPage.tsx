@@ -1,4 +1,3 @@
-// src/pages/FarmDetailPage.tsx
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Calendar, MapPin, Home, Briefcase, Phone, Mail, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -18,7 +17,6 @@ const FarmDetailPage = () => {
     const [images, setImages] = useState<string[]>([]);
     const [accommodationTypes, setAccommodationTypes] = useState<Map<number, string>>(new Map());
 
-    // Загружаем типы жилья для маппинга ID -> название
     useEffect(() => {
         const loadAccommodationTypes = async () => {
             try {
@@ -76,18 +74,14 @@ const FarmDetailPage = () => {
         setCurrentImageIndex(prev => (prev - 1 + images.length) % images.length);
     };
 
-    // Функция для красивого форматирования описания
     const formatDescription = (description: string) => {
         if (!description) return 'Описание фермы пока не добавлено.';
 
-        // Убираем символы маркированных списков в начале строк
         let formatted = description.replace(/^[-*•]\s+/gm, '');
 
-        // Разбиваем на абзацы по двойным переносам строк
         const paragraphs = formatted.split(/\n\s*\n/);
 
         return paragraphs.map((para, idx) => {
-            // Если в абзаце есть переносы строк, оборачиваем каждую строку в span
             if (para.includes('\n')) {
                 const lines = para.split('\n');
                 return (
@@ -105,7 +99,6 @@ const FarmDetailPage = () => {
         });
     };
 
-    // Форматируем список проживания - структурированный список с ценами
     const getAccommodationsList = () => {
         if (!farm?.accommodations || farm.accommodations.length === 0) {
             return <div className="accommodation-empty">Информация о жилье отсутствует</div>;
@@ -127,7 +120,6 @@ const FarmDetailPage = () => {
         );
     };
 
-    // Форматируем список активностей - маркированный список
     const getActivitiesList = () => {
         if (!farm?.activities || farm.activities.length === 0) {
             return <div className="activities-empty">Информация о работе отсутствует</div>;
@@ -137,9 +129,7 @@ const FarmDetailPage = () => {
             .map((activity: Activity) => {
                 if (typeof activity === 'string') return activity;
                 if (activity && typeof activity === 'object') {
-                    // Используем name как основное поле
                     if (activity.name && typeof activity.name === 'string') return activity.name;
-                    // Если есть id, но нет name, возвращаем строку с id
                     if (activity.id !== undefined) return `Активность ${activity.id}`;
                     return null;
                 }

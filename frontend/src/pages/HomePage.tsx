@@ -1,4 +1,3 @@
-// src/pages/HomePage.tsx - ПОЛНАЯ ВЕРСИЯ С ИСПРАВЛЕНИЯМИ
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
@@ -41,7 +40,6 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
     const [originalWorkingHours, setOriginalWorkingHours] = useState([...workingHours]);
     const [originalPhones, setOriginalPhones] = useState([...phones]);
 
-    // Загрузка сохраненных данных при монтировании
     useEffect(() => {
         const savedHours = localStorage.getItem('workingHours');
         if (savedHours) {
@@ -57,7 +55,6 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
         }
     }, []);
 
-    // Слушаем изменения в localStorage через событие storage
     useEffect(() => {
         const handleStorageChange = (e: StorageEvent) => {
             if (e.key === 'workingHours' && e.newValue) {
@@ -75,14 +72,12 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
         return () => window.removeEventListener('storage', handleStorageChange);
     }, []);
 
-    // Проверка изменений на главной странице
     useEffect(() => {
         const hoursChanged = JSON.stringify(workingHours) !== JSON.stringify(originalWorkingHours);
         const phonesChanged = JSON.stringify(phones) !== JSON.stringify(originalPhones);
         setHasHomepageChanges(hoursChanged || phonesChanged);
     }, [workingHours, phones, originalWorkingHours, originalPhones]);
 
-    // Загружаем все регионы для фильтрации
     useEffect(() => {
         const loadRegions = async () => {
             try {
@@ -95,7 +90,6 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
         loadRegions();
     }, []);
 
-    // Получаем уникальные регионы
     const regions = useMemo(() => {
         const regionNames = allFarms
             .map(f => f.regionName || f.region || '')
@@ -116,16 +110,12 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
         return uniqueNames.sort();
     }, [allFarms]);
 
-    // ОСНОВНАЯ ФУНКЦИЯ ЗАГРУЗКИ ФЕРМ С УЧЁТОМ РОЛИ
     const loadAllFarms = async () => {
         setLoading(true);
         try {
             const data = await farmApi.getAllFarms();
             setAllFarms(data);
 
-            // Фильтруем фермы для отображения:
-            // - Если админ - показывает все фермы (и активные, и неактивные)
-            // - Если пользователь - показывает только активные фермы
             if (isAdmin) {
                 setFilteredFarms(data);
             } else {
@@ -133,7 +123,6 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
                 setFilteredFarms(activeFarms);
             }
 
-            // Загружаем главные изображения для всех ферм
             const imagesMap = new Map<number, string>();
             for (const farm of data) {
                 try {
@@ -164,12 +153,10 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
         }
     };
 
-    // При изменении статуса админа перезагружаем фермы
     useEffect(() => {
         loadAllFarms();
     }, [isAdmin]);
 
-    // Поиск с учётом активности ферм
     const handleSearch = async (region: string, name: string) => {
         const cleanRegion = region?.trim() || '';
         const cleanName = name?.trim() || '';
@@ -277,7 +264,7 @@ const HomePage = ({ isAdmin = false, onAdminLogin, onAdminLogout }: HomePageProp
         }
         try {
             await farmApi.updateFarm(farm.id, { active: !farm.active });
-            await loadAllFarms(); // Перезагружаем фермы после изменения статуса
+            await loadAllFarms();
             setShowNotification({
                 message: `Ферма "${farm.name}" ${!farm.active ? 'активирована' : 'деактивирована'}`,
                 type: 'success'

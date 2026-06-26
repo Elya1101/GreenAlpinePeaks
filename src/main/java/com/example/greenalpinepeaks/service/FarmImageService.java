@@ -50,7 +50,7 @@ public class FarmImageService {
                     "Farm not found"
                 ));
 
-        // Проверка прав УДАЛЕНА - админ может загружать фото для любой фермы
+
 
         if (file == null || file.isEmpty()) {
             throw new ResponseStatusException(
@@ -59,7 +59,6 @@ public class FarmImageService {
             );
         }
 
-        // Если загружаем главное фото, снимаем флаг main со всех остальных
         if (isMain) {
             List<FarmImage> existingImages = farmImageRepository.findByFarmId(farmId);
             for (FarmImage image : existingImages) {
@@ -133,7 +132,6 @@ public class FarmImageService {
                     "Image not found"
                 ));
 
-        // Проверяем принадлежность изображения ферме
         if (!image.getFarm().getId().equals(farmId)) {
             throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND,
@@ -141,7 +139,6 @@ public class FarmImageService {
             );
         }
 
-        // Удаляем файл с диска
         try {
             String fileName = Paths.get(image.getImageUrl()).getFileName().toString();
             Path filePath = Paths.get(UPLOAD_DIR, fileName);
@@ -154,10 +151,8 @@ public class FarmImageService {
             System.err.println("Failed to delete file from disk: " + e.getMessage());
         }
 
-        // Удаляем запись из БД
         farmImageRepository.delete(image);
 
-        // Если удалили главное фото, делаем первое из оставшихся главным
         List<FarmImage> remainingImages = farmImageRepository.findByFarmId(farmId);
         if (!remainingImages.isEmpty() && image.isMain()) {
             FarmImage firstImage = remainingImages.get(0);
@@ -168,14 +163,12 @@ public class FarmImageService {
 
     @Transactional
     public void setMainImage(Long farmId, Long imageId) {
-        // Находим изображение
         FarmImage newMainImage = farmImageRepository.findById(imageId)
             .orElseThrow(() -> new ResponseStatusException(
                 HttpStatus.NOT_FOUND,
                 "Image not found"
             ));
 
-        // Проверяем, что изображение принадлежит ферме
         if (!newMainImage.getFarm().getId().equals(farmId)) {
             throw new ResponseStatusException(
                 HttpStatus.BAD_REQUEST,
@@ -183,7 +176,6 @@ public class FarmImageService {
             );
         }
 
-        // Снимаем флаг main со всех изображений фермы
         List<FarmImage> farmImages = farmImageRepository.findByFarmId(farmId);
         for (FarmImage image : farmImages) {
             if (image.isMain()) {
@@ -192,7 +184,6 @@ public class FarmImageService {
             }
         }
 
-        // Устанавливаем новое главное изображение
         newMainImage.setMain(true);
         farmImageRepository.save(newMainImage);
     }

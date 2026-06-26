@@ -13,12 +13,11 @@ interface LoginResponse {
 
 export const authApi = {
     login: async (email: string, password: string): Promise<LoginResponse> => {
-        // Временное решение для теста
         if (email === 'admin@greenalpine.com' && password === 'admin123') {
             const mockResponse = {
                 token: 'mock-jwt-token-' + Date.now(),
                 user: {
-                    id: 1,  // Важно: ID должен существовать в базе данных
+                    id: 1,
                     name: 'Admin',
                     email: 'admin@greenalpine.com',
                     role: 'admin' as const

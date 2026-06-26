@@ -1,6 +1,3 @@
-/* src/pages/AdminFarmPage.css - ПОЛНОСТЬЮ ОБНОВЛЕН */
-
-/* ===== ОСНОВНЫЕ СТИЛИ ФОРМЫ ===== */
 .farm-hero {
     width: 100%;
     background-color: var(--primary-green);
@@ -38,7 +35,6 @@
     align-items: center;
 }
 
-/* ===== СЕТКА ФОРМЫ ===== */
 .farm-section {
     background-color: var(--bg-white);
     border-radius: var(--border-radius-lg);
@@ -61,7 +57,6 @@
     margin-bottom: 24px;
 }
 
-/* ===== ЛЕВАЯ КОЛОНКА ===== */
 .farm-section-left {
     display: flex;
     flex-direction: column;
@@ -117,7 +112,6 @@
     font-size: 14px;
 }
 
-/* Поля ввода - единая высота 40px */
 .edit-input-full,
 .edit-textarea,
 .contact-input {
@@ -145,7 +139,6 @@
     box-shadow: var(--focus-ring);
 }
 
-/* ===== ПРАВАЯ КОЛОНКА ===== */
 .farm-section-right {
     display: flex;
     flex-direction: column;
@@ -179,7 +172,6 @@
     flex: 1;
 }
 
-/* Поля в правой колонке */
 .edit-input-small {
     width: 140px;
     height: 40px;
@@ -200,7 +192,6 @@
     margin-bottom: 12px;
 }
 
-/* Список элементов (жилье, активности) */
 .editable-list {
     display: flex;
     flex-direction: column;
@@ -233,7 +224,6 @@
     background-color: rgba(211, 47, 47, 0.1);
 }
 
-/* Строка добавления */
 .add-item-row {
     display: flex;
     gap: 12px;
@@ -268,7 +258,6 @@
     font-size: 14px;
 }
 
-/* Контурные вспомогательные кнопки */
 .add-btn-outline {
     padding: 8px 16px;
     background-color: transparent;
@@ -317,7 +306,6 @@
     cursor: not-allowed;
 }
 
-/* Форма создания нового элемента */
 .new-item-form {
     padding: 16px;
     background-color: var(--bg-gray);
@@ -376,7 +364,6 @@
     background-color: var(--bg-white);
 }
 
-/* ===== КОНТАКТНЫЕ ДАННЫЕ (без серых подложек) ===== */
 .farm-contacts-section {
     background-color: transparent;
     padding: 0;
@@ -442,7 +429,6 @@
     border-color: var(--error-red);
 }
 
-/* ===== ГАЛЕРЕЯ ===== */
 .farm-gallery {
     margin-bottom: 40px;
 }
@@ -656,7 +642,6 @@
     transform: translateY(-1px);
 }
 
-/* ===== STICKY BOTTOM BAR ===== */
 .sticky-bottom-bar {
     position: fixed;
     bottom: 0;
@@ -720,7 +705,6 @@
     background-color: var(--bg-gray);
 }
 
-/* ===== МОДАЛЬНЫЕ ОКНА ===== */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -790,7 +774,6 @@
     background-color: var(--error-red-dark);
 }
 
-/* ===== ОШИБКИ И ЗАГРУЗКА ===== */
 .error-message {
     text-align: center;
     padding: 40px;
@@ -805,7 +788,6 @@
     color: var(--text-light);
 }
 
-/* ===== АДАПТИВНОСТЬ ===== */
 @media (max-width: 768px) {
     .farm-section-grid {
         grid-template-columns: 1fr;

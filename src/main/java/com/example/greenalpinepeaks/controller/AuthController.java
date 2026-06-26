@@ -38,6 +38,5 @@ public class AuthController {
     @Operation(summary = "Logout user")
     @PostMapping("/logout")
     public void logout(@RequestHeader("X-User-Id") Long userId) {
-        // Для учебного проекта просто игнорируем
     }
 }

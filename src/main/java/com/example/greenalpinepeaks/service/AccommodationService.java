@@ -46,7 +46,6 @@ public class AccommodationService {
                 "Farm not found"
             ));
 
-        // Проверяем, передан ли typeId (новая модель)
         if (dto.getTypeId() == null) {
             throw new ResponseStatusException(
                 HttpStatus.BAD_REQUEST,

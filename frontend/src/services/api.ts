@@ -84,7 +84,6 @@ export const accommodationTypeApi = {
     },
 };
 
-// API ДЛЯ АКТИВНОСТЕЙ
 export const activitiesApi = {
     getAllActivities: async (): Promise<Activity[]> => {
         const response = await client.get('/activities');
@@ -116,7 +115,6 @@ export const activitiesApi = {
     },
 };
 
-// Расширенный тип для создания фермы с жильем
 interface FarmCreateWithAccommodationsDto extends FarmCreateDto {
     accommodations?: Array<{
         typeId: number;
@@ -206,7 +204,6 @@ export const farmApi = {
         return response.data;
     },
 
-    // Исправленный метод с использованием расширенного типа
     createFarmWithAccommodations: async (data: FarmCreateWithAccommodationsDto): Promise<Farm> => {
         const requestData: any = {
             name: data.name,
@@ -279,7 +276,6 @@ export const farmApi = {
         await client.delete(`/farms/${farmId}/activities/${activityId}`);
     },
 
-    // ========== ЭНДПОИНТЫ ДЛЯ ЖИЛЬЯ - ИСПРАВЛЕННАЯ ВЕРСИЯ ==========
     addAccommodationToFarm: async (farmId: number, typeId: number, price: number): Promise<void> => {
         console.log('Добавление жилья (исправленная версия):', { farmId, typeId, price });
 
@@ -297,7 +293,6 @@ export const farmApi = {
     updateAccommodation: async (id: number, price: number): Promise<void> => {
         await client.put(`/accommodations/${id}`, { price });
     },
-    // ================================================================
 
     uploadImage: async (farmId: number, file: File, isMain: boolean): Promise<void> => {
         const formData = new FormData();

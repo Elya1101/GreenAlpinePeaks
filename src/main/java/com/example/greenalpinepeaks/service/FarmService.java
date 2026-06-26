@@ -344,7 +344,7 @@ public class FarmService {
             .map(a -> {
                 FarmEditDto.AccommodationDto ad = new FarmEditDto.AccommodationDto();
                 ad.setId(a.getId());
-                ad.setType(a.getType());  // ✅ передаём AccommodationType
+                ad.setType(a.getType());
                 ad.setPrice(a.getPrice());
                 return ad;
             }).toList());
@@ -576,7 +576,7 @@ public class FarmService {
 
         Farm farm = new Farm();
         farm.setName(dto.getName());
-        farm.setActive(dto.isActive());  // ✅ если isActive() возвращает boolean
+        farm.setActive(dto.isActive());
         farm.setRegion(getOrCreateRegion(dto.getRegion()));
         farm.setDescription(dto.getDescription());
         farm.setEmail(dto.getEmail());

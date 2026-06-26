@@ -1,4 +1,3 @@
-// src/components/common/NotificationModal.tsx
 import { useEffect } from 'react';
 import { X, CheckCircle, AlertCircle } from 'lucide-react';
 import './NotificationModal.css';

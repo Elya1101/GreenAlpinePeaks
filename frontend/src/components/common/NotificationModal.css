@@ -1,4 +1,3 @@
-/* src/components/common/NotificationModal.css */
 .notification-overlay {
     position: fixed;
     top: 0;
@@ -43,7 +42,6 @@
     }
 }
 
-/* Цветные полоски сверху */
 .notification-content.notification-success {
     border-top: 3px solid var(--primary-green);
 }
@@ -52,14 +50,12 @@
     border-top: 3px solid var(--error-red);
 }
 
-/* Векторные SVG-иконки (рендерятся через компонент) */
 .notification-icon {
     margin-bottom: 20px;
     display: flex;
     justify-content: center;
 }
 
-/* Крестик закрытия */
 .notification-close {
     position: absolute;
     top: 16px;
@@ -88,7 +84,6 @@
     margin-bottom: 8px;
 }
 
-/* Прогресс-бар */
 .notification-progress {
     position: absolute;
     bottom: 0;

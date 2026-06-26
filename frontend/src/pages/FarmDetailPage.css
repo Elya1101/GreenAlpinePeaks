@@ -1,6 +1,3 @@
-/* src/pages/FarmDetailPage.css */
-
-/* ===== ПЕРЕМЕННЫЕ (если не определены глобально) ===== */
 :root {
     --primary-green: #2E7D32;
     --accent-blue: #1976D2;
@@ -17,7 +14,6 @@
     --border-radius-md: 8px;
 }
 
-/* ===== HERO СЕКЦИЯ ===== */
 .farm-hero {
     width: 100%;
     background-color: var(--primary-green);
@@ -31,7 +27,6 @@
     margin: 0;
 }
 
-/* ===== КНОПКИ НАВИГАЦИИ ===== */
 .back-button {
     background: none;
     border: none;
@@ -50,7 +45,6 @@
     text-decoration: underline;
 }
 
-/* ===== ГАЛЕРЕЯ ===== */
 .farm-gallery {
     margin-bottom: 40px;
 }
@@ -77,7 +71,6 @@
     transform: scale(1.02);
 }
 
-/* Кнопки навигации галереи */
 .gallery-nav {
     position: absolute;
     top: 50%;
@@ -111,7 +104,6 @@
     transform: translateY(-50%) scale(1.05);
 }
 
-/* Миниатюры */
 .gallery-thumbnails {
     display: flex;
     gap: 12px;
@@ -140,7 +132,6 @@
     border-color: var(--primary-green);
 }
 
-/* Плейсхолдер для пустой галереи */
 .gallery-placeholder {
     display: flex;
     flex-direction: column;
@@ -156,7 +147,6 @@
     font-size: 14px;
 }
 
-/* ===== ЕДИНЫЙ КОНТЕЙНЕР С ДВУХКОЛОНОЧНОЙ СТРУКТУРОЙ ===== */
 .farm-card-container {
     background-color: var(--bg-white);
     border-radius: 16px;
@@ -173,14 +163,12 @@
     gap: 48px;
 }
 
-/* ===== ЛЕВАЯ КОЛОНКА ===== */
 .farm-left-column {
     display: flex;
     flex-direction: column;
     gap: 24px;
 }
 
-/* Шапка объекта - выравнивание по левому краю */
 .farm-header {
     display: flex;
     align-items: center;
@@ -197,7 +185,6 @@
     line-height: 1.2;
 }
 
-/* Аккуратный бейдж статуса - уменьшенный, пастельные тона */
 .status-badge {
     display: inline-flex;
     align-items: center;
@@ -225,7 +212,6 @@
     color: var(--text-light);
 }
 
-/* Заголовок "О ферме" - выравнивание по левому краю */
 .section-title-left {
     font-size: 18px;
     font-weight: 600;
@@ -236,7 +222,6 @@
     display: inline-block;
 }
 
-/* Текстовое описание - выравнивание по левому краю */
 .farm-description {
     text-align: left;
 }
@@ -253,7 +238,6 @@
     margin-bottom: 0;
 }
 
-/* Блок контактов - интегрирован в левую колонку */
 .farm-contacts-block {
     margin-top: 8px;
     padding-top: 8px;
@@ -288,14 +272,12 @@
     color: var(--text-dark);
 }
 
-/* ===== ПРАВАЯ КОЛОНКА ===== */
 .farm-right-column {
     display: flex;
     flex-direction: column;
     gap: 16px;
 }
 
-/* Базовые параметры - иконки выровнены по левому краю */
 .meta-item {
     display: flex;
     align-items: baseline;
@@ -320,14 +302,12 @@
     font-size: 14px;
 }
 
-/* Разделитель */
 .sidebar-divider {
     height: 1px;
     background-color: var(--border-light);
     margin: 8px 0;
 }
 
-/* Заголовки секций сайдбара */
 .sidebar-section {
     display: flex;
     flex-direction: column;
@@ -352,7 +332,6 @@
     margin: 0;
 }
 
-/* Виды жилья - структурированный список с ценами */
 .accommodation-list {
     display: flex;
     flex-direction: column;
@@ -399,7 +378,6 @@
     padding-left: 28px;
 }
 
-/* Работа и развлечения - маркированный список */
 .activities-list {
     list-style: none;
     padding: 0;
@@ -434,7 +412,6 @@
     padding-left: 28px;
 }
 
-/* ===== ЗАГРУЗКА И ОШИБКИ ===== */
 .loading-spinner {
     text-align: center;
     padding: 80px 20px;
@@ -449,14 +426,12 @@
     color: var(--error-red);
 }
 
-/* ===== ДОПОЛНИТЕЛЬНЫЕ УТИЛИТЫ ===== */
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
 }
 
-/* ===== АНИМАЦИИ ===== */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -473,7 +448,6 @@
     animation: fadeIn 0.4s ease-out;
 }
 
-/* ===== АДАПТИВНОСТЬ ===== */
 @media (max-width: 1024px) {
     .container {
         padding: 0 24px;
@@ -603,7 +577,6 @@
     }
 }
 
-/* ===== ПОДДЕРЖКА DARK MODE ===== */
 @media (prefers-color-scheme: dark) {
     :root {
         --bg-white: #1E1E1E;
@@ -632,7 +605,6 @@
     }
 }
 
-/* ===== ПРИНТ СТИЛИ ===== */
 @media print {
     .gallery-nav,
     .back-button {

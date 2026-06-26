@@ -1,4 +1,3 @@
-// src/components/common/SearchPanel.tsx
 import { useState, useRef } from 'react';
 import { ChevronDown } from 'lucide-react';
 import './SearchPanel.css';
@@ -22,7 +21,6 @@ const SearchPanel = ({ regions, farmNames, onSearch, isAdmin = false, onAddFarm 
     const regionInputRef = useRef<HTMLInputElement>(null);
     const nameInputRef = useRef<HTMLInputElement>(null);
 
-    // Исправлено: передаем строковые значения, а не ID
     const handleSearch = () => {
         const regionValue = isRegionCustom ? customRegion : selectedRegion;
         const nameValue = isNameCustom ? customName : selectedName;
@@ -57,7 +55,6 @@ const SearchPanel = ({ regions, farmNames, onSearch, isAdmin = false, onAddFarm 
         }
     };
 
-    // Обработка Enter
     const handleKeyPress = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
             handleSearch();

@@ -1,4 +1,3 @@
-// src/pages/LoginPage.tsx
 import { useState } from 'react';
 import { Lock, Eye, EyeOff, X } from 'lucide-react';
 import './LoginPage.css';

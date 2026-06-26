@@ -1,6 +1,5 @@
-// src/components/common/Header.tsx
 import { useState } from 'react';
-import { Clock, Phone, Edit2 } from 'lucide-react'; // Импорт векторных иконок
+import { Clock, Phone, Edit2 } from 'lucide-react';
 import './Header.css';
 
 interface HeaderProps {
@@ -72,7 +71,6 @@ const Header = ({
                         <span className="logo-text">GreenAlpinePeaks</span>
                     </div>
 
-                    {/* НОВЫЙ ЛОЗУНГ */}
                     <div className="header-slogan">
                         <span className="slogan-main">Альпийские каникулы со смыслом:</span>
                         <br />

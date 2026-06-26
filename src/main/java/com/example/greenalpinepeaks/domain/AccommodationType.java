@@ -27,7 +27,6 @@ public class AccommodationType {
     @OneToMany(mappedBy = "type", fetch = FetchType.LAZY)
     private List<Accommodation> accommodations = new ArrayList<>();
 
-    // Удобный конструктор
     public AccommodationType(String name, String code) {
         this.name = name;
         this.code = code;

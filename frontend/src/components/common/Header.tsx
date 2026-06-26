@@ -1,6 +1,6 @@
 // src/components/common/Header.tsx
 import { useState } from 'react';
-import { Clock, Phone, Mail, Edit2 } from 'lucide-react'; // Импорт векторных иконок
+import { Clock, Phone, Edit2 } from 'lucide-react'; // Импорт векторных иконок
 import './Header.css';
 
 interface HeaderProps {

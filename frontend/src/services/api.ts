@@ -116,6 +116,14 @@ export const activitiesApi = {
     },
 };
 
+// Расширенный тип для создания фермы с жильем
+interface FarmCreateWithAccommodationsDto extends FarmCreateDto {
+    accommodations?: Array<{
+        typeId: number;
+        price: number;
+    }>;
+}
+
 export const farmApi = {
     getAllFarms: async (): Promise<Farm[]> => {
         const response = await client.get('/farms');
@@ -198,7 +206,8 @@ export const farmApi = {
         return response.data;
     },
 
-    createFarmWithAccommodations: async (data: FarmCreateDto): Promise<Farm> => {
+    // Исправленный метод с использованием расширенного типа
+    createFarmWithAccommodations: async (data: FarmCreateWithAccommodationsDto): Promise<Farm> => {
         const requestData: any = {
             name: data.name,
             active: data.active,
@@ -275,7 +284,7 @@ export const farmApi = {
         console.log('Добавление жилья (исправленная версия):', { farmId, typeId, price });
 
         await client.post('/accommodations', {
-            typeId: typeId,   // ← ВАЖНО: отправляем typeId (число), как ожидает бэкенд
+            typeId: typeId,
             price: price,
             farmId: farmId
         });
